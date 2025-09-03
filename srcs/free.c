@@ -92,6 +92,8 @@ int	page_list_free_block(t_page **pages_list, void *ptr)
 
 void	free(void *ptr)
 {
+	if (ptr == NULL)
+		return;
 	if (page_list_free_block(&g_malloc.tiny, ptr))
 		return ;
 	if (page_list_free_block(&g_malloc.small, ptr))

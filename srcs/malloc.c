@@ -157,6 +157,8 @@ void	*large_malloc(size_t size)
 
 void	*malloc(size_t size)
 {
+	if (size == 0)
+		return NULL;
 	if (size <= n)
 		return (optimized_malloc(&g_malloc.tiny, n, size));
 	else if (size <= m)
