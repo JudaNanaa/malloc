@@ -22,6 +22,7 @@ typedef struct s_block
 
 typedef struct s_page
 {
+	size_t length;
 	t_block *blocks; // pointe vers le premier block de la page
 	size_t nb_block;
 	size_t nb_block_free;

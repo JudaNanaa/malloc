@@ -29,6 +29,7 @@ t_page	*create_page(size_t size)
 			MAP_ANONYMOUS | MAP_PRIVATE, 0, 0);
 	if (new_page == MAP_FAILED)
 		return (NULL);
+	new_page->length = sizeof(t_page) + size;
 	new_page->next = NULL;
 	new_page->nb_block = 1;
 	new_page->nb_block_free = 1;
@@ -103,11 +104,10 @@ size_t	nb_memory_to_allocate(size_t block_size)
 	size_t	total;
 	int		page_size;
 
-
 	page_size = sysconf(_SC_PAGESIZE);
 	needed = NB_BLOCK * (sizeof(t_block) + block_size);
 	total = ((needed + page_size - 1) / page_size) * page_size;
-	return total;
+	return (total);
 }
 
 void	*optimized_malloc(t_page **malloc_page, size_t block_size, size_t size)
@@ -123,6 +123,10 @@ void	*optimized_malloc(t_page **malloc_page, size_t block_size, size_t size)
 		{
 			page->nb_block_free--;
 		}
+		else
+		{
+			page->nb_block++;
+		}
 		block->is_free = false;
 		block->size = size;
 		return (block->ptr);
@@ -133,6 +137,10 @@ void	*optimized_malloc(t_page **malloc_page, size_t block_size, size_t size)
 	if (split_block(page->blocks, size) == 0)
 	{
 		page->nb_block_free--;
+	}
+	else
+	{
+		page->nb_block++;
 	}
 	page->blocks->size = size;
 	page->blocks->is_free = false;
