@@ -1,44 +1,57 @@
-
-
 #include "../includes/malloc_internal.h"
-#include <stdbool.h>
-#include <unistd.h>
 
-t_block	*find_block_in_page(t_page *page, void *ptr)
+t_block	*page_find_block_by_ptr(t_page *page, void *ptr)
 {
-	int	i;
+	t_block *current_block;
 
-	i = 0;
-	while (i < NB_BLOCK)
+	current_block = page->blocks;
+	while (current_block)
 	{
-		if (page->blocks[i].ptr == ptr)
+
+		if (current_block->ptr == ptr)
 		{
-			return (&page->blocks[i]);
+			return (current_block);
 		}
-		i++;
+		current_block = current_block->next;
 	}
 	return (NULL);
 }
 
-int	find_in_page_list_to_free(t_page *first_page, void *ptr)
+void block_merge_with_next(t_block *first, t_block *second) {
+	first->next = second->next;
+	first->size += second->size + sizeof(t_block);
+}
+
+void	block_free(t_block *block)
+{
+	if (block->is_free == true)
+	{
+		ft_putendl_fd("free(): double free detected in tcache 2",
+						STDERR_FILENO);
+		abort();
+	}
+	block->size = 0;
+	block->is_free = true;
+	if (block->next && block->next->is_free == true) {
+		block_merge_with_next(block, block->next);
+	}
+	if (block->prev && block->prev->is_free == true) {
+		block_merge_with_next(block->prev, block);
+	}
+}
+
+int	page_list_free_block(t_page *pages, void *ptr)
 {
 	t_page	*current_page;
-	t_block	*block_with_ptr;
+	t_block	*block;
 
-	current_page = first_page;
+	current_page = pages;
 	while (current_page)
 	{
-		block_with_ptr = find_block_in_page(current_page, ptr);
-		if (block_with_ptr)
+		block = page_find_block_by_ptr(current_page, ptr);
+		if (block)
 		{
-			if (block_with_ptr->is_free == true)
-			{
-				ft_putendl_fd("free(): double free detected in tcache 2",
-						STDERR_FILENO);
-				abort(); // TODO changer ca pour le double free
-			}
-			block_with_ptr->size = 0;
-			block_with_ptr->is_free = true;
+			block_free(block);
 			return (1);
 		}
 		current_page = current_page->next;
@@ -48,11 +61,11 @@ int	find_in_page_list_to_free(t_page *first_page, void *ptr)
 
 void	free(void *ptr)
 {
-	if (find_in_page_list_to_free(g_malloc.tiny, ptr))
+	if (page_list_free_block(g_malloc.tiny, ptr))
 		return ;
-	if (find_in_page_list_to_free(g_malloc.small, ptr))
+	if (page_list_free_block(g_malloc.small, ptr))
 		return ;
 
 	ft_putendl_fd("free(): invalid pointer", STDERR_FILENO);
-	abort(); // TODO changer pour le invalid pointer
+	abort();
 }

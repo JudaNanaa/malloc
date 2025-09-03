@@ -4,6 +4,8 @@
 # include "../libft/printf_OK/ft_printf.h"
 # include "../libft/libft.h"
 #include <stdbool.h>
+#include <stddef.h>
+#include <sys/mman.h>
 
 # define n 64   // taille en bytes pour etre considerer comme tiny malloc
 # define m 1024 // taille en bytes pour etre considerer comme small malloc
@@ -11,15 +13,18 @@
 
 typedef struct s_block
 {
-	void *ptr;
+	void *ptr;            // ponteur retourne par malloc
 	size_t size;          // taile du block
 	bool is_free;             // es ce que le block est libre ou pas
+	struct s_block *next; // pointeur vers le prochain block
+	struct s_block *prev; // pointeur vers le precedent block
 }				t_block;
 
 typedef struct s_page
 {
-	size_t nb_alloc;                // taile de la page
-	t_block blocks[NB_BLOCK];             // tableau de blocks
+	t_block *blocks; // pointe vers le premier block de la page
+	size_t nb_block;
+	size_t nb_block_free;
 	struct s_page *next; // pointe vers la prochaine page
 }				t_page;
 
