@@ -1,3 +1,6 @@
 .objs
 *.so
 test_malloc
+libftprintf.a
+libft.a
+a.out

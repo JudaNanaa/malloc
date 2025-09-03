@@ -1,10 +1,10 @@
 CC = cc
 
-CFLAGS = -Wall -Wextra -Werror -g3
+CFLAGS = -Wall -Wextra  -g3
 
 SRCS_DIR = srcs/
 
-SRCS = $(addprefix srcs/, main.c malloc.c)
+SRCS = $(addprefix srcs/, main.c malloc.c free.c)
 
 OBJS_DIR = .objs/
 
@@ -12,19 +12,24 @@ OBJS = $(SRCS:$(SRCS_DIR)%.c=$(OBJS_DIR)%.o)
 
 NAME = libft_malloc_$(HOSTTYPE).so
 
-LIBFT = libft.a
+PRINTF_DIR = printf_OK
+PRINTF = libftprintf.a
+
 LIBFT_DIR = libft
+LIBFT = libft.a
 
 ifeq ($(HOSTTYPE),)
 	HOSTTYPE := $(shell uname -m)_$(shell uname -s)
 endif
 
 
+
+
 # changer le all car test
-all: $(LIBFT) test
+all: $(LIBFT) $(PRINTF) test
 
 test: $(OBJS)
-	$(CC) $(CFLAGS) $(OBJS) -o test_malloc -L $(LIBFT_DIR) -lft
+	$(CC) $(CFLAGS) $(OBJS) -o test_malloc -L $(PRINTF_DIR) -lftprintf -L $(LIBFT_DIR) -lft
 
 $(NAME): $(OBJS)
 	ar -rcs $(NAME) $(OBJS)
@@ -34,15 +39,20 @@ $(OBJS_DIR)%.o: $(SRCS_DIR)%.c
 	mkdir -p $(OBJS_DIR)
 	$(CC) $(CFLAGS) -c $^ -o $@
 
+$(PRINTF) :
+	make -C $(PRINTF_DIR)
+
 $(LIBFT) :
 	make -C $(LIBFT_DIR)
 
 clean:
 	rm -rf $(OBJS_DIR)
+	make clean -C $(PRINTF_DIR)
 	make clean -C $(LIBFT_DIR)
 
 fclean: clean
 	rm -rf $(NAME)
+	make fclean -C $(PRINTF_DIR)
 	make fclean -C $(LIBFT_DIR)
 
 re: fclean all

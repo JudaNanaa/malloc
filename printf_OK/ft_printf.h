@@ -1,34 +1,33 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   get_next_line_bonus.h                              :+:      :+:    :+:   */
+/*   ft_printf.h                                        :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: madamou <madamou@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2024/05/26 15:32:08 by itahri            #+#    #+#             */
-/*   Updated: 2025/09/03 04:10:08 by madamou          ###   ########.fr       */
+/*   Created: 2024/05/25 15:12:26 by itahri            #+#    #+#             */
+/*   Updated: 2025/09/03 03:52:49 by madamou          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#ifndef GET_NEXT_LINE_BONUS_H
-# define GET_NEXT_LINE_BONUS_H
-
-# include "libft.h"
-# include <bsd/string.h>
-# include <stdio.h>
+#ifndef FT_PRINTF_H
+# define FT_PRINTF_H
 # include <stdlib.h>
-# include <stdbool.h>
+# include <stdarg.h>
 # include <unistd.h>
 
-# ifndef BUFFER_SIZE
-#  define BUFFER_SIZE 512
-# endif // !BUFFER_SIZE
+int		convert_len(long long int nbr, char *base);
+void	ft_putnbr_base(long long int nbr, char *base);
+int		ft_strlen(char *str);
 
-int		ft_strlen_gnl(char *str, int cas);
-bool	ft_check_if_newline(char *sortie);
+int		ft_printf(const char *format, ...);
+int		monitoring(va_list args, char *c);
 
-char	*get_next_line(int fd);
+int		hex_fr(va_list args, int cas);
+int		car_fr(va_list args);
+int		mem_fr(va_list args);
+int		int_fr(va_list args);
+int		str_fr(va_list args);
+int		uns_fr(va_list args);
 
-char	*ft_format_sortie(char *sortie);
-
-#endif // !GET_NEXT_LINE_BONUS
+#endif
