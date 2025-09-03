@@ -2,6 +2,7 @@
 
 #include "../includes/malloc_internal.h"
 #include <stdbool.h>
+#include <unistd.h>
 
 t_block	*find_block_in_page(t_page *page, void *ptr)
 {
@@ -32,7 +33,8 @@ int	find_in_page_list_to_free(t_page *first_page, void *ptr)
 		{
 			if (block_with_ptr->is_free == true)
 			{
-				
+				ft_putendl_fd("free(): double free detected in tcache 2",
+						STDERR_FILENO);
 				abort(); // TODO changer ca pour le double free
 			}
 			block_with_ptr->size = 0;
@@ -50,5 +52,7 @@ void	free(void *ptr)
 		return ;
 	if (find_in_page_list_to_free(g_malloc.small, ptr))
 		return ;
+
+	ft_putendl_fd("free(): invalid pointer", STDERR_FILENO);
 	abort(); // TODO changer pour le invalid pointer
 }

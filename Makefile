@@ -12,8 +12,8 @@ OBJS = $(SRCS:$(SRCS_DIR)%.c=$(OBJS_DIR)%.o)
 
 NAME = libft_malloc_$(HOSTTYPE).so
 
-PRINTF_DIR = printf_OK
-PRINTF = libftprintf.a
+# PRINTF_DIR = printf_OK
+# PRINTF = libftprintf.a
 
 LIBFT_DIR = libft
 LIBFT = libft.a
@@ -26,10 +26,10 @@ endif
 
 
 # changer le all car test
-all: $(LIBFT) $(PRINTF) test
+all: $(LIBFT) test
 
 test: $(OBJS)
-	$(CC) $(CFLAGS) $(OBJS) -o test_malloc -L $(PRINTF_DIR) -lftprintf -L $(LIBFT_DIR) -lft
+	$(CC) $(CFLAGS) $(OBJS) -o test_malloc -L $(LIBFT_DIR) -lft
 
 $(NAME): $(OBJS)
 	ar -rcs $(NAME) $(OBJS)
@@ -39,20 +39,15 @@ $(OBJS_DIR)%.o: $(SRCS_DIR)%.c
 	mkdir -p $(OBJS_DIR)
 	$(CC) $(CFLAGS) -c $^ -o $@
 
-$(PRINTF) :
-	make -C $(PRINTF_DIR)
-
 $(LIBFT) :
 	make -C $(LIBFT_DIR)
 
 clean:
 	rm -rf $(OBJS_DIR)
-	make clean -C $(PRINTF_DIR)
 	make clean -C $(LIBFT_DIR)
 
 fclean: clean
 	rm -rf $(NAME)
-	make fclean -C $(PRINTF_DIR)
 	make fclean -C $(LIBFT_DIR)
 
 re: fclean all

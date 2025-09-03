@@ -1,7 +1,8 @@
 #ifndef MALLOC_INTERNAL_H
 # define MALLOC_INTERNAL_H
 
-# include "../printf_OK/ft_printf.h"
+# include "../libft/printf_OK/ft_printf.h"
+# include "../libft/libft.h"
 #include <stdbool.h>
 
 # define n 64   // taille en bytes pour etre considerer comme tiny malloc

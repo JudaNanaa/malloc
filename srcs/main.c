@@ -1,5 +1,5 @@
 #include "../includes/lib_malloc.h"
-# include "../printf_OK/ft_printf.h"
+# include "../libft/printf_OK/ft_printf.h"
 #include <stdlib.h>
 
 int	main(void)
@@ -15,7 +15,7 @@ int	main(void)
 		dest[1] = '\0';
 		i++;
 		ft_printf("dest == %s\n", dest);
-		free(dest);
+		free(dest + 1);
 	}
 	
 	return (0);

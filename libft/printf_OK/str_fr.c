@@ -1,42 +1,36 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   len_functions.c                                    :+:      :+:    :+:   */
+/*   str_fr.c                                           :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: itahri <itahri@student.42.fr>              +#+  +:+       +#+        */
+/*   By: madamou <madamou@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2024/05/25 15:51:41 by itahri            #+#    #+#             */
-/*   Updated: 2024/05/25 18:04:37 by itahri           ###   ########.fr       */
+/*   Created: 2024/05/25 15:44:32 by itahri            #+#    #+#             */
+/*   Updated: 2025/09/03 04:31:10 by madamou          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "ft_printf.h"
 
-int	ft_strlen(char *str)
+static int	ft_putstr_f(char *str)
 {
 	int	i;
 
 	i = 0;
 	while (str[i])
-		i++;
-	return (i);
-}
-
-int	convert_len(long long int nbr, char *base)
-{
-	int	i;
-	int	base_len;
-
-	i = 0;
-	base_len = ft_strlen(base);
-	if (nbr == 0)
-		return (1);
-	if (nbr < 0)
-		i++;
-	while (nbr != 0)
 	{
-		nbr /= base_len;
+		write(1, &str[i], 1);
 		i++;
 	}
 	return (i);
+}
+
+int	str_fr(va_list args)
+{
+	char	*str;
+
+	str = va_arg(args, char *);
+	if (!str)
+		return (ft_putstr_f("(null)"));
+	return (ft_putstr_f(str));
 }

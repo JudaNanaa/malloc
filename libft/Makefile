@@ -6,7 +6,7 @@
 #    By: madamou <madamou@student.42.fr>            +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2024/03/23 16:07:55 by madamou           #+#    #+#              #
-#    Updated: 2025/09/03 04:06:33 by madamou          ###   ########.fr        #
+#    Updated: 2025/09/03 04:27:03 by madamou          ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -24,6 +24,9 @@ C_FLAGS = -Wall -Wextra -Werror -g3
 
 OBJS_DIR = .objets/
 
+FT_PRINTF = $(addprefix printf_OK/, car_fr.c ft_printf.c hex_fr.c int_fr.c mem_fr.c monitoring.c \
+          putnbr.c str_fr.c uns_fr.c len_functions.c)
+
 SRCS = 	count_char.c free_split.c ft_atoi.c ft_bzero.c \
 		ft_calloc.c ft_isalnum.c ft_isalpha.c ft_isascii.c ft_isdigit.c \
 		ft_isprint.c ft_itoa.c ft_lstadd_back_bonus.c \
@@ -37,7 +40,7 @@ SRCS = 	count_char.c free_split.c ft_atoi.c ft_bzero.c \
 		ft_strmapi.c ft_strncmp.c ft_strncpy.c ft_strnew.c ft_strnstr.c ft_strrchr.c \
 		ft_strstr.c ft_strtrim.c ft_substr.c ft_tolower.c ft_toupper.c get_next_line_bonus.c \
 		get_next_line_utils_bonus.c join2d.c read_file.c sort_str2d.c \
-		str_join_2d.c str2d_join.c strdup2d.c
+		str_join_2d.c str2d_join.c strdup2d.c $(FT_PRINTF)
 
 SRCS := $(SRCS:%=./%)
 
