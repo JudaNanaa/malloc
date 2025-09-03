@@ -2,15 +2,33 @@
 #include <stdlib.h>
 #include <string.h>
 
-int main(void) {
+int	main(void)
+{
 	char *dest;
+	char *dest2;
 
-	dest = malloc(sizeof(char) * 10);
-	dest[0] = '\0';
-	strcpy(dest, "bonjour");
-	printf("dest == %p\n", dest);
+	(void)dest;
+	int i = 0;
+	while (i < 150) {
+		dest = malloc(sizeof(char) * 645);
+		dest2 = malloc(sizeof(char) * 645);
+
+		printf("dest == %p\n", dest);
+		printf("dest2 == %p\n", dest2);
+		
+		dest[0] = 'c';
+		dest[1] = '\0';
+
+		dest2[0] = 'c';
+		dest2[1] = '\0';
+		i++;
+		dest2 = realloc(dest2 - 10, 10);
+		printf("dest == %s\n", dest);
+		printf("dest2 == %s\n", dest2);
+		free(dest);
+		free(dest2);
+
+	}
 	
-	dest = realloc(dest, 11);
-	printf("return de realloc %p \n", dest);
-	// printf("dest == %s\n", dest);
+	return (0);
 }

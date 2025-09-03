@@ -7,20 +7,6 @@
 
 t_malloc	g_malloc = {NULL, NULL, NULL};
 
-void	initialize_blocks(t_block **block, size_t size)
-{
-	void	*begin;
-	t_block	*current_block;
-
-	current_block = *block;
-	begin = (void *)current_block + sizeof(t_block);
-	current_block->ptr = begin;
-	current_block->is_free = true;
-	current_block->size = size;
-	current_block->next = NULL;
-	current_block->prev = NULL;
-}
-
 t_page	*create_page(size_t size)
 {
 	t_page	*new_page;
@@ -79,23 +65,6 @@ void	add_back_page_list(t_page **first, t_page *new)
 		}
 		current->next = new;
 	}
-}
-
-int	split_block(t_block *block, size_t size)
-{
-	t_block	*new_block;
-	long	new_size;
-
-	new_size = block->size - size - sizeof(t_block);
-	if (new_size <= 0)
-	{
-		return (0);
-	}
-	new_block = (void *)block + sizeof(t_block) + size;
-	block->next = new_block;
-	initialize_blocks(&new_block, new_size);
-	new_block->prev = block;
-	return (1);
 }
 
 size_t	nb_memory_to_allocate(size_t block_size)
@@ -157,6 +126,7 @@ void	*large_malloc(size_t size)
 
 void	*malloc(size_t size)
 {
+	ft_printf("je suis dans mon mallloc\n");
 	if (size == 0)
 		return NULL;
 	if (size <= n)

@@ -1,22 +1,6 @@
 #include "../includes/malloc_internal.h"
+#include <stdbool.h>
 #include <sys/mman.h>
-
-t_block	*page_find_block_by_ptr(t_page *page, void *ptr)
-{
-	t_block *current_block;
-
-	current_block = page->blocks;
-	while (current_block)
-	{
-
-		if (current_block->ptr == ptr)
-		{
-			return (current_block);
-		}
-		current_block = current_block->next;
-	}
-	return (NULL);
-}
 
 void block_merge_with_next(t_block *first, t_block *second) {
 	first->next = second->next;
@@ -80,7 +64,7 @@ int	page_list_free_block(t_page **pages_list, void *ptr)
 			current_page->nb_block -= nb_merge;
 			if (nb_merge == 0)
 				current_page->nb_block_free++;
-			if (current_page->nb_block == current_page->nb_block_free) {
+			if (current_page->nb_block == 1 && current_page->blocks->is_free == true) {
 				remove_page(pages_list, current_page);
 			}
 			return (1);
