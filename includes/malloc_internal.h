@@ -18,33 +18,42 @@
 # define BLOCK_FREE (1 << 0) // flag pour le free
 # define BLOCK_LAST (1 << 1) // flag pour le dernier block
 
-# define SET_BLOCK_FREE(block) ((block)->metadata |= BLOCK_FREE) // mettre le block comme free
-# define SET_BLOCK_USE(block) ((block)->metadata &= ~BLOCK_FREE) // mettre le block comme utilise
-# define IS_BLOCK_FREE(block) ((block)->metadata & BLOCK_FREE) // savoir si le block est free
+# define SET_BLOCK_FREE(block) ((block)->metadata |= BLOCK_FREE)
+// mettre le block comme free
+# define SET_BLOCK_USE(block) ((block)->metadata &= ~BLOCK_FREE)
+// mettre le block comme utilise
+# define IS_BLOCK_FREE(block) ((block)->metadata & BLOCK_FREE)
+// savoir si le block est free
 
-# define SET_BLOCK_LAST(block) ((block)->metadata |= BLOCK_LAST) // mettre le block comme le dernier block
-# define SET_BLOCK_NOT_LAST(block) ((block)->metadata &= ~BLOCK_LAST) // mettre le block comme n'est pas le dernier block
-# define IS_BLOCK_LAST(block) ((block)->metadata & BLOCK_LAST) // savoir si le block est le dernier block de la page
+# define SET_BLOCK_LAST(block) ((block)->metadata |= BLOCK_LAST)
+// mettre le block comme le dernier block
+# define SET_BLOCK_NOT_LAST(block) ((block)->metadata &= ~BLOCK_LAST)
+// mettre le block comme n'est pas le dernier block
+# define IS_BLOCK_LAST(block) ((block)->metadata & BLOCK_LAST)
+// savoir si le block est le dernier block de la page
 
-# define GET_BLOCK_SIZE(block) ((block)->metadata & ~7) // avoir la taille du block
+# define GET_BLOCK_SIZE(block) ((block)->metadata & ~7)
+// avoir la taille du block
 // size need to be aligned !!
-# define SET_BLOCK_SIZE(block, size) ((block)->metadata = (size & ~7) | ((block)->metadata & 7)) // set la taille du block
+# define SET_BLOCK_SIZE(block, size) \
+	((block)->metadata = (size & ~7) | ((block)->metadata & 7))
+// set la taille du block
 
-# define NEXT_BLOCK(block) (IS_BLOCK_LAST(block) ? NULL : (void *)(block) + BLOCK_HEADER_SIZE + GET_BLOCK_SIZE(block) )
+# define NEXT_BLOCK(block) \
+	(IS_BLOCK_LAST(block) ? NULL : (void *)(block) + BLOCK_HEADER_SIZE \
+			+ GET_BLOCK_SIZE(block))
 
 # define GET_BLOCK_PTR(block) ((void *)(block) + BLOCK_HEADER_SIZE)
 
-
 typedef struct s_block
 {
-	size_t			metadata;
+	size_t		metadata;
 }				t_block;
 
 typedef struct s_page
 {
 	size_t		length;
 	t_block *blocks; // pointe vers le premier block de la page
-	size_t		nb_block;
 	size_t		nb_block_free;
 	struct s_page *next; // pointe vers la prochaine page
 }				t_page;
@@ -58,7 +67,8 @@ typedef struct s_malloc
 
 extern t_malloc	g_malloc;
 
-t_block	*page_find_block_by_ptr(t_page *page, void *ptr, t_block **prev_out);
+t_block			*page_find_block_by_ptr(t_page *page, void *ptr,
+					t_block **prev_out);
 void			initialize_blocks(t_block **block, size_t size);
 int				split_block(t_block *block, size_t size);
 t_page			*find_page_by_block(t_page *pages, t_block *block);

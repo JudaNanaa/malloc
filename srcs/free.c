@@ -65,7 +65,6 @@ int	page_list_free_block(t_page **pages_list, void *ptr)
 	t_page	*current_page;
 	t_block	*block;
 	t_block	*prev_block;
-	int		nb_merge;
 
 	current_page = *pages_list;
 	while (current_page)
@@ -74,12 +73,9 @@ int	page_list_free_block(t_page **pages_list, void *ptr)
 		if (block)
 		{
 			block_free(block);
-			nb_merge = merge_block(block, prev_block);
-			current_page->nb_block -= nb_merge;
-			if (nb_merge == 0)
+			if (merge_block(block, prev_block) == 0)
 				current_page->nb_block_free++;
-			if (current_page->nb_block == 1
-				&& IS_BLOCK_FREE(current_page->blocks) == true)
+			if (IS_BLOCK_LAST(current_page->blocks) && IS_BLOCK_FREE(current_page->blocks) == true)
 				remove_page(pages_list, current_page);
 			return (1);
 		}
