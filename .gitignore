@@ -4,3 +4,4 @@ test_malloc
 libftprintf.a
 libft.a
 a.out
+.vscode
