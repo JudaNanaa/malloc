@@ -120,11 +120,11 @@ void	*optimized_malloc(t_page **malloc_page, size_t block_size, size_t size)
 
 void	*large_malloc(size_t size)
 {
-	t_page *page;
-	
+	t_page	*page;
+
 	page = create_page(page_allocation_size_for_large(size));
 	if (page == NULL)
-		return NULL;
+		return (NULL);
 	split_block(page->blocks, size);
 	SET_BLOCK_USE(page->blocks);
 	add_back_page_list(&g_malloc.large, page);
@@ -133,7 +133,7 @@ void	*large_malloc(size_t size)
 
 void	*malloc(size_t size)
 {
-	size_t aligned_size;
+	size_t	aligned_size;
 
 	ft_printf("je suis dans mon mallloc\n");
 	aligned_size = ALIGN8(size);
@@ -142,6 +142,6 @@ void	*malloc(size_t size)
 	if (aligned_size <= n)
 		return (optimized_malloc(&g_malloc.tiny, n, aligned_size));
 	else if (aligned_size <= m)
-		return (optimized_malloc(&g_malloc.small, n, aligned_size));
+		return (optimized_malloc(&g_malloc.small, m, aligned_size));
 	return (large_malloc(aligned_size));
 }
