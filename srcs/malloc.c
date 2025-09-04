@@ -24,25 +24,30 @@ t_page	*create_page(size_t size)
 	return (new_page);
 }
 
-t_block	*get_first_free_block(t_page *page)
-{
-	t_block	*current_block;
+t_block *find_free_block_with_enough_spage(t_page *page, size_t size) {
+	t_block *current_block;
 
 	current_block = page->blocks;
-	while (current_block->is_free == false)
-		current_block = current_block->next;
-	return (current_block);
+	while (current_block) {
+		if (IS_BLOCK_FREE(current_block) && GET_BLOCK_SIZE(current_block) >= size)
+			return current_block;
+		current_block = NEXT_BLOCK(current_block);
+	}
+	return NULL;
 }
 
-t_page	*search_page_with_space(t_page *pages)
+t_block	*search_block_in_pages_for_alloc(t_page *pages, size_t size)
 {
 	t_page	*current_page;
+	t_block *block;
 
 	current_page = pages;
 	while (current_page)
 	{
-		if (current_page->nb_block_free > 0)
-			return (current_page);
+		if (current_page->nb_block_free > 0) {
+			block = find_free_block_with_enough_spage(current_page, size);
+			return (block);
+		}
 		current_page = current_page->next;
 	}
 	return (NULL);
@@ -74,7 +79,7 @@ size_t	nb_memory_to_allocate(size_t block_size)
 	int		page_size;
 
 	page_size = sysconf(_SC_PAGESIZE);
-	needed = NB_BLOCK * (sizeof(t_block) + block_size);
+	needed = NB_BLOCK * (BLOCK_HEADER_SIZE + block_size);
 	total = ((needed + page_size - 1) / page_size) * page_size;
 	return (total);
 }
@@ -84,37 +89,27 @@ void	*optimized_malloc(t_page **malloc_page, size_t block_size, size_t size)
 	t_page	*page;
 	t_block	*block;
 
-	page = search_page_with_space(*malloc_page);
-	if (page)
+	block = search_block_in_pages_for_alloc(*malloc_page, size);
+	if (block)
 	{
-		block = get_first_free_block(page);
+		page = find_page_by_block(*malloc_page, block);
 		if (split_block(block, size) == 0)
-		{
 			page->nb_block_free--;
-		}
 		else
-		{
 			page->nb_block++;
-		}
-		block->is_free = false;
-		block->size = size;
-		return (block->ptr);
+		SET_BLOCK_USE(block);
+		return (GET_BLOCK_PTR(block));
 	}
 	page = create_page((nb_memory_to_allocate(block_size)));
 	if (page == NULL)
 		return (NULL);
 	if (split_block(page->blocks, size) == 0)
-	{
 		page->nb_block_free--;
-	}
 	else
-	{
 		page->nb_block++;
-	}
-	page->blocks->size = size;
-	page->blocks->is_free = false;
+	SET_BLOCK_USE(page->blocks);
 	add_back_page_list(malloc_page, page);
-	return (page->blocks->ptr);
+	return (GET_BLOCK_PTR(page->blocks));
 }
 
 void	*large_malloc(size_t size)
@@ -126,14 +121,17 @@ void	*large_malloc(size_t size)
 
 void	*malloc(size_t size)
 {
+	size_t size_aligned;
+
 	ft_printf("je suis dans mon mallloc\n");
-	if (size == 0)
+	size_aligned = ALIGN8(size);
+	if (size_aligned == 0)
 		return NULL;
-	if (size <= n)
-		return (optimized_malloc(&g_malloc.tiny, n, size));
-	else if (size <= m)
-		return (optimized_malloc(&g_malloc.small, n, size));
+	if (size_aligned <= n)
+		return (optimized_malloc(&g_malloc.tiny, n, size_aligned));
+	else if (size_aligned <= m)
+		return (optimized_malloc(&g_malloc.small, n, size_aligned));
 	else
-		return (large_malloc(size));
+		return (large_malloc(size_aligned));
 	return (NULL);
 }

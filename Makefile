@@ -1,6 +1,6 @@
 CC = cc
 
-CFLAGS = -Wall -Wextra  -g3
+CFLAGS = -Wall -Wextra -g3
 
 SRCS_DIR = srcs/
 
@@ -12,18 +12,12 @@ OBJS = $(SRCS:$(SRCS_DIR)%.c=$(OBJS_DIR)%.o)
 
 NAME = libft_malloc_$(HOSTTYPE).so
 
-# PRINTF_DIR = printf_OK
-# PRINTF = libftprintf.a
-
 LIBFT_DIR = libft
 LIBFT = libft.a
 
 ifeq ($(HOSTTYPE),)
 	HOSTTYPE := $(shell uname -m)_$(shell uname -s)
 endif
-
-
-
 
 # changer le all car test
 all: $(LIBFT) test

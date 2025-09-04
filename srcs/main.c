@@ -1,37 +1,47 @@
 #include "../includes/lib_malloc.h"
+#include "../includes/malloc_internal.h"
 # include "../libft/printf_OK/ft_printf.h"
+#include <stdalign.h>
+#include <stddef.h>
+#include <unistd.h>
 
-int	main(void)
+int main(void)
 {
-	char *dest;
-	char *dest2;
+    printf("=== TEST MALLOC ===\n");
+    char *msg = (char *)malloc(20);
+    if (!msg) {
+        perror("malloc failed");
+        return 1;
+    }
+    strcpy(msg, "Hello malloc!");
+    printf("msg = %s\n", msg);
 
-	(void)dest;
-	int i = 0;
-	while (i < 150) {
-		dest = malloc(sizeof(char) * 645);
-		dest2 = malloc(sizeof(char) * 645);
+    printf("\n=== TEST REALLOC (expand) ===\n");
+    char *bigger = (char *)realloc(msg, 40); // agrandir
+    if (!bigger) {
+        perror("realloc failed");
+        free(msg); // free old if realloc failed
+        return 1;
+    }
+    strcat(bigger, " + realloc works!");
+    printf("bigger = %s\n", bigger);
 
-		ft_printf("dest == %p\n", dest);
-		ft_printf("dest2 == %p\n", dest2);
-		
-		dest[0] = 'c';
-		dest[1] = '\0';
+    printf("\n=== TEST REALLOC (shrink) ===\n");
+    char *smaller = (char *)realloc(bigger, 10); // réduire
+    if (!smaller) {
+        perror("realloc failed");
+        free(bigger);
+        return 1;
+    }
+    printf("smaller (truncated) = %.*s\n", 9, smaller);
 
-		dest2[0] = 'c';
-		dest2[1] = '\0';
-		i++;
-		dest = realloc(dest, 500);
-		dest2 = realloc(dest2, 500);
-		ft_printf("dest == %s\n", dest);
-		ft_printf("dest2 == %s\n", dest2);
+    printf("\n=== TEST FREE ===\n");
+    free(smaller);
+    printf("Memory freed successfully!\n");
 
-		ft_printf("dest == %p\n", dest);
-		ft_printf("dest2 == %p\n", dest2);
-		free(dest);
-		free(dest2);
+    printf("\n=== TEST FREE INVALID ===\n");
+    // Attention : ceci doit provoquer ton abort() custom
+    // free(smaller); // décommenter pour tester le "double free detected"
 
-	}
-	
-	return (0);
+    return 0;
 }
