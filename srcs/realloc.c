@@ -22,38 +22,40 @@ void	*shrink_memory(t_page *pages, size_t size, t_block *block)
 {
 	t_page	*current_page;
 
-	if (split_block(block, size) == 1)
+	if (split_block(block, size) == 0)
 	{
 		current_page = find_page_by_block(pages, block);
-		current_page->nb_block++;
+		current_page->nb_block_free--;
 	}
 	SET_BLOCK_SIZE(block, size);
 	return (GET_BLOCK_PTR(block));
 }
 
-// TODO changer le nb_block 
-int increase_memory(t_block *block, size_t size) {
-	size_t new_size;
-	size_t total;
-	t_block *new_free_block;
-	t_block*next_block;
-	
+int	increase_memory(t_page *pages, t_block *block, size_t size)
+{
+	size_t	new_size;
+	size_t	total;
+	t_block	*new_free_block;
+	t_block	*next_block;
+	t_page	*current_page;
+
 	next_block = NEXT_BLOCK(block);
 	if (next_block == NULL)
-		return 0;
+		return (0);
 	if (IS_BLOCK_FREE(next_block) == false)
-		return 0;
-	total = GET_BLOCK_SIZE(block) + GET_BLOCK_SIZE(next_block) + BLOCK_HEADER_SIZE;
+		return (0);
+	total = GET_BLOCK_SIZE(block) + BLOCK_HEADER_SIZE
+		+ GET_BLOCK_SIZE(next_block);
 	if (total < size)
-		return 0;
+		return (0);
 	new_size = total - size - BLOCK_HEADER_SIZE;
 	SET_BLOCK_SIZE(block, size);
 	new_free_block = (void *)block + GET_BLOCK_SIZE(block);
-	if (new_size > 0) {
-		memmove(new_free_block, next_block, BLOCK_HEADER_SIZE);
-		SET_BLOCK_SIZE(new_free_block, new_size);
-	}
-	return 1;
+	memmove(new_free_block, next_block, BLOCK_HEADER_SIZE);
+	SET_BLOCK_SIZE(new_free_block, new_size);
+	current_page = find_page_by_block(pages, block);
+	current_page->nb_block_free++;
+	return (1);
 }
 
 void	*ptr_was_tiny_malloc(t_page *pages, void *ptr, size_t size,
@@ -63,9 +65,10 @@ void	*ptr_was_tiny_malloc(t_page *pages, void *ptr, size_t size,
 		return (ptr);
 	if (size < GET_BLOCK_SIZE(block))
 		return (shrink_memory(pages, size, block));
-	else if (size <= n) {
-		if (increase_memory(block, size))
-			return GET_BLOCK_PTR(block);
+	else if (size <= n)
+	{
+		if (increase_memory(pages, block, size))
+			return (GET_BLOCK_PTR(block));
 	}
 	return (need_to_reallocate(ptr, size, GET_BLOCK_SIZE(block)));
 }
@@ -77,9 +80,10 @@ void	*ptr_was_small_malloc(t_page *pages, void *ptr, size_t size,
 		return (ptr);
 	if (size > n && size < GET_BLOCK_SIZE(block))
 		return (shrink_memory(pages, size, block));
-	else if (size <= m) {
-		if (increase_memory(block, size))
-			return GET_BLOCK_PTR(block);
+	else if (size <= m)
+	{
+		if (increase_memory(pages, block, size))
+			return (GET_BLOCK_PTR(block));
 	}
 	return (need_to_reallocate(ptr, size, GET_BLOCK_SIZE(block)));
 }

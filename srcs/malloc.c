@@ -17,7 +17,6 @@ t_page	*create_page(size_t size)
 		return (NULL);
 	new_page->length = sizeof(t_page) + size;
 	new_page->next = NULL;
-	new_page->nb_block = 1;
 	new_page->nb_block_free = 1;
 	new_page->blocks = (void *)new_page + sizeof(t_page);
 	initialize_blocks(&new_page->blocks, size);
@@ -95,8 +94,6 @@ void	*optimized_malloc(t_page **malloc_page, size_t block_size, size_t size)
 		page = find_page_by_block(*malloc_page, block);
 		if (split_block(block, size) == 0)
 			page->nb_block_free--;
-		else
-			page->nb_block++;
 		SET_BLOCK_USE(block);
 		return (GET_BLOCK_PTR(block));
 	}
@@ -105,8 +102,6 @@ void	*optimized_malloc(t_page **malloc_page, size_t block_size, size_t size)
 		return (NULL);
 	if (split_block(page->blocks, size) == 0)
 		page->nb_block_free--;
-	else
-		page->nb_block++;
 	SET_BLOCK_USE(page->blocks);
 	add_back_page_list(malloc_page, page);
 	return (GET_BLOCK_PTR(page->blocks));

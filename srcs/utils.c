@@ -37,11 +37,9 @@ int	split_block(t_block *block, size_t size)
 	t_block	*new_block;
 	long	new_size;
 
+	if (GET_BLOCK_SIZE(block) == size)
+		return 0;
 	new_size = GET_BLOCK_SIZE(block) - size - BLOCK_HEADER_SIZE;
-	if (new_size <= 0) // TODO voir ce qu'il faut faire pour ca
-	{
-		return (0);
-	}
 	SET_BLOCK_SIZE(block, size);
 	new_block = (void *)block + sizeof(t_block) + size;
 	initialize_blocks(&new_block, new_size);
