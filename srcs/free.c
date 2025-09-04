@@ -1,7 +1,4 @@
 #include "../includes/malloc_internal.h"
-#include <stdbool.h>
-#include <stddef.h>
-#include <sys/mman.h>
 
 void	block_merge_with_next(t_block *first, t_block *second)
 {
@@ -60,7 +57,7 @@ void	remove_page(t_page **pages_list, t_page *page)
 	munmap(page, page->length);
 }
 
-int	page_list_free_block(t_page **pages_list, void *ptr)
+int	free_block_from_zone(t_page **pages_list, void *ptr)
 {
 	t_page	*current_page;
 	t_block	*block;
@@ -84,15 +81,33 @@ int	page_list_free_block(t_page **pages_list, void *ptr)
 	return (0);
 }
 
+int	free_large_block(void *ptr)
+{
+	t_page	*current_page;
+
+	current_page = g_malloc.large;
+	while (current_page)
+	{
+		if (page_find_block_by_ptr(current_page, ptr, NULL) != NULL)
+		{
+			remove_page(&g_malloc.large, current_page);
+			return (1);
+		}
+		current_page = current_page->next;
+	}
+	return (0);
+}
+
 void	free(void *ptr)
 {
 	if (ptr == NULL)
 		return ;
-	if (page_list_free_block(&g_malloc.tiny, ptr))
+	if (free_block_from_zone(&g_malloc.tiny, ptr))
 		return ;
-	if (page_list_free_block(&g_malloc.small, ptr))
+	if (free_block_from_zone(&g_malloc.small, ptr))
 		return ;
-
+	if (free_large_block(ptr))
+		return;
 	ft_putendl_fd("free(): invalid pointer", STDERR_FILENO);
 	abort();
 }
