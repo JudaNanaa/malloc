@@ -91,7 +91,7 @@ void	*realloc(void *ptr, size_t size)
 	t_block	*block;
 	size_t	aligned_size;
 
-	aligned_size = ALIGN8(size);
+	aligned_size = ALIGN(size);
 	if (ptr == NULL)
 		return (malloc(aligned_size));
 	else if (aligned_size == 0)

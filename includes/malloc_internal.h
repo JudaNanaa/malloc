@@ -10,10 +10,10 @@
 # define n 64   // taille en bytes pour etre considerer comme tiny malloc
 # define m 1024 // taille en bytes pour etre considerer comme small malloc
 # define NB_BLOCK 100
-# define MEMORY_ALIGNMENT 8 // alignement de la memoire de 8bytes
+# define MEMORY_ALIGNMENT sizeof(size_t) // alignement de la memoire de 8bytes
 # define BLOCK_HEADER_SIZE sizeof(t_block)
 // arrondir un nombre au multiple de 8 superieur pour l'alignement
-# define ALIGN8(x) (((x) + 7) & ~7)
+# define ALIGN(x) (((x) + (MEMORY_ALIGNMENT - 1)) & ~(MEMORY_ALIGNMENT - 1))
 
 # define BLOCK_FREE (1 << 0) // flag pour le free
 # define BLOCK_LAST (1 << 1) // flag pour le dernier block

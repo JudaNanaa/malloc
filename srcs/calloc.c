@@ -5,7 +5,7 @@ void	*calloc(size_t nmemb, size_t size)
 	size_t	aligned_size;
 	void	*ptr;
 
-	aligned_size = ALIGN8((nmemb * size));
+	aligned_size = ALIGN((nmemb * size));
 	ptr = malloc(aligned_size);
 	if (ptr)
 		ft_bzero(ptr, aligned_size);

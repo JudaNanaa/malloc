@@ -136,7 +136,7 @@ void	*malloc(size_t size)
 	size_t	aligned_size;
 
 	ft_printf("je suis dans mon mallloc\n");
-	aligned_size = ALIGN8(size);
+	aligned_size = ALIGN(size);
 	if (aligned_size == 0)
 		return (NULL);
 	if (aligned_size <= n)
