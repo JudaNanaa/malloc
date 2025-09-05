@@ -1,69 +1,71 @@
 #include "../includes/malloc_internal.h"
 #include <stddef.h>
 
-size_t	show_block_infos(t_block *block)
+size_t	print_block_info(t_block *block)
 {
-	void	*begin;
+	void	*start;
 	size_t	size;
 
-	begin = GET_BLOCK_PTR(block);
+	start = GET_BLOCK_PTR(block);
 	size = GET_BLOCK_SIZE(block);
-	print_mem((unsigned long long int)begin);
+	print_mem((unsigned long long int)start);
 	ft_putstr(" - ");
-	print_mem((unsigned long long int)begin + size);
+	print_mem((unsigned long long int)start + size);
 	ft_putstr(" : ");
 	ft_putnbr(size);
-	if (IS_BLOCK_FREE(block))
+	if (IS_BLOCK_FREE(block)) {
 		ft_putstr(" free");
+		size = 0;
+	}
 	ft_putendl(" bytes");
 	return (size);
 }
 
-size_t	block_infos(t_page *page)
+size_t	print_page_blocks(t_page *page)
 {
-	t_block	*current_block;
-	size_t	total;
+	t_block	*block;
+	size_t	total_size;
 
-	current_block = page->blocks;
-	total = 0;
-	while (current_block)
+	block = page->blocks;
+	total_size = 0;
+	while (block)
 	{
-		total += show_block_infos(current_block);
-		current_block = NEXT_BLOCK(current_block);
+		total_size += print_block_info(block);
+		block = NEXT_BLOCK(block);
 	}
-	return (total);
+	return (total_size);
 }
 
-size_t	show_mem(t_page *malloc_page, char *mem_zone)
+size_t	print_memory_zone(t_page *page_list, char *zone_name)
 {
-	t_page	*current_page;
-	size_t	total;
+	t_page	*page;
+	size_t	total_size;
 
-	total = 0;
-	current_page = malloc_page;
-	while (current_page)
+	page = page_list;
+	total_size = 0;
+	while (page)
 	{
-		ft_putstr(mem_zone);
+		ft_putstr(zone_name);
 		ft_putstr(" : ");
-		print_mem((unsigned long long int)GET_BLOCK_PTR(current_page->blocks));
+		print_mem((unsigned long long int)GET_BLOCK_PTR(page->blocks));
 		ft_putstr("\n");
-		total += block_infos(current_page);
-		current_page = current_page->next;
+		total_size += print_page_blocks(page);
+		page = page->next;
 	}
-	return (total);
+	return (total_size);
 }
 
 void	show_alloc_mem(void)
 {
-	size_t	total;
+	size_t	total_size;
 
-	total = 0;
-	ft_putendl("-----------------show_alloc_mem-----------------");
-	total += show_mem(g_malloc.tiny, "TINY");
-	total += show_mem(g_malloc.small, "SMALL");
-	total += show_mem(g_malloc.large, "LARGE");
+	total_size = 0;
+	ft_putendl("----------------- Memory Allocation Report -----------------");
+	total_size += print_memory_zone(g_malloc.tiny, "TINY");
+	total_size += print_memory_zone(g_malloc.small, "SMALL");
+	total_size += print_memory_zone(g_malloc.large, "LARGE");
 	ft_putstr("Total : ");
-	ft_putnbr(total);
+	ft_putnbr(total_size);
 	ft_putendl(" bytes");
-	ft_putendl("------------------------------------------------");
+	ft_putendl("------------------------------------------------------------");
 }
