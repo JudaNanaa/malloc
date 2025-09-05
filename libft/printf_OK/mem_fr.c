@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   mem_fr.c                                           :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: itahri <itahri@contact.42.fr>              +#+  +:+       +#+        */
+/*   By: madamou <madamou@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/05/25 16:11:38 by itahri            #+#    #+#             */
-/*   Updated: 2024/05/25 22:27:57 by itahri           ###   ########.fr       */
+/*   Updated: 2025/09/05 00:01:28 by madamou          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -24,7 +24,7 @@ static void	ft_putnbr_base_ptr(unsigned long long int nbr, char *base)
 	write(1, &char_nbr, 1);
 }
 
-static void	print_mem(unsigned long long int nbr)
+void	print_mem(unsigned long long int nbr)
 {
 	write(1, "0x", 2);
 	ft_putnbr_base_ptr(nbr, "0123456789abcdef");

@@ -6,7 +6,7 @@
 /*   By: madamou <madamou@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/05/25 15:12:26 by itahri            #+#    #+#             */
-/*   Updated: 2025/09/03 04:30:21 by madamou          ###   ########.fr       */
+/*   Updated: 2025/09/05 00:01:42 by madamou          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -23,6 +23,7 @@ void	ft_putnbr_base(long long int nbr, char *base);
 int		ft_printf(const char *format, ...);
 int		monitoring(va_list args, char *c);
 
+void	print_mem(unsigned long long int nbr);
 int		hex_fr(va_list args, int cas);
 int		car_fr(va_list args);
 int		mem_fr(va_list args);

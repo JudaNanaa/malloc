@@ -52,26 +52,26 @@ typedef struct s_block
 
 typedef struct s_page
 {
-	size_t		length;
-	t_block *blocks; // pointe vers le premier block de la page
-	size_t		nb_block_free;
-	struct s_page *next; // pointe vers la prochaine page
-}				t_page;
+	size_t			length;
+	t_block			*blocks; // pointe vers le premier block de la page
+	size_t			nb_block_free;
+	struct s_page	*next; // pointe vers la prochaine page
+}					t_page;
 
 typedef struct s_malloc
 {
-	t_page *tiny;  // page liee au tiny malloc
-	t_page *small; // page liee au small malloc
-	t_page *large; // page liee au large malloc
-}				t_malloc;
+	t_page			*tiny;  // page liee au tiny malloc
+	t_page			*small; // page liee au small malloc
+	t_page			*large; // page liee au large malloc
+}					t_malloc;
 
 extern t_malloc	g_malloc;
 
-t_block			*page_find_block_by_ptr(t_page *page, void *ptr,
-					t_block **prev_out);
-void			initialize_blocks(t_block **block, size_t size);
-int				split_block(t_block *block, size_t size);
-t_page			*find_page_by_block(t_page *pages, t_block *block);
-t_block			*find_block(t_page *pages, void *ptr);
-
+t_block				*page_find_block_by_ptr(t_page *page, void *ptr,
+						t_block **prev_out);
+void				initialize_blocks(t_block **block, size_t size);
+int					split_block(t_block *block, size_t size);
+t_page				*find_page_by_block(t_page *pages, t_block *block);
+t_block				*find_block(t_page *pages, void *ptr);
+int					merge_block(t_block *block, t_block *prev_block);
 #endif
