@@ -1,11 +1,13 @@
 #include "../includes/malloc_internal.h"
+#include <string.h>
+#include <strings.h>
 
 void	initialize_blocks(t_block **block, size_t size)
 {
 	t_block	*current_block;
 
 	current_block = *block;
-	current_block->metadata = 0;
+	bzero(current_block->metadata, sizeof(current_block->metadata));
 	SET_BLOCK_SIZE(current_block, size);
 	SET_BLOCK_FREE(current_block);
 	SET_BLOCK_LAST(current_block);

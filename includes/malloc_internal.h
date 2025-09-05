@@ -15,28 +15,27 @@
 // arrondir un nombre au multiple de 8 superieur pour l'alignement
 # define ALIGN(x) (((x) + (MEMORY_ALIGNMENT - 1)) & ~(MEMORY_ALIGNMENT - 1))
 
-# define BLOCK_FREE (1 << 0) // flag pour le free
-# define BLOCK_LAST (1 << 1) // flag pour le dernier block
+# define BLOCK_FREE 0 // flag pour le free
+# define BLOCK_LAST 1 // flag pour le dernier block
 
-# define SET_BLOCK_FREE(block) ((block)->metadata |= BLOCK_FREE)
+# define SET_BLOCK_FREE(block) ((block)->metadata[BLOCK_FREE] = true)
 // mettre le block comme free
-# define SET_BLOCK_USE(block) ((block)->metadata &= ~BLOCK_FREE)
+# define SET_BLOCK_USE(block) ((block)->metadata[BLOCK_FREE] = false)
 // mettre le block comme utilise
-# define IS_BLOCK_FREE(block) ((block)->metadata & BLOCK_FREE)
+# define IS_BLOCK_FREE(block) ((block)->metadata[BLOCK_FREE])
 // savoir si le block est free
 
-# define SET_BLOCK_LAST(block) ((block)->metadata |= BLOCK_LAST)
+# define SET_BLOCK_LAST(block) ((block)->metadata[BLOCK_LAST] = true)
 // mettre le block comme le dernier block
-# define SET_BLOCK_NOT_LAST(block) ((block)->metadata &= ~BLOCK_LAST)
+# define SET_BLOCK_NOT_LAST(block) ((block)->metadata[BLOCK_LAST] = false)
 // mettre le block comme n'est pas le dernier block
-# define IS_BLOCK_LAST(block) ((block)->metadata & BLOCK_LAST)
+# define IS_BLOCK_LAST(block) ((block)->metadata[BLOCK_LAST])
 // savoir si le block est le dernier block de la page
 
-# define GET_BLOCK_SIZE(block) ((block)->metadata & ~7)
+# define GET_BLOCK_SIZE(block) ((block)->size)
 // avoir la taille du block
 // size need to be aligned !!
-# define SET_BLOCK_SIZE(block, size) \
-	((block)->metadata = (size & ~7) | ((block)->metadata & 7))
+# define SET_BLOCK_SIZE(block, sz) ((block)->size = sz)
 // set la taille du block
 
 # define NEXT_BLOCK(block) \
@@ -47,7 +46,8 @@
 
 typedef struct s_block
 {
-	size_t		metadata;
+	unsigned int size;
+	char		metadata[4];
 }				t_block;
 
 typedef struct s_page
