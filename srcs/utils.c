@@ -74,6 +74,10 @@ int	split_block(t_block *block, size_t size)
 
 	if (GET_BLOCK_SIZE(block) == size)
 		return (0);
+	if (size > ALIGN(block->size) - MEMORY_ALIGNMENT) {
+		SET_BLOCK_SIZE(block, size);
+		return (1);
+	}
 	aligned_size = ALIGN(size);
 	new_size = GET_BLOCK_SIZE(block) - aligned_size - BLOCK_HEADER_SIZE;
 	SET_BLOCK_SIZE(block, size);

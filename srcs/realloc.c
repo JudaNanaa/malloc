@@ -25,7 +25,6 @@ void	*shrink_memory(t_page *pages, size_t size, t_block *block)
 	return (GET_BLOCK_PTR(block));
 }
 
-// TODO parfois pas besoin de toucher au block suivant
 int	increase_memory(t_page *pages, t_block *block, size_t size)
 {
 	size_t	new_size;
@@ -44,7 +43,7 @@ int	increase_memory(t_page *pages, t_block *block, size_t size)
 	if (total < size)
 		return (0);
 	new_size = total - ALIGN(size) - BLOCK_HEADER_SIZE;
-	SET_BLOCK_SIZE(block, ALIGN(size));
+	SET_BLOCK_SIZE(block, size);
 	new_free_block = (void *)block + BLOCK_HEADER_SIZE + ALIGN(size);
 	memmove(new_free_block, next_block, BLOCK_HEADER_SIZE);
 	SET_BLOCK_SIZE(new_free_block, new_size);
@@ -58,7 +57,7 @@ void	*realloc_block(void *ptr, size_t new_size, t_block *block,
 {
 	size_t	old_size;
 
-	old_size = GET_BLOCK_SIZE(block);
+	old_size = block->size;
 	if (new_size == old_size)
 		return (ptr);
 	if (new_size < old_size)
