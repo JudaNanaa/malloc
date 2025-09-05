@@ -9,6 +9,7 @@ int main(void)
         perror("malloc failed");
         return 1;
     }
+	show_alloc_mem();
     strcpy(msg, "Hello malloc!");
     printf("msg = %s\n", msg);
 
@@ -19,6 +20,8 @@ int main(void)
         free(msg); // free old if realloc failed
         return 1;
     }
+	show_alloc_mem();
+
     strcat(bigger, " + realloc works!");
     printf("bigger = %s\n", bigger);
 
@@ -29,11 +32,15 @@ int main(void)
         free(bigger);
         return 1;
     }
+	show_alloc_mem();
+
     printf("smaller (truncated) = %.*s\n", 9, smaller);
 
     printf("\n=== TEST FREE ===\n");
     free(smaller);
     printf("Memory freed successfully!\n");
+
+	show_alloc_mem();
 
     printf("=== TEST LARGE MALLOCS (> 1024 bytes) ===\n");
 
@@ -44,6 +51,8 @@ int main(void)
         perror("malloc large1 failed");
         return 1;
     }
+	show_alloc_mem();
+	
     memset(large1, 'A', big_size - 1);
     large1[big_size - 1] = '\0';
     printf("large1 allocated (%zu bytes): first char = %c, last char = %c\n",

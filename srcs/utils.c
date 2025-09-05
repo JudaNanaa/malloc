@@ -11,6 +11,37 @@ void	initialize_blocks(t_block **block, size_t size)
 	SET_BLOCK_LAST(current_block);
 }
 
+void	block_merge_with_next(t_block *first, t_block *second)
+{
+	size_t	total_size;
+
+	total_size = GET_BLOCK_SIZE(first) + BLOCK_HEADER_SIZE
+		+ GET_BLOCK_SIZE(second);
+	SET_BLOCK_SIZE(first, total_size);
+	if (IS_BLOCK_LAST(second))
+		SET_BLOCK_LAST(first);
+}
+
+int	merge_block(t_block *block, t_block *prev_block)
+{
+	int		nb_merge;
+	t_block	*next_block;
+
+	nb_merge = 0;
+	next_block = NEXT_BLOCK(block);
+	if (next_block && IS_BLOCK_FREE(next_block) == true)
+	{
+		block_merge_with_next(block, next_block);
+		nb_merge++;
+	}
+	if (prev_block && IS_BLOCK_FREE(prev_block) == true)
+	{
+		block_merge_with_next(prev_block, block);
+		nb_merge++;
+	}
+	return (nb_merge);
+}
+
 t_block	*page_find_block_by_ptr(t_page *page, void *ptr, t_block **prev_out)
 {
 	t_block	*current_block;
@@ -38,7 +69,7 @@ int	split_block(t_block *block, size_t size)
 	long	new_size;
 
 	if (GET_BLOCK_SIZE(block) == size)
-		return 0;
+		return (0);
 	new_size = GET_BLOCK_SIZE(block) - size - BLOCK_HEADER_SIZE;
 	SET_BLOCK_SIZE(block, size);
 	new_block = (void *)block + sizeof(t_block) + size;
@@ -47,6 +78,7 @@ int	split_block(t_block *block, size_t size)
 		SET_BLOCK_LAST(new_block);
 	else
 		SET_BLOCK_NOT_LAST(new_block);
+	merge_block(new_block, NULL);
 	SET_BLOCK_NOT_LAST(block);
 	return (1);
 }
@@ -58,7 +90,8 @@ t_page	*find_page_by_block(t_page *pages, t_block *block)
 	current_page = pages;
 	while (current_page)
 	{
-		if (page_find_block_by_ptr(current_page, GET_BLOCK_PTR(block), NULL) != NULL)
+		if (page_find_block_by_ptr(current_page, GET_BLOCK_PTR(block),
+				NULL) != NULL)
 			return (current_page);
 		current_page = current_page->next;
 	}
@@ -67,8 +100,8 @@ t_page	*find_page_by_block(t_page *pages, t_block *block)
 
 t_block	*find_block(t_page *pages, void *ptr)
 {
-	t_page *current_page;
-	t_block *block;
+	t_page	*current_page;
+	t_block	*block;
 
 	current_page = pages;
 	while (current_page)
