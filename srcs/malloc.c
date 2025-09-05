@@ -1,6 +1,7 @@
 #include "../includes/malloc_internal.h"
+#include <stddef.h>
 
-t_malloc	g_malloc = {NULL, NULL, NULL};
+t_malloc	g_malloc = {NULL, NULL, NULL, -1, false, false, false, -1};
 
 t_page	*create_page(size_t length)
 {
@@ -131,14 +132,40 @@ void	*large_malloc(size_t size)
 	return (GET_BLOCK_PTR(page->blocks));
 }
 
+bool	malloc_force_fail(size_t size)
+{
+	if (g_malloc.fail_size != 1 && (int)size == g_malloc.fail_size)
+	{
+		ft_printf("[DEBUG] malloc(size: %u) forced to fail!\n", size);
+		return (true);
+	}
+	return (false);
+}
+
+void	debug_malloc(void *ptr, size_t size)
+{
+	if (g_malloc.verbose)
+		ft_printf("[DEBUG] malloc(size: %u) = %p\n", size, ptr);
+	if (g_malloc.trace_file_fd != -1)
+		dprintf(g_malloc.trace_file_fd, "malloc(size: %zu) = %p\n", size, ptr);
+}
+
 void	*malloc(size_t size)
 {
-	ft_printf("je suis dans mon mallloc\n");
+	void	*ptr;
+
+	if (g_malloc.set == false)
+		malloc_init();
+	if (malloc_force_fail(size))
+		return (NULL);
 	if (size == 0)
 		return (NULL);
 	if (size <= n)
-		return (optimized_malloc(&g_malloc.tiny, n, size));
+		ptr = optimized_malloc(&g_malloc.tiny, n, size);
 	else if (size <= m)
-		return (optimized_malloc(&g_malloc.small, m, size));
-	return (large_malloc(size));
+		ptr = optimized_malloc(&g_malloc.small, m, size);
+	else
+		ptr = large_malloc(size);
+	debug_malloc(ptr, size);
+	return (ptr);
 }

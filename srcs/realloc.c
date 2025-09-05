@@ -85,27 +85,80 @@ void	*realloc_large_block(void *ptr, size_t size, t_block *block)
 	return (realloc_block(ptr, size, block, m + 1, SIZE_MAX, g_malloc.large));
 }
 
+void	debug_begin_realloc(void *ptr, size_t size)
+{
+	if (g_malloc.verbose)
+		ft_printf("[DEBUG] realloc(ptr: %p, size: %u)\n", ptr, size);
+	if (g_malloc.trace_file_fd != -1)
+		dprintf(g_malloc.trace_file_fd, "realloc(ptr: %p, size: %zu)\n", ptr,
+				size);
+}
+
+void	debug_realloc_call_malloc(void *new_ptr)
+{
+	if (g_malloc.verbose)
+		ft_printf("[DEBUG] realloc call malloc and returned %p\n", new_ptr);
+	if (g_malloc.trace_file_fd != -1)
+		dprintf(g_malloc.trace_file_fd, "realloc call malloc and returned %p\n", new_ptr);
+	
+}
+
+void	debug_realloc_call_free(void)
+{
+	if (g_malloc.verbose)
+		ft_printf("[DEBUG] realloc returned NULL (size = 0)\n");
+	if (g_malloc.trace_file_fd != -1)
+		dprintf(g_malloc.trace_file_fd, "realloc returned NULL (size = 0)\n");
+	
+}
+
+void	debug_end_realloc(void *new_ptr)
+{
+	if (g_malloc.verbose)
+		ft_printf("[DEBUG] realloc returned %p\n", new_ptr);
+	if (g_malloc.trace_file_fd != -1)
+		dprintf(g_malloc.trace_file_fd, "realloc returned %p\n", new_ptr);
+}
+
 void	*realloc(void *ptr, size_t size)
 {
 	t_block	*block;
+	void	*new_ptr;
 
+	debug_begin_realloc(ptr, size);
 	if (ptr == NULL)
-		return (malloc(size));
+	{
+		new_ptr = malloc(size);
+		debug_realloc_call_malloc(new_ptr);
+		return (new_ptr);
+	}
 	else if (size == 0)
 	{
 		free(ptr);
+		debug_realloc_call_free();
 		return (NULL);
 	}
 	block = find_block(g_malloc.tiny, ptr);
 	if (block)
-		return (realloc_tiny_block(ptr, size, block));
-	block = find_block(g_malloc.small, ptr);
-	if (block)
-		return (realloc_small_block(ptr, size, block));
-	block = find_block(g_malloc.large, ptr);
-	if (block)
-		return (realloc_large_block(ptr, size, block));
-	ft_putendl_fd("realloc(): invalid pointer", STDERR_FILENO);
-	abort();
-	return (NULL);
+		new_ptr = realloc_tiny_block(ptr, size, block);
+	else
+	{
+		block = find_block(g_malloc.small, ptr);
+		if (block)
+			new_ptr = realloc_small_block(ptr, size, block);
+		else
+		{
+			block = find_block(g_malloc.large, ptr);
+			if (block)
+				new_ptr = realloc_large_block(ptr, size, block);
+			else
+			{
+				ft_putendl_fd("realloc(): invalid pointer", STDERR_FILENO);
+				abort();
+				return (NULL);
+			}
+		}
+	}
+	debug_end_realloc(new_ptr);
+	return (new_ptr);
 }

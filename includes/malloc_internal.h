@@ -63,6 +63,11 @@ typedef struct s_malloc
 	t_page			*tiny;  // page liee au tiny malloc
 	t_page			*small; // page liee au small malloc
 	t_page			*large; // page liee au large malloc
+	int				fail_size;
+	bool			set;
+	bool			verbose;
+	bool			no_defrag;
+	int				trace_file_fd;
 }					t_malloc;
 
 extern t_malloc	g_malloc;
@@ -74,4 +79,5 @@ int					split_block(t_block *block, size_t size);
 t_page				*find_page_by_block(t_page *pages, t_block *block);
 t_block				*find_block(t_page *pages, void *ptr);
 int					merge_block(t_block *block, t_block *prev_block);
+void				malloc_init(void);
 #endif

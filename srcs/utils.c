@@ -1,7 +1,4 @@
 #include "../includes/malloc_internal.h"
-#include <stddef.h>
-#include <string.h>
-#include <strings.h>
 
 void	initialize_blocks(t_block **block, size_t size)
 {
@@ -30,6 +27,8 @@ int	merge_block(t_block *block, t_block *prev_block)
 	int		nb_merge;
 	t_block	*next_block;
 
+	if (g_malloc.no_defrag == true)
+		return 0;
 	nb_merge = 0;
 	next_block = NEXT_BLOCK(block);
 	if (next_block && IS_BLOCK_FREE(next_block) == true)
