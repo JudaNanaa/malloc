@@ -1,11 +1,14 @@
 #include "../includes/malloc_internal.h"
+#include <stddef.h>
+#include <string.h>
+#include <strings.h>
 
 void	initialize_blocks(t_block **block, size_t size)
 {
 	t_block	*current_block;
 
 	current_block = *block;
-	current_block->metadata = 0;
+	bzero(current_block->metadata, sizeof(current_block->metadata));
 	SET_BLOCK_SIZE(current_block, size);
 	SET_BLOCK_FREE(current_block);
 	SET_BLOCK_LAST(current_block);
@@ -67,12 +70,18 @@ int	split_block(t_block *block, size_t size)
 {
 	t_block	*new_block;
 	long	new_size;
+	size_t aligned_size;
 
 	if (GET_BLOCK_SIZE(block) == size)
 		return (0);
-	new_size = GET_BLOCK_SIZE(block) - size - BLOCK_HEADER_SIZE;
+	if (size > ALIGN(block->size) - MEMORY_ALIGNMENT) {
+		SET_BLOCK_SIZE(block, size);
+		return (1);
+	}
+	aligned_size = ALIGN(size);
+	new_size = GET_BLOCK_SIZE(block) - aligned_size - BLOCK_HEADER_SIZE;
 	SET_BLOCK_SIZE(block, size);
-	new_block = (void *)block + sizeof(t_block) + size;
+	new_block = (void *)block + sizeof(t_block) + aligned_size;
 	initialize_blocks(&new_block, new_size);
 	if (IS_BLOCK_LAST(block))
 		SET_BLOCK_LAST(new_block);
