@@ -5,7 +5,7 @@ void	block_free(t_block *block)
 	if (IS_BLOCK_FREE(block) == true)
 	{
 		ft_putendl_fd("free(): double free detected in tcache 2",
-			STDERR_FILENO);
+						STDERR_FILENO);
 		abort();
 	}
 	SET_BLOCK_FREE(block);
@@ -27,6 +27,20 @@ void	remove_page(t_page **pages_list, t_page *page)
 	munmap(page, page->length);
 }
 
+bool	is_all_blocks_free(t_block *blocks)
+{
+	t_block	*current_block;
+
+	current_block = blocks;
+	while (current_block)
+	{
+		if (IS_BLOCK_FREE(current_block) == false)
+			return (false);
+		current_block = NEXT_BLOCK(current_block);
+	}
+	return (true);
+}
+
 int	free_block_from_zone(t_page **pages_list, void *ptr)
 {
 	t_page	*current_page;
@@ -42,8 +56,7 @@ int	free_block_from_zone(t_page **pages_list, void *ptr)
 			block_free(block);
 			if (merge_block(block, prev_block) == 0)
 				current_page->nb_block_free++;
-			if (IS_BLOCK_LAST(current_page->blocks)
-				&& IS_BLOCK_FREE(current_page->blocks) == true)
+			if (is_all_blocks_free(current_page->blocks) == true)
 				remove_page(pages_list, current_page);
 			return (1);
 		}
@@ -69,8 +82,16 @@ int	free_large_block(void *ptr)
 	return (0);
 }
 
+void debug_free(void *ptr) {
+	if (g_malloc.verbose)
+		fprintf(stderr, "[DEBUG] free(ptr: %p)\n", ptr);
+	if (g_malloc.trace_file_fd != -1)
+		dprintf(g_malloc.trace_file_fd, "free(ptr: %p)\n", ptr);
+}
+
 void	free(void *ptr)
 {
+	debug_free(ptr);
 	if (ptr == NULL)
 		return ;
 	if (free_block_from_zone(&g_malloc.tiny, ptr))

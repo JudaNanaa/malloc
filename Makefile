@@ -4,7 +4,7 @@ CFLAGS = -Wall -Wextra -g3
 
 SRCS_DIR = srcs/
 
-SRCS = $(addprefix srcs/, main.c malloc.c free.c utils.c realloc.c calloc.c show_alloc_mem.c)
+SRCS = $(addprefix srcs/, main.c malloc.c free.c utils.c realloc.c calloc.c show_alloc_mem.c env_var.c)
 
 OBJS_DIR = .objs/
 
