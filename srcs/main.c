@@ -95,6 +95,34 @@ int main(void)
     printf("edge allocated (1025 bytes): OK\n");
     free(edge);
 
+	printf("\n=== TEST ALIGNMENT (8 bytes) ===\n");
+
+    void *a1 = malloc(1);
+    void *a2 = malloc(3);
+    void *a3 = malloc(50);
+    void *a4 = malloc(70);
+
+    printf("malloc(1)  -> %p (should be 8 aligned)\n", a1);
+    printf("malloc(3)  -> %p (should be 8 aligned)\n", a2);
+    printf("malloc(50) -> %p (should be 8 aligned)\n", a3);
+    printf("malloc(70) -> %p (should be 8 aligned)\n", a4);
+
+    if (((uintptr_t)a1 % 8) == 0 &&
+        ((uintptr_t)a2 % 8) == 0 &&
+        ((uintptr_t)a3 % 8) == 0 &&
+        ((uintptr_t)a4 % 8) == 0) {
+        printf("✅ All allocations are 8-byte aligned!\n");
+    } else {
+        printf("❌ Alignment error detected!\n");
+    }
+
+	show_alloc_mem();
+
+    free(a1);
+    free(a2);
+    free(a3);
+    free(a4);
+
     printf("\n=== TEST FREE INVALID ===\n");
     // Attention : ceci doit provoquer ton abort() custom
     // free(smaller); // décommenter pour tester le "double free detected"

@@ -7,7 +7,7 @@ size_t	print_block_info(t_block *block)
 	size_t	size;
 
 	start = GET_BLOCK_PTR(block);
-	size = GET_BLOCK_SIZE(block);
+	size = block->size;
 	print_mem((unsigned long long int)start);
 	ft_putstr(" - ");
 	print_mem((unsigned long long int)start + size);
@@ -60,12 +60,12 @@ void	show_alloc_mem(void)
 	size_t	total_size;
 
 	total_size = 0;
-	ft_putendl("----------------- Memory Allocation Report -----------------");
+	ft_putendl("\n----------------- Memory Allocation Report -----------------");
 	total_size += print_memory_zone(g_malloc.tiny, "TINY");
 	total_size += print_memory_zone(g_malloc.small, "SMALL");
 	total_size += print_memory_zone(g_malloc.large, "LARGE");
 	ft_putstr("Total : ");
 	ft_putnbr(total_size);
 	ft_putendl(" bytes");
-	ft_putendl("------------------------------------------------------------");
+	ft_putendl("------------------------------------------------------------\n");
 }

@@ -2,12 +2,10 @@
 
 void	*calloc(size_t nmemb, size_t size)
 {
-	size_t	aligned_size;
 	void	*ptr;
 
-	aligned_size = ALIGN((nmemb * size));
-	ptr = malloc(aligned_size);
+	ptr = malloc(nmemb * size);
 	if (ptr)
-		bzero(ptr, aligned_size);
+		bzero(ptr, size);
 	return (ptr);
 }

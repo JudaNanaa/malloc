@@ -133,15 +133,12 @@ void	*large_malloc(size_t size)
 
 void	*malloc(size_t size)
 {
-	size_t	aligned_size;
-
 	ft_printf("je suis dans mon mallloc\n");
-	aligned_size = ALIGN(size);
-	if (aligned_size == 0)
+	if (size == 0)
 		return (NULL);
-	if (aligned_size <= n)
-		return (optimized_malloc(&g_malloc.tiny, n, aligned_size));
-	else if (aligned_size <= m)
-		return (optimized_malloc(&g_malloc.small, m, aligned_size));
-	return (large_malloc(aligned_size));
+	if (size <= n)
+		return (optimized_malloc(&g_malloc.tiny, n, size));
+	else if (size <= m)
+		return (optimized_malloc(&g_malloc.small, m, size));
+	return (large_malloc(size));
 }

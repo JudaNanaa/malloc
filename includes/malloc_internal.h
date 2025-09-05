@@ -32,7 +32,7 @@
 # define IS_BLOCK_LAST(block) ((block)->metadata[BLOCK_LAST])
 // savoir si le block est le dernier block de la page
 
-# define GET_BLOCK_SIZE(block) ((block)->size)
+# define GET_BLOCK_SIZE(block) (ALIGN((block)->size))
 // avoir la taille du block
 // size need to be aligned !!
 # define SET_BLOCK_SIZE(block, sz) ((block)->size = sz)

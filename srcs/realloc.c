@@ -43,9 +43,9 @@ int	increase_memory(t_page *pages, t_block *block, size_t size)
 		+ GET_BLOCK_SIZE(next_block);
 	if (total < size)
 		return (0);
-	new_size = total - size - BLOCK_HEADER_SIZE;
-	SET_BLOCK_SIZE(block, size);
-	new_free_block = (void *)block + BLOCK_HEADER_SIZE + size;
+	new_size = total - ALIGN(size) - BLOCK_HEADER_SIZE;
+	SET_BLOCK_SIZE(block, ALIGN(size));
+	new_free_block = (void *)block + BLOCK_HEADER_SIZE + ALIGN(size);
 	memmove(new_free_block, next_block, BLOCK_HEADER_SIZE);
 	SET_BLOCK_SIZE(new_free_block, new_size);
 	current_page = find_page_by_block(pages, block);
@@ -89,25 +89,23 @@ void	*realloc_large_block(void *ptr, size_t size, t_block *block)
 void	*realloc(void *ptr, size_t size)
 {
 	t_block	*block;
-	size_t	aligned_size;
 
-	aligned_size = ALIGN(size);
 	if (ptr == NULL)
-		return (malloc(aligned_size));
-	else if (aligned_size == 0)
+		return (malloc(size));
+	else if (size == 0)
 	{
 		free(ptr);
 		return (NULL);
 	}
 	block = find_block(g_malloc.tiny, ptr);
 	if (block)
-		return (realloc_tiny_block(ptr, aligned_size, block));
+		return (realloc_tiny_block(ptr, size, block));
 	block = find_block(g_malloc.small, ptr);
 	if (block)
-		return (realloc_small_block(ptr, aligned_size, block));
+		return (realloc_small_block(ptr, size, block));
 	block = find_block(g_malloc.large, ptr);
 	if (block)
-		return (realloc_large_block(ptr, aligned_size, block));
+		return (realloc_large_block(ptr, size, block));
 	ft_putendl_fd("realloc(): invalid pointer", STDERR_FILENO);
 	abort();
 	return (NULL);
