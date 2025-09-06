@@ -7,12 +7,13 @@ size_t	print_block_info(t_block *block)
 
 	start = GET_BLOCK_PTR(block);
 	size = block->size;
-	print_mem((unsigned long long int)start);
+	print_mem((unsigned long long int)start, STDERR_FILENO);
 	ft_putstr(" - ");
-	print_mem((unsigned long long int)start + size);
+	print_mem((unsigned long long int)start + size, STDERR_FILENO);
 	ft_putstr(" : ");
 	ft_putnbr(size);
-	if (IS_BLOCK_FREE(block)) {
+	if (IS_BLOCK_FREE(block))
+	{
 		ft_putstr(" free");
 		size = 0;
 	}
@@ -46,7 +47,8 @@ size_t	print_memory_zone(t_page *page_list, char *zone_name)
 	{
 		ft_putstr(zone_name);
 		ft_putstr(" : ");
-		print_mem((unsigned long long int)GET_BLOCK_PTR(page->blocks));
+		print_mem((unsigned long long int)GET_BLOCK_PTR(page->blocks),
+				STDERR_FILENO);
 		ft_putstr("\n");
 		total_size += print_page_blocks(page);
 		page = page->next;

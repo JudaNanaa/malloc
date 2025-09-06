@@ -1,5 +1,4 @@
 #include "../includes/malloc_internal.h"
-#include <stddef.h>
 
 t_malloc	g_malloc = {NULL, NULL, NULL, -1, false, false, false, -1};
 
@@ -136,26 +135,18 @@ bool	malloc_force_fail(size_t size)
 {
 	if (g_malloc.fail_size != 1 && (int)size == g_malloc.fail_size)
 	{
-		ft_printf("[DEBUG] malloc(size: %u) forced to fail!\n", size);
+		ft_printf_fd(STDERR_FILENO,
+						"[DEBUG] malloc(size: %u) forced to fail!\n",
+						size);
 		return (true);
 	}
 	return (false);
 }
 
-void	debug_malloc(void *ptr, size_t size)
-{
-	if (g_malloc.verbose)
-		ft_printf("[DEBUG] malloc(size: %u) = %p\n", size, ptr);
-	if (g_malloc.trace_file_fd != -1)
-		dprintf(g_malloc.trace_file_fd, "malloc(size: %zu) = %p\n", size, ptr);
-}
-
-void	*malloc(size_t size)
+void	*malloc_internal(size_t size)
 {
 	void	*ptr;
 
-	if (g_malloc.set == false)
-		malloc_init();
 	if (malloc_force_fail(size))
 		return (NULL);
 	if (size == 0)
@@ -166,6 +157,31 @@ void	*malloc(size_t size)
 		ptr = optimized_malloc(&g_malloc.small, m, size);
 	else
 		ptr = large_malloc(size);
-	debug_malloc(ptr, size);
+	return (ptr);
+}
+
+void	*malloc_wrapper(size_t size, const char *file, int line,
+		const char *func)
+{
+	void	*ptr;
+
+	if (!g_malloc.set)
+		malloc_init();
+	ptr = malloc_internal(size);
+	if (g_malloc.verbose)
+	{
+		ft_printf_fd(STDERR_FILENO, "[DEBUG] malloc(%u) -> %p at %s:%d in %s\n",
+				size, ptr, file, line, func);
+	}
+	if (g_malloc.trace_file_fd != -1)
+	{
+		ft_printf_fd(g_malloc.trace_file_fd,
+						"malloc(%u) -> %p at %s:%d in %s\n",
+						size,
+						ptr,
+						file,
+						line,
+						func);
+	}
 	return (ptr);
 }

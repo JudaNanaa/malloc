@@ -4,11 +4,11 @@ void	*need_to_reallocate(void *ptr, size_t size, size_t previous_size)
 {
 	void	*new_ptr;
 
-	new_ptr = malloc(size);
+	new_ptr = malloc_internal(size);
 	if (!new_ptr)
 		return (NULL);
 	memmove(new_ptr, ptr, previous_size);
-	free(ptr);
+	free_internal(ptr);
 	return (new_ptr);
 }
 
@@ -85,57 +85,16 @@ void	*realloc_large_block(void *ptr, size_t size, t_block *block)
 	return (realloc_block(ptr, size, block, m + 1, SIZE_MAX, g_malloc.large));
 }
 
-void	debug_begin_realloc(void *ptr, size_t size)
-{
-	if (g_malloc.verbose)
-		ft_printf("[DEBUG] realloc(ptr: %p, size: %u)\n", ptr, size);
-	if (g_malloc.trace_file_fd != -1)
-		dprintf(g_malloc.trace_file_fd, "realloc(ptr: %p, size: %zu)\n", ptr,
-				size);
-}
-
-void	debug_realloc_call_malloc(void *new_ptr)
-{
-	if (g_malloc.verbose)
-		ft_printf("[DEBUG] realloc call malloc and returned %p\n", new_ptr);
-	if (g_malloc.trace_file_fd != -1)
-		dprintf(g_malloc.trace_file_fd, "realloc call malloc and returned %p\n", new_ptr);
-	
-}
-
-void	debug_realloc_call_free(void)
-{
-	if (g_malloc.verbose)
-		ft_printf("[DEBUG] realloc returned NULL (size = 0)\n");
-	if (g_malloc.trace_file_fd != -1)
-		dprintf(g_malloc.trace_file_fd, "realloc returned NULL (size = 0)\n");
-	
-}
-
-void	debug_end_realloc(void *new_ptr)
-{
-	if (g_malloc.verbose)
-		ft_printf("[DEBUG] realloc returned %p\n", new_ptr);
-	if (g_malloc.trace_file_fd != -1)
-		dprintf(g_malloc.trace_file_fd, "realloc returned %p\n", new_ptr);
-}
-
-void	*realloc(void *ptr, size_t size)
+void	*realloc_internal(void *ptr, size_t size)
 {
 	t_block	*block;
 	void	*new_ptr;
 
-	debug_begin_realloc(ptr, size);
 	if (ptr == NULL)
-	{
-		new_ptr = malloc(size);
-		debug_realloc_call_malloc(new_ptr);
-		return (new_ptr);
-	}
+		return (malloc_internal(size));
 	else if (size == 0)
 	{
-		free(ptr);
-		debug_realloc_call_free();
+		free_internal(ptr);
 		return (NULL);
 	}
 	block = find_block(g_malloc.tiny, ptr);
@@ -159,6 +118,33 @@ void	*realloc(void *ptr, size_t size)
 			}
 		}
 	}
-	debug_end_realloc(new_ptr);
+	return (new_ptr);
+}
+
+void	*realloc_wrapper(void *ptr, size_t size, const char *file, int line,
+		const char *func)
+{
+	void	*new_ptr;
+
+	new_ptr = realloc_internal(ptr, size);
+	if (g_malloc.verbose)
+	{
+		ft_printf_fd(STDERR_FILENO, "[DEBUG] realloc called at %s:%d in %s\n",
+				file, line, func);
+		ft_printf_fd(STDERR_FILENO, "\t\tptr: %p, requested size: %u\n", ptr,
+				size);
+		ft_printf_fd(STDERR_FILENO, "\t\t=> returned: %p\n", new_ptr);
+	}
+	if (g_malloc.trace_file_fd != -1)
+	{
+		ft_printf_fd(g_malloc.trace_file_fd,
+						"realloc(%p, %u) -> %p at %s:%d (%s)\n",
+						ptr,
+						size,
+						new_ptr,
+						file,
+						line,
+						func);
+	}
 	return (new_ptr);
 }

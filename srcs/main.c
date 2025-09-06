@@ -1,5 +1,5 @@
-#include "../includes/lib_malloc.h"
 # include "../libft/printf_OK/ft_printf.h"
+#include "../includes/lib_malloc.h"
 
 
 // Couleurs pour les tests
@@ -62,7 +62,7 @@ void test_basic_malloc() {
         test_result(strcmp(tiny32, "Hello") == 0, "Write/read in tiny malloc");
     }
     
-    show_alloc_mem();
+    show_alloc_mem_ex();
     
     free(tiny1); free(tiny8); free(tiny16); 
     free(tiny32); free(tiny64); free(tiny128);
@@ -98,7 +98,7 @@ void test_small_malloc() {
         test_result(small400[0] == 'A' && small400[398] == 'A', "Write/read in small malloc");
     }
     
-    show_alloc_mem();
+    show_alloc_mem_ex();
     
     free(small200); free(small400); free(small600);
     free(small800); free(small1000); free(small1024);
@@ -135,7 +135,7 @@ void test_large_malloc() {
                    "Write/read in 1MB malloc");
     }
     
-    show_alloc_mem();
+    show_alloc_mem_ex();
     
     free(large1025); free(large2048); free(large4096);
     free(large8192); free(large16384); free(large_huge);
@@ -153,7 +153,7 @@ void test_fragmentation() {
         test_result(ptrs[i] != NULL, "Fragmentation malloc succeeds");
     }
     
-    show_alloc_mem();
+    show_alloc_mem_ex();
     
     // Libérer les blocs impairs (créer des trous)
     for (int i = 1; i < 10; i += 2) {
@@ -162,7 +162,7 @@ void test_fragmentation() {
     }
     
     printf("After freeing odd blocks:\n");
-    show_alloc_mem();
+    show_alloc_mem_ex();
     
     // Essayer de réallouer dans les trous
     void *new_ptr = malloc(32); // devrait réutiliser un trou
@@ -327,7 +327,7 @@ void test_multiple_allocations() {
     test_result(success_count == num_allocs, "Multiple allocations all succeed");
     printf("Allocated %d/%d blocks successfully\n", success_count, num_allocs);
     
-    show_alloc_mem();
+    show_alloc_mem_ex();
     
     // Vérifier l'intégrité des données
     int integrity_ok = 1;
@@ -403,7 +403,7 @@ void test_boundary_values() {
     test_result(((uintptr_t)small_max % 8) == 0, "SMALL max boundary aligned");
     test_result(((uintptr_t)large_min % 8) == 0, "LARGE min boundary aligned");
     
-    show_alloc_mem();
+    show_alloc_mem_ex();
     
     free(tiny_max); free(small_min); 
     free(small_max); free(large_min);
@@ -481,7 +481,7 @@ int main(void) {
     test_memory_patterns();
     
     printf(BLUE "\n=== FINAL MEMORY STATE ===" RESET "\n");
-    show_alloc_mem();
+    show_alloc_mem_ex();
     
     printf(YELLOW "\n=== TEST SUMMARY ===" RESET "\n");
     printf("Tests passed: " GREEN "%d" RESET "\n", tests_passed);

@@ -80,4 +80,7 @@ t_page				*find_page_by_block(t_page *pages, t_block *block);
 t_block				*find_block(t_page *pages, void *ptr);
 int					merge_block(t_block *block, t_block *prev_block);
 void				malloc_init(void);
+void				*malloc_internal(size_t size);
+void				free_internal(void *ptr);
+
 #endif

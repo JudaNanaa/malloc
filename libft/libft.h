@@ -6,7 +6,7 @@
 /*   By: madamou <madamou@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/03/19 21:47:05 by marvin            #+#    #+#             */
-/*   Updated: 2024/12/16 02:08:04 by madamou          ###   ########.fr       */
+/*   Updated: 2025/09/06 19:21:59 by madamou          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -31,9 +31,7 @@ typedef struct s_list
 }	t_list;
 
 // Function
-int					ft_printf(const char *str, ...);
-int					ft_dprintf(int fd, const char *str, ...);
-char				*ft_sprintf(const char *str, ...);
+int					ft_printf_fd(int fd, const char *str, ...);
 char				*get_next_line(int fd);
 
 int					add_string_char_2d(char ***tabb, char *str);
