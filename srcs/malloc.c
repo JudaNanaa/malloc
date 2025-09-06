@@ -142,15 +142,9 @@ bool	malloc_force_fail(size_t size)
 	return (false);
 }
 
-void	debug_malloc(void *ptr, size_t size)
-{
-	if (g_malloc.verbose)
-		ft_printf("[DEBUG] malloc(size: %u) = %p\n", size, ptr);
-	if (g_malloc.trace_file_fd != -1)
-		dprintf(g_malloc.trace_file_fd, "malloc(size: %zu) = %p\n", size, ptr);
-}
 
-void	*malloc(size_t size)
+
+void	*malloc_internal(size_t size)
 {
 	void	*ptr;
 
@@ -166,6 +160,16 @@ void	*malloc(size_t size)
 		ptr = optimized_malloc(&g_malloc.small, m, size);
 	else
 		ptr = large_malloc(size);
-	debug_malloc(ptr, size);
 	return (ptr);
+}
+
+
+void *malloc_wrapper(size_t size, const char *file, int line, const char *func) {
+	if (g_malloc.set == false)
+		malloc_init();
+    void *ptr = malloc_internal(size); // ton malloc interne
+    if (g_malloc.verbose)
+        ft_printf("[ALLOC] %p (%zu bytes) at %s:%d (%s)\n",
+                  ptr, size, file, line, func);
+    return ptr;
 }
