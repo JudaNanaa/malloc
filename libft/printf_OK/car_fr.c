@@ -3,20 +3,20 @@
 /*                                                        :::      ::::::::   */
 /*   car_fr.c                                           :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: itahri <itahri@contact.42.fr>              +#+  +:+       +#+        */
+/*   By: madamou <madamou@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/05/25 15:27:04 by itahri            #+#    #+#             */
-/*   Updated: 2024/05/25 22:25:37 by itahri           ###   ########.fr       */
+/*   Updated: 2025/09/06 19:13:39 by madamou          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "ft_printf.h"
 
-int	car_fr(va_list args)
+int	car_fr(va_list args, int fd)
 {
 	char	car;
 
 	car = (char)va_arg(args, int);
-	write(1, &car, 1);
+	write(fd, &car, 1);
 	return (1);
 }

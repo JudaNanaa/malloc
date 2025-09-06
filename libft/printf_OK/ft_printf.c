@@ -3,16 +3,16 @@
 /*                                                        :::      ::::::::   */
 /*   ft_printf.c                                        :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: itahri <itahri@contact.42.fr>              +#+  +:+       +#+        */
+/*   By: madamou <madamou@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/05/25 15:11:59 by itahri            #+#    #+#             */
-/*   Updated: 2024/05/25 22:21:55 by itahri           ###   ########.fr       */
+/*   Updated: 2025/09/06 19:12:17 by madamou          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "ft_printf.h"
 
-int	ft_printf(const char *format, ...)
+int	ft_printf_fd(int fd, const char *format, ...)
 {
 	va_list	args;
 	int		i;
@@ -27,12 +27,12 @@ int	ft_printf(const char *format, ...)
 	{
 		if (format[i] == '%')
 		{
-			count += monitoring(args, (char *)&format[i]);
+			count += monitoring(args, (char *)&format[i], fd);
 			format += 2;
 		}
 		else
 		{
-			write(1, &format[i], 1);
+			write(fd, &format[i], 1);
 			i++;
 		}
 	}

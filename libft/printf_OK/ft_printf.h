@@ -6,7 +6,7 @@
 /*   By: madamou <madamou@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/05/25 15:12:26 by itahri            #+#    #+#             */
-/*   Updated: 2025/09/06 03:26:14 by madamou          ###   ########.fr       */
+/*   Updated: 2025/09/06 19:22:15 by madamou          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -17,17 +17,17 @@
 # include "../libft.h"
 
 int		convert_len(long long int nbr, char *base);
-void	ft_putnbr_base(long long int nbr, char *base);
+void	ft_putnbr_base(long long int nbr, char *base, int fd);
 
-int		ft_printf(const char *format, ...);
-int		monitoring(va_list args, char *c);
+int		ft_printf_fd(int fd, const char *format, ...);
+int		monitoring(va_list args, char *c, int fd);
 
-void	print_mem(unsigned long long int nbr);
-int		hex_fr(va_list args, int cas);
-int		car_fr(va_list args);
-int		mem_fr(va_list args);
-int		int_fr(va_list args);
-int		str_fr(va_list args);
-int		uns_fr(va_list args);
+void	print_mem(unsigned long long int nbr, int fd);
+int		hex_fr(va_list args, int cas, int fd);
+int		car_fr(va_list args, int fd);
+int		mem_fr(va_list args, int fd);
+int		int_fr(va_list args, int fd);
+int		str_fr(va_list args, int fd);
+int		uns_fr(va_list args, int fd);
 
 #endif

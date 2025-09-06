@@ -82,16 +82,8 @@ int	free_large_block(void *ptr)
 	return (0);
 }
 
-void debug_free(void *ptr) {
-	if (g_malloc.verbose)
-		fprintf(stderr, "[DEBUG] free(ptr: %p)\n", ptr);
-	if (g_malloc.trace_file_fd != -1)
-		dprintf(g_malloc.trace_file_fd, "free(ptr: %p)\n", ptr);
-}
-
-void	free(void *ptr)
+void	free_internal(void *ptr)
 {
-	debug_free(ptr);
 	if (ptr == NULL)
 		return ;
 	if (free_block_from_zone(&g_malloc.tiny, ptr))
@@ -102,4 +94,34 @@ void	free(void *ptr)
 		return ;
 	ft_putendl_fd("free(): invalid pointer", STDERR_FILENO);
 	abort();
+}
+
+void	free_wrapper(void *ptr, const char *file, int line, const char *func)
+{
+	if (g_malloc.verbose)
+	{
+		if (ptr == NULL)
+			ft_printf_fd(STDERR_FILENO,
+							"[DEBUG] free(NULL) called at %s:%d in %s\n",
+							file,
+							line,
+							func);
+		else
+			ft_printf_fd(STDERR_FILENO,
+							"[DEBUG] free(%p) called at %s:%d in %s\n",
+							ptr,
+							file,
+							line,
+							func);
+	}
+	if (g_malloc.trace_file_fd != -1)
+	{
+		if (ptr == NULL)
+			ft_printf_fd(g_malloc.trace_file_fd, "free(NULL) at %s:%d in %s\n",
+					file, line, func);
+		else
+			ft_printf_fd(g_malloc.trace_file_fd, "free(%p) at %s:%d in %s\n",
+					ptr, file, line, func);
+	}
+	free_internal(ptr);
 }
