@@ -18,6 +18,10 @@ void *realloc_wrapper(void *ptr, size_t size, const char *file, int line, const 
 
 # define realloc(ptr, size) realloc_wrapper(ptr, size, __FILE__, __LINE__, __func__)
 
+void *reallocarray_wrapper(void *ptr, size_t nmemb, size_t size, const char *file, int line, const char *func);
+
+# define reallocarray(ptr, nmemb, size) reallocarray_wrapper(ptr, nmemb, size, __FILE__, __LINE__, __func__)
+
 void *calloc_wrapper(size_t nmemb, size_t size, const char *file, int line, const char *func);
 
 # define calloc(nmemb, size) calloc_wrapper(nmemb, size, __FILE__, __LINE__, __func__)

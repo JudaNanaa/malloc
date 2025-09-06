@@ -82,5 +82,7 @@ int					merge_block(t_block *block, t_block *prev_block);
 void				malloc_init(void);
 void				*malloc_internal(size_t size);
 void				free_internal(void *ptr);
+void				*realloc_internal(void *ptr, size_t size);
+bool				is_gonna_overflow(size_t nmemb, size_t size);
 
 #endif

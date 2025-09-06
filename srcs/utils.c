@@ -121,3 +121,14 @@ t_block	*find_block(t_page *pages, void *ptr)
 	}
 	return (NULL);
 }
+bool is_gonna_overflow(size_t nmemb, size_t size)
+{
+	size_t check_overflow;
+
+	check_overflow = nmemb * size;
+
+	if (nmemb != 0 && check_overflow / nmemb != size) {
+		return true;
+	}
+	return false;
+}
