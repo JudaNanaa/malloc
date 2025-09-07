@@ -4,7 +4,7 @@ CFLAGS = -Wall -Wextra -g3
 
 SRCS_DIR = srcs/
 
-SRCS = $(addprefix srcs/, main.c malloc.c free.c utils.c realloc.c calloc.c show_alloc_mem.c show_alloc_mem_ex.c env_var.c reallocarray.c)
+SRCS = $(addprefix srcs/, main.c malloc.c free.c utils.c realloc.c calloc.c show_alloc_mem.c show_alloc_mem_ex.c env_var.c reallocarray.c strdup.c)
 
 OBJS_DIR = .objs/
 
@@ -26,11 +26,11 @@ test: $(OBJS)
 	$(CC) $(CFLAGS) $(OBJS) -o test_malloc -L $(LIBFT_DIR) -lft
 
 $(NAME): $(OBJS)
-	ar -rcs $(NAME) $(OBJS)
+	$(CC) -shared -o $(NAME) $(OBJS)
 	@echo la lib a bien ete cree
 
 $(OBJS_DIR)%.o: $(SRCS_DIR)%.c
-	mkdir -p $(OBJS_DIR)
+	mkdir -p $(@D)
 	$(CC) $(CFLAGS) -c $^ -o $@
 
 $(LIBFT) :

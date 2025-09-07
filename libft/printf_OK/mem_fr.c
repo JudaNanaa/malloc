@@ -6,7 +6,7 @@
 /*   By: madamou <madamou@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/05/25 16:11:38 by itahri            #+#    #+#             */
-/*   Updated: 2025/09/06 19:17:55 by madamou          ###   ########.fr       */
+/*   Updated: 2025/09/07 17:26:09 by madamou          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -26,7 +26,7 @@ static void	ft_putnbr_base_ptr(unsigned long long int nbr, char *base, int fd)
 
 void	print_mem(unsigned long long int nbr, int fd)
 {
-	write(1, "0x", 2);
+	write(fd, "0x", 2);
 	ft_putnbr_base_ptr(nbr, "0123456789abcdef", fd);
 }
 

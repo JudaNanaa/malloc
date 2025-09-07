@@ -88,7 +88,7 @@ size_t	print_memory_zone_ex(t_page *page_list, char *zone_name)
 	return (total_size);
 }
 
-void	show_alloc_mem_ex_internal(void)
+void	show_alloc_mem_ex(void)
 {
 	size_t	total_size;
 
@@ -101,25 +101,4 @@ void	show_alloc_mem_ex_internal(void)
 	ft_putnbr(total_size);
 	ft_putendl(" bytes");
 	ft_putendl("==========================================================\n");
-}
-
-void	show_alloc_mem_ex_wrapper(const char *file, int line, const char *func)
-{
-	if (g_malloc.verbose)
-	{
-		ft_printf_fd(STDERR_FILENO,
-						"[DEBUG] show_alloc_mem_ex() called at %s:%d in %s\n",
-						file,
-						line,
-						func);
-	}
-	if (g_malloc.trace_file_fd != -1)
-	{
-		ft_printf_fd(g_malloc.trace_file_fd,
-						"show_alloc_mem_ex() called at %s:%d in %s\n",
-						file,
-						line,
-						func);
-	}
-	show_alloc_mem_ex_internal();
 }

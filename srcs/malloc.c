@@ -160,8 +160,7 @@ void	*malloc_internal(size_t size)
 	return (ptr);
 }
 
-void	*malloc_wrapper(size_t size, const char *file, int line,
-		const char *func)
+void	*malloc(size_t size)
 {
 	void	*ptr;
 
@@ -170,18 +169,16 @@ void	*malloc_wrapper(size_t size, const char *file, int line,
 	ptr = malloc_internal(size);
 	if (g_malloc.verbose)
 	{
-		ft_printf_fd(STDERR_FILENO, "[DEBUG] malloc(%u) -> %p at %s:%d in %s\n",
-				size, ptr, file, line, func);
+		ft_printf_fd(STDERR_FILENO, "[DEBUG] malloc(%u) -> %p\n",
+				size, ptr);
+		ft_printf_fd(2, "je passe ici\n");
 	}
 	if (g_malloc.trace_file_fd != -1)
 	{
 		ft_printf_fd(g_malloc.trace_file_fd,
-						"malloc(%u) -> %p at %s:%d in %s\n",
+						"malloc(%u) -> %p\n",
 						size,
-						ptr,
-						file,
-						line,
-						func);
+						ptr);
 	}
 	return (ptr);
 }

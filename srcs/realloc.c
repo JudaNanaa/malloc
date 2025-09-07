@@ -121,30 +121,26 @@ void	*realloc_internal(void *ptr, size_t size)
 	return (new_ptr);
 }
 
-void	*realloc_wrapper(void *ptr, size_t size, const char *file, int line,
-		const char *func)
+void *realloc(void *ptr, size_t size)
 {
-	void	*new_ptr;
+    void *new_ptr;
 
-	new_ptr = realloc_internal(ptr, size);
-	if (g_malloc.verbose)
-	{
-		ft_printf_fd(STDERR_FILENO, "[DEBUG] realloc called at %s:%d in %s\n",
-				file, line, func);
-		ft_printf_fd(STDERR_FILENO, "\t\tptr: %p, requested size: %u\n", ptr,
-				size);
-		ft_printf_fd(STDERR_FILENO, "\t\t=> returned: %p\n", new_ptr);
-	}
-	if (g_malloc.trace_file_fd != -1)
-	{
-		ft_printf_fd(g_malloc.trace_file_fd,
-						"realloc(%p, %u) -> %p at %s:%d (%s)\n",
-						ptr,
-						size,
-						new_ptr,
-						file,
-						line,
-						func);
-	}
-	return (new_ptr);
+    new_ptr = realloc_internal(ptr, size);
+
+    if (g_malloc.verbose)
+    {
+        ft_printf_fd(STDERR_FILENO, "[DEBUG] realloc(%p, %u) -> %p\n", ptr, size, new_ptr);
+        ft_printf_fd(STDERR_FILENO, "Stack trace (most recent first):\n");
+    }
+
+    if (g_malloc.trace_file_fd != -1)
+    {
+        ft_printf_fd(g_malloc.trace_file_fd,
+                     "realloc(%p, %u) -> %p\n",
+                     ptr,
+                     size,
+                     new_ptr);
+    }
+
+    return new_ptr;
 }
