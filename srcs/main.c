@@ -1,5 +1,7 @@
 # include "../libft/printf_OK/ft_printf.h"
 #include "../includes/lib_malloc.h"
+#include <stdio.h>
+#include <string.h>
 
 
 // Couleurs pour les tests
@@ -1167,6 +1169,527 @@ void test_reallocarray_boundary() {
     show_alloc_mem();
 }
 
+void test_strdup_basic() {
+    TEST_SECTION("STRDUP BASIC TESTS");
+    
+    // Test 1: chaîne vide
+    char *empty = strdup("");
+    test_result(empty != NULL, "strdup(\"\") succeeds");
+    if (empty) {
+        test_result(strlen(empty) == 0, "strdup(\"\") returns empty string");
+        test_result(strcmp(empty, "") == 0, "strdup(\"\") content is correct");
+        test_result(((uintptr_t)empty % 8) == 0, "strdup(\"\") result is 8-byte aligned");
+        free(empty);
+    }
+    
+    // Test 2: chaîne simple
+    char *simple = strdup("Hello");
+    test_result(simple != NULL, "strdup(\"Hello\") succeeds");
+    if (simple) {
+        test_result(strlen(simple) == 5, "strdup(\"Hello\") length is correct");
+        test_result(strcmp(simple, "Hello") == 0, "strdup(\"Hello\") content is correct");
+        test_result(((uintptr_t)simple % 8) == 0, "strdup(\"Hello\") result is 8-byte aligned");
+        free(simple);
+    }
+    
+    // Test 3: chaîne longue
+    char *long_str = strdup("This is a longer string for testing purposes");
+    test_result(long_str != NULL, "strdup(long string) succeeds");
+    if (long_str) {
+        test_result(strlen(long_str) == 44, "strdup(long string) length is correct");
+        test_result(strcmp(long_str, "This is a longer string for testing purposes") == 0, 
+                   "strdup(long string) content is correct");
+        free(long_str);
+    }
+    
+    // Test 4: chaîne avec caractères spéciaux
+    char *special = strdup("Hello\tWorld\n\r\\\"");
+    test_result(special != NULL, "strdup(special chars) succeeds");
+    if (special) {
+        test_result(strcmp(special, "Hello\tWorld\n\r\\\"") == 0, 
+                   "strdup(special chars) content is correct");
+        free(special);
+    }
+    
+    show_alloc_mem();
+}
+
+void test_strdup_sizes() {
+    TEST_SECTION("STRDUP SIZE CATEGORIES");
+    
+    // Test TINY (≤ 128 bytes)
+    // Chaîne de 64 caractères (65 avec \0)
+    char tiny_source[65];
+    memset(tiny_source, 'A', 64);
+    tiny_source[64] = '\0';
+    
+    char *tiny = strdup(tiny_source);
+    test_result(tiny != NULL, "strdup TINY (64 chars) succeeds");
+    if (tiny) {
+        test_result(strlen(tiny) == 64, "strdup TINY length correct");
+        test_result(strcmp(tiny, tiny_source) == 0, "strdup TINY content correct");
+        test_result(tiny[63] == 'A' && tiny[64] == '\0', "strdup TINY null termination");
+        free(tiny);
+    }
+    
+    // Chaîne exactement à la limite TINY (127 chars + \0 = 128 bytes)
+    char tiny_max_source[128];
+    memset(tiny_max_source, 'T', 127);
+    tiny_max_source[127] = '\0';
+    
+    char *tiny_max = strdup(tiny_max_source);
+    test_result(tiny_max != NULL, "strdup TINY max boundary (127 chars) succeeds");
+    if (tiny_max) {
+        test_result(strlen(tiny_max) == 127, "strdup TINY max length correct");
+        test_result(strcmp(tiny_max, tiny_max_source) == 0, "strdup TINY max content correct");
+        free(tiny_max);
+    }
+    
+    // Test SMALL (129-1024 bytes) - 200 caractères
+    char small_source[201];
+    memset(small_source, 'S', 200);
+    small_source[200] = '\0';
+    
+    char *small = strdup(small_source);
+    test_result(small != NULL, "strdup SMALL (200 chars) succeeds");
+    if (small) {
+        test_result(strlen(small) == 200, "strdup SMALL length correct");
+        test_result(strcmp(small, small_source) == 0, "strdup SMALL content correct");
+        free(small);
+    }
+    
+    // Chaîne à la limite SMALL (1023 chars + \0 = 1024 bytes)
+    char small_max_source[1024];
+    memset(small_max_source, 'M', 1023);
+    small_max_source[1023] = '\0';
+    
+    char *small_max = strdup(small_max_source);
+    test_result(small_max != NULL, "strdup SMALL max boundary (1023 chars) succeeds");
+    if (small_max) {
+        test_result(strlen(small_max) == 1023, "strdup SMALL max length correct");
+        test_result(small_max[1022] == 'M' && small_max[1023] == '\0', 
+                   "strdup SMALL max termination correct");
+        free(small_max);
+    }
+    
+    // Test LARGE (> 1024 bytes) - 2000 caractères
+    char large_source[2001];
+    memset(large_source, 'L', 2000);
+    large_source[2000] = '\0';
+    
+    char *large = strdup(large_source);
+    test_result(large != NULL, "strdup LARGE (2000 chars) succeeds");
+    if (large) {
+        test_result(strlen(large) == 2000, "strdup LARGE length correct");
+        test_result(large[1999] == 'L' && large[2000] == '\0', 
+                   "strdup LARGE content and termination correct");
+        free(large);
+    }
+    
+    show_alloc_mem();
+}
+
+void test_strdup_content_integrity() {
+    TEST_SECTION("STRDUP CONTENT INTEGRITY");
+    
+    // Test avec tous les caractères ASCII imprimables
+    char ascii_source[96]; // 32-126 + \0
+    for (int i = 0; i < 95; i++) {
+        ascii_source[i] = (char)(32 + i); // ' ' à '~'
+    }
+    ascii_source[95] = '\0';
+    
+    char *ascii_copy = strdup(ascii_source);
+    test_result(ascii_copy != NULL, "strdup ASCII printable chars succeeds");
+    if (ascii_copy) {
+        test_result(strlen(ascii_copy) == 95, "strdup ASCII length correct");
+        test_result(strcmp(ascii_copy, ascii_source) == 0, "strdup ASCII content correct");
+        
+        // Vérifier caractère par caractère
+        int char_by_char_ok = 1;
+        for (int i = 0; i < 95; i++) {
+            if (ascii_copy[i] != ascii_source[i]) {
+                char_by_char_ok = 0;
+                break;
+            }
+        }
+        test_result(char_by_char_ok, "strdup ASCII char-by-char integrity");
+        free(ascii_copy);
+    }
+    
+    // Test avec des octets binaires (incluant des 0 dans la chaîne source jusqu'au premier \0)
+    char binary_source[] = "Binary\x01\x02\x03\xFF\xFE test";
+    char *binary_copy = strdup(binary_source);
+    test_result(binary_copy != NULL, "strdup binary chars succeeds");
+    if (binary_copy) {
+        test_result(strcmp(binary_copy, binary_source) == 0, "strdup binary content correct");
+        test_result(binary_copy[6] == '\x01' && binary_copy[7] == '\x02', 
+                   "strdup preserves binary values");
+        free(binary_copy);
+    }
+    
+    // Test avec répétition de patterns
+    char pattern_source[101];
+    for (int i = 0; i < 100; i++) {
+        pattern_source[i] = (char)('A' + (i % 26));
+    }
+    pattern_source[100] = '\0';
+    
+    char *pattern_copy = strdup(pattern_source);
+    test_result(pattern_copy != NULL, "strdup pattern string succeeds");
+    if (pattern_copy) {
+        test_result(strlen(pattern_copy) == 100, "strdup pattern length correct");
+        int pattern_ok = 1;
+        for (int i = 0; i < 100; i++) {
+            if (pattern_copy[i] != (char)('A' + (i % 26))) {
+                pattern_ok = 0;
+                break;
+            }
+        }
+        test_result(pattern_ok, "strdup pattern content integrity");
+        free(pattern_copy);
+    }
+}
+
+void test_strdup_independence() {
+    TEST_SECTION("STRDUP MEMORY INDEPENDENCE");
+    
+    // Test que la copie est indépendante de l'original
+    char original[] = "Original string";
+    char *copy = strdup(original);
+    
+    test_result(copy != NULL, "strdup creates copy");
+    if (copy) {
+        test_result(copy != original, "strdup copy has different address");
+        test_result(strcmp(copy, original) == 0, "strdup copy has same content initially");
+        
+        // Modifier l'original
+        strcpy(original, "Modified orig");
+        test_result(strcmp(copy, "Original string") == 0, 
+                   "strdup copy unchanged when original modified");
+        
+        // Modifier la copie
+        strcpy(copy, "Modified copy");
+        test_result(strcmp(original, "Modified orig") == 0, 
+                   "Original unchanged when strdup copy modified");
+        test_result(strcmp(copy, "Modified copy") == 0, 
+                   "strdup copy modification successful");
+        
+        free(copy);
+    }
+    
+    // Test avec buffer temporaire
+    char *dynamic_copy;
+    {
+        char temp_buffer[100];
+        strcpy(temp_buffer, "Temporary buffer content");
+        dynamic_copy = strdup(temp_buffer);
+        test_result(dynamic_copy != NULL, "strdup from temp buffer succeeds");
+        // temp_buffer va être détruit à la sortie du bloc
+    }
+    
+    // Vérifier que la copie survit à la destruction du buffer temporaire
+    if (dynamic_copy) {
+        test_result(strcmp(dynamic_copy, "Temporary buffer content") == 0, 
+                   "strdup copy survives original buffer destruction");
+        free(dynamic_copy);
+    }
+}
+
+void test_strdup_extreme_sizes() {
+    TEST_SECTION("STRDUP EXTREME SIZES");
+    
+    // Test chaîne d'un seul caractère
+    char *single = strdup("X");
+    test_result(single != NULL, "strdup single char succeeds");
+    if (single) {
+        test_result(strlen(single) == 1, "strdup single char length correct");
+        test_result(single[0] == 'X' && single[1] == '\0', "strdup single char content correct");
+        free(single);
+    }
+    
+    // Test chaîne très longue (10KB)
+    char *big_source = malloc(10241);
+    if (big_source) {
+        memset(big_source, 'B', 10240);
+        big_source[10240] = '\0';
+        
+        char *big_copy = strdup(big_source);
+        test_result(big_copy != NULL, "strdup very large string (10KB) succeeds");
+        if (big_copy) {
+            test_result(strlen(big_copy) == 10240, "strdup large string length correct");
+            test_result(big_copy[0] == 'B' && big_copy[10239] == 'B' && big_copy[10240] == '\0', 
+                       "strdup large string content correct");
+            
+            // Vérifier quelques positions aléatoirement
+            int sample_ok = (big_copy[1000] == 'B' && big_copy[5000] == 'B' && big_copy[9000] == 'B');
+            test_result(sample_ok, "strdup large string sample positions correct");
+            
+            free(big_copy);
+        }
+        free(big_source);
+    }
+    
+    // Test avec une chaîne contenant beaucoup d'espaces
+    char spaces_source[1001];
+    memset(spaces_source, ' ', 1000);
+    spaces_source[1000] = '\0';
+    
+    char *spaces_copy = strdup(spaces_source);
+    test_result(spaces_copy != NULL, "strdup spaces string succeeds");
+    if (spaces_copy) {
+        test_result(strlen(spaces_copy) == 1000, "strdup spaces length correct");
+        int all_spaces = 1;
+        for (int i = 0; i < 1000; i++) {
+            if (spaces_copy[i] != ' ') {
+                all_spaces = 0;
+                break;
+            }
+        }
+        test_result(all_spaces && spaces_copy[1000] == '\0', "strdup spaces content correct");
+        free(spaces_copy);
+    }
+}
+
+void test_strdup_special_chars() {
+    TEST_SECTION("STRDUP SPECIAL CHARACTERS");
+    
+    // Test avec caractères Unicode/UTF-8 (si supportés)
+    char *utf8 = strdup("Héllo Wörld! 🌍 café");
+    test_result(utf8 != NULL, "strdup UTF-8 chars succeeds");
+    if (utf8) {
+        test_result(strcmp(utf8, "Héllo Wörld! 🌍 café") == 0, "strdup UTF-8 content correct");
+        free(utf8);
+    }
+    
+    // Test avec tous les caractères de contrôle ASCII (0-31)
+    char control_source[33];
+    for (int i = 1; i < 32; i++) { // Skip \0 car il terminerait la chaîne
+        control_source[i-1] = (char)i;
+    }
+    control_source[31] = '\0';
+    
+    char *control_copy = strdup(control_source);
+    test_result(control_copy != NULL, "strdup control chars succeeds");
+    if (control_copy) {
+        test_result(strlen(control_copy) == 31, "strdup control chars length correct");
+        int control_ok = 1;
+        for (int i = 0; i < 31; i++) {
+            if (control_copy[i] != (char)(i + 1)) {
+                control_ok = 0;
+                break;
+            }
+        }
+        test_result(control_ok, "strdup control chars content correct");
+        free(control_copy);
+    }
+    
+    // Test avec caractères de fin de ligne variés
+    char *newlines = strdup("Line1\nLine2\rLine3\r\nLine4");
+    test_result(newlines != NULL, "strdup newline variants succeeds");
+    if (newlines) {
+        test_result(strcmp(newlines, "Line1\nLine2\rLine3\r\nLine4") == 0, 
+                   "strdup newline variants content correct");
+        free(newlines);
+    }
+    
+    // Test avec guillemets et échappements
+    char *quotes = strdup("\"Hello\" 'World' \\backslash\\");
+    test_result(quotes != NULL, "strdup quotes and escapes succeeds");
+    if (quotes) {
+        test_result(strcmp(quotes, "\"Hello\" 'World' \\backslash\\") == 0, 
+                   "strdup quotes and escapes content correct");
+        free(quotes);
+    }
+}
+
+void test_strdup_alignment() {
+    TEST_SECTION("STRDUP ALIGNMENT TESTS");
+    
+    // Tester l'alignement avec différentes tailles
+    char *ptrs[10];
+    char sources[10][20];
+    
+    for (int i = 0; i < 10; i++) {
+        // Créer des chaînes de longueurs variées
+        int len = i + 1; // 1 à 10 caractères
+        memset(sources[i], 'A' + i, len);
+        sources[i][len] = '\0';
+        
+        ptrs[i] = strdup(sources[i]);
+        test_result(ptrs[i] != NULL, "strdup various sizes allocation");
+        if (ptrs[i]) {
+            test_result(((uintptr_t)ptrs[i] % 8) == 0, "strdup result properly aligned");
+            test_result(strcmp(ptrs[i], sources[i]) == 0, "strdup various sizes content correct");
+        }
+    }
+    
+    // Nettoyer et vérifier l'état
+    show_alloc_mem();
+    
+    for (int i = 0; i < 10; i++) {
+        if (ptrs[i]) {
+            free(ptrs[i]);
+        }
+    }
+}
+
+void test_strdup_stress() {
+    TEST_SECTION("STRDUP STRESS TESTS");
+    
+    // Allouer beaucoup de chaînes de tailles variées
+    const int num_strings = 1000;
+    char **strings = malloc(num_strings * sizeof(char*));
+    int success_count = 0;
+    
+    if (strings) {
+        for (int i = 0; i < num_strings; i++) {
+            // Créer une chaîne unique pour chaque index
+            char temp[100];
+            snprintf(temp, sizeof(temp), "String_%d_with_content_%d", i, i * 42);
+            
+            strings[i] = strdup(temp);
+            if (strings[i]) {
+                success_count++;
+            }
+        }
+        
+        test_result(success_count == num_strings, "strdup stress: all allocations succeed");
+        
+        // Vérifier l'intégrité de quelques chaînes aléatoirement
+        int integrity_check = 1;
+        for (int i = 0; i < num_strings; i += 100) { // Vérifier chaque 100ème
+            if (strings[i]) {
+                char expected[100];
+                snprintf(expected, sizeof(expected), "String_%d_with_content_%d", i, i * 42);
+                if (strcmp(strings[i], expected) != 0) {
+                    integrity_check = 0;
+                    break;
+                }
+            }
+        }
+        test_result(integrity_check, "strdup stress: data integrity maintained");
+        
+        // Nettoyer
+        for (int i = 0; i < num_strings; i++) {
+            if (strings[i]) {
+                free(strings[i]);
+            }
+        }
+        free(strings);
+    }
+    
+    // Test de fragmentation avec strdup
+    char *frags[50];
+    for (int i = 0; i < 50; i++) {
+        char temp[50];
+        snprintf(temp, sizeof(temp), "Fragment_%02d", i);
+        frags[i] = strdup(temp);
+    }
+    
+    // Libérer les chaînes impaires
+    for (int i = 1; i < 50; i += 2) {
+        if (frags[i]) {
+            free(frags[i]);
+            frags[i] = NULL;
+        }
+    }
+    
+    // Réallouer des chaînes dans les trous
+    for (int i = 1; i < 50; i += 2) {
+        char temp[50];
+        snprintf(temp, sizeof(temp), "NewFrag_%02d", i);
+        frags[i] = strdup(temp);
+        test_result(frags[i] != NULL, "strdup fragmentation reallocation");
+    }
+    
+    // Nettoyer la fragmentation
+    for (int i = 0; i < 50; i++) {
+        if (frags[i]) {
+            free(frags[i]);
+        }
+    }
+    
+    show_alloc_mem();
+}
+
+void test_strdup_null_handling() {
+    TEST_SECTION("STRDUP NULL HANDLING");
+    
+    // Note: strdup(NULL) n'est pas défini par le standard C
+    // Votre implémentation peut soit:
+    // 1. Retourner NULL
+    // 2. Faire un segfault (comportement de glibc)
+    // 3. Gérer le cas spécialement
+    
+    printf("Note: Testing strdup(NULL) - behavior is implementation-defined\n");
+    
+    // Test plus sûr: vérifier avec une chaîne qui pourrait être corrompue
+    // mais n'est pas NULL
+    char almost_empty[] = {'\0'};
+    char *empty_dup = strdup(almost_empty);
+    test_result(empty_dup != NULL, "strdup empty string (via array) succeeds");
+    if (empty_dup) {
+        test_result(strlen(empty_dup) == 0, "strdup empty string length is 0");
+        test_result(empty_dup[0] == '\0', "strdup empty string is properly terminated");
+        free(empty_dup);
+    }
+}
+
+void test_strdup_boundary_conditions() {
+    TEST_SECTION("STRDUP BOUNDARY CONDITIONS");
+    
+    // Test exactement aux limites des catégories de malloc
+    
+    // Limite TINY: 128 bytes total, donc 127 chars + \0
+    char tiny_boundary[128];
+    memset(tiny_boundary, 'T', 127);
+    tiny_boundary[127] = '\0';
+    
+    char *tiny_dup = strdup(tiny_boundary);
+    test_result(tiny_dup != NULL, "strdup TINY boundary (127 chars) succeeds");
+    if (tiny_dup) {
+        test_result(strlen(tiny_dup) == 127, "strdup TINY boundary length correct");
+        test_result(tiny_dup[126] == 'T' && tiny_dup[127] == '\0', 
+                   "strdup TINY boundary termination correct");
+        free(tiny_dup);
+    }
+    
+    // Limite SMALL: 1024 bytes total, donc 1023 chars + \0
+    char *small_boundary = malloc(1024);
+    if (small_boundary) {
+        memset(small_boundary, 'S', 1023);
+        small_boundary[1023] = '\0';
+        
+        char *small_dup = strdup(small_boundary);
+        test_result(small_dup != NULL, "strdup SMALL boundary (1023 chars) succeeds");
+        if (small_dup) {
+            test_result(strlen(small_dup) == 1023, "strdup SMALL boundary length correct");
+            test_result(small_dup[1022] == 'S' && small_dup[1023] == '\0', 
+                       "strdup SMALL boundary termination correct");
+            free(small_dup);
+        }
+        free(small_boundary);
+    }
+    
+    // Premier LARGE: 1025 bytes total, donc 1024 chars + \0
+    char *large_boundary = malloc(1025);
+    if (large_boundary) {
+        memset(large_boundary, 'L', 1024);
+        large_boundary[1024] = '\0';
+        
+        char *large_dup = strdup(large_boundary);
+        test_result(large_dup != NULL, "strdup LARGE boundary (1024 chars) succeeds");
+        if (large_dup) {
+            test_result(strlen(large_dup) == 1024, "strdup LARGE boundary length correct");
+            test_result(large_dup[1023] == 'L' && large_dup[1024] == '\0', 
+                       "strdup LARGE boundary termination correct");
+            free(large_dup);
+        }
+        free(large_boundary);
+    }
+}
+
 int main(void) {
     printf(YELLOW "Starting comprehensive malloc/realloc/free test suite...\n" RESET);
     
@@ -1201,6 +1724,18 @@ int main(void) {
     
     // Tests d'interaction
     test_calloc_reallocarray_interaction();
+
+	test_strdup_basic();
+    test_strdup_sizes();
+    test_strdup_content_integrity();
+    test_strdup_independence();
+    test_strdup_extreme_sizes();
+    test_strdup_special_chars();
+    test_strdup_alignment();
+    test_strdup_stress();
+    test_strdup_null_handling();
+    test_strdup_boundary_conditions();
+
     printf(BLUE "\n=== FINAL MEMORY STATE ===" RESET "\n");
     show_alloc_mem_ex();
     

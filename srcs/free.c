@@ -96,32 +96,25 @@ void	free_internal(void *ptr)
 	abort();
 }
 
-void	free_wrapper(void *ptr, const char *file, int line, const char *func)
+void	free(void *ptr)
 {
 	if (g_malloc.verbose)
 	{
 		if (ptr == NULL)
 			ft_printf_fd(STDERR_FILENO,
-							"[DEBUG] free(NULL) called at %s:%d in %s\n",
-							file,
-							line,
-							func);
+							"[DEBUG] free(NULL)\n");
 		else
 			ft_printf_fd(STDERR_FILENO,
-							"[DEBUG] free(%p) called at %s:%d in %s\n",
-							ptr,
-							file,
-							line,
-							func);
+							"[DEBUG] free(%p)\n",
+							ptr);
 	}
 	if (g_malloc.trace_file_fd != -1)
 	{
 		if (ptr == NULL)
-			ft_printf_fd(g_malloc.trace_file_fd, "free(NULL) at %s:%d in %s\n",
-					file, line, func);
+			ft_printf_fd(g_malloc.trace_file_fd, "free(NULL)\n");
 		else
-			ft_printf_fd(g_malloc.trace_file_fd, "free(%p) at %s:%d in %s\n",
-					ptr, file, line, func);
+			ft_printf_fd(g_malloc.trace_file_fd, "free(%p)\n",
+					ptr);
 	}
 	free_internal(ptr);
 }
