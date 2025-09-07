@@ -171,7 +171,6 @@ void	*malloc(size_t size)
 	{
 		ft_printf_fd(STDERR_FILENO, "[DEBUG] malloc(%u) -> %p\n",
 				size, ptr);
-		ft_printf_fd(2, "je passe ici\n");
 	}
 	if (g_malloc.trace_file_fd != -1)
 	{
