@@ -1,4 +1,6 @@
 #include "../includes/malloc_internal.h"
+#include <pthread.h>
+#include <unistd.h>
 
 void	block_free(t_block *block)
 {
@@ -15,10 +17,17 @@ void	remove_page(t_page **pages_list, t_page *page)
 {
 	t_page	*current_page;
 
+	dbg("je suis dans remove page");
+	ft_printf_fd(STDERR_FILENO, "page == %p\n", page);
+	ft_printf_fd(STDERR_FILENO, "*pages_list == %p\n", *pages_list);
 	if (*pages_list == page)
+	{
+		dbg("c'est la premiere page qui va etre enleve");
 		*pages_list = page->next;
+	}
 	else
 	{
+		dbg("c'est n'est pas la premiere page qui va etre enleve");
 		current_page = *pages_list;
 		while (current_page->next != page)
 		{
@@ -27,6 +36,8 @@ void	remove_page(t_page **pages_list, t_page *page)
 		}
 		current_page->next = page->next;
 	}
+	pthread_mutex_destroy(&page->lock);
+	ft_printf_fd(STDERR_FILENO, "munmap(page: %p, page->length: %d)\n", page, page->length);
 	munmap(page, page->length);
 }
 
@@ -58,7 +69,7 @@ int	free_block_from_zone(t_page **pages_list, void *ptr)
 		{
 			block_free(block);
 			if (merge_block(block, prev_block) == 0)
-				current_page->nb_block_free++;
+				incr_nb_free_block_in_page(current_page);
 			if (is_all_blocks_free(current_page->blocks) == true)
 				remove_page(pages_list, current_page);
 			return (1);
@@ -103,6 +114,7 @@ void	free_internal(void *ptr)
 
 void	free(void *ptr)
 {
+	dbg("je rentre dans free");
 	if (g_malloc.verbose)
 	{
 		if (ptr == NULL)
@@ -122,4 +134,5 @@ void	free(void *ptr)
 					ptr);
 	}
 	free_internal(ptr);
+	dbg("je sort de free");
 }

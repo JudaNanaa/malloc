@@ -79,7 +79,7 @@ size_t	print_memory_zone_ex(t_page *page_list, char *zone_name)
 	while (page)
 	{
 		ft_printf_fd(STDERR_FILENO, "%s (page %d) : ", zone_name, page_id++);
-		print_mem((unsigned long long int)GET_BLOCK_PTR(page->blocks),
+		print_mem((unsigned long long int)page,
 					STDERR_FILENO);
 		ft_putstr("\n");
 		total_size += print_page_blocks_ex(page);

@@ -1,10 +1,15 @@
 #include "../includes/malloc_internal.h"
+#include "../includes/lib_malloc.h"
+#include <stdio.h>
+#include <string.h>
+#include <unistd.h>
 
 void	initialize_blocks(t_block **block, size_t size)
 {
 	t_block	*current_block;
 
 	current_block = *block;
+	
 	bzero(current_block->metadata, sizeof(current_block->metadata));
 	SET_BLOCK_SIZE(current_block, size);
 	SET_BLOCK_FREE(current_block);
@@ -78,9 +83,13 @@ int	split_block(t_block *block, size_t size)
 		return (1);
 	}
 	aligned_size = ALIGN(size);
+	ft_printf_fd(STDERR_FILENO, "GET_BLOCK_SIZE(block) == %i\n",GET_BLOCK_SIZE(block));
+	ft_printf_fd(STDERR_FILENO, "aligned_size == %i\n",aligned_size);
+	ft_printf_fd(STDERR_FILENO, "BLOCK_HEADER_SIZE == %i\n",BLOCK_HEADER_SIZE);
+	
 	new_size = GET_BLOCK_SIZE(block) - aligned_size - BLOCK_HEADER_SIZE;
 	SET_BLOCK_SIZE(block, size);
-	new_block = (void *)block + sizeof(t_block) + aligned_size;
+	new_block = (void *)block + BLOCK_HEADER_SIZE + aligned_size;
 	initialize_blocks(&new_block, new_size);
 	if (IS_BLOCK_LAST(block))
 		SET_BLOCK_LAST(new_block);
@@ -101,7 +110,8 @@ t_page	*find_page_by_block(t_page *pages, t_block *block)
 		if (page_find_block_by_ptr(current_page, GET_BLOCK_PTR(block),
 				NULL) != NULL)
 			return (current_page);
-		current_page = current_page->next;
+		current_page = next_page(current_page);
+		// current_page = current_page->next;
 	}
 	return (NULL);
 }
@@ -117,7 +127,8 @@ t_block	*find_block(t_page *pages, void *ptr)
 		block = page_find_block_by_ptr(current_page, ptr, NULL);
 		if (block)
 			return (block);
-		current_page = current_page->next;
+		current_page = next_page(current_page);
+		// current_page = current_page->next;
 	}
 	return (NULL);
 }

@@ -3,6 +3,7 @@
 
 # include "../libft/libft.h"
 # include "../libft/printf_OK/ft_printf.h"
+#include <bits/pthreadtypes.h>
 # include <stdbool.h>
 # include <stddef.h>
 # include <sys/mman.h>
@@ -46,6 +47,8 @@
 
 # define GET_BLOCK_PTR(block) ((void *)(block) + BLOCK_HEADER_SIZE)
 
+# define dbg(to_print) ft_printf_fd(STDERR_FILENO, "%s\n", to_print)
+
 typedef struct s_block
 {
 	unsigned int size;
@@ -57,6 +60,7 @@ typedef struct s_page
 	size_t			length;
 	t_block			*blocks; // pointe vers le premier block de la page
 	size_t			nb_block_free;
+	pthread_mutex_t lock;
 	struct s_page	*next; // pointe vers la prochaine page
 }					t_page;
 
@@ -90,6 +94,11 @@ bool				is_gonna_overflow(size_t nmemb, size_t size);
 char				*strdup_internal(const char *s);
 
 t_page *next_page(t_page *current_page);
+size_t	get_nb_free_block_in_page(t_page *page);
+void	decr_nb_free_block_in_page(t_page *page);
+void	incr_nb_free_block_in_page(t_page *page);
+void block_page(t_page *page);
+void release_page(t_page *page);
 
 
 #endif

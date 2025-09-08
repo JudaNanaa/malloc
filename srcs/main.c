@@ -2,6 +2,7 @@
 #include "../includes/lib_malloc.h"
 #include <stdio.h>
 #include <string.h>
+#include <unistd.h>
 
 
 // Couleurs pour les tests

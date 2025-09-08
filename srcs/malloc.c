@@ -14,8 +14,9 @@ t_page	*create_page(size_t length)
 	new_page->length = length;
 	new_page->next = NULL;
 	new_page->nb_block_free = 1;
+	pthread_mutex_init(&new_page->lock, NULL);
 	new_page->blocks = (void *)new_page + sizeof(t_page);
-	initialize_blocks(&new_page->blocks, length - sizeof(t_page));
+	initialize_blocks(&new_page->blocks, length - sizeof(t_page) - BLOCK_HEADER_SIZE);
 	return (new_page);
 }
 
@@ -42,10 +43,13 @@ t_block	*search_block_in_pages_for_alloc(t_page *pages, size_t size)
 	current_page = pages;
 	while (current_page)
 	{
-		if (current_page->nb_block_free > 0)
+		if (get_nb_free_block_in_page(current_page) > 0)
 		{
+			// block_page(current_page);
 			block = find_free_block_with_enough_spage(current_page, size);
-			return (block);
+			if (block)
+				return (block);
+			// release_page(current_page);
 		}
 		current_page = next_page(current_page);
 		// current_page = current_page->next;
@@ -107,15 +111,16 @@ void	*optimized_malloc(t_page **malloc_page, size_t block_size, size_t size)
 	{
 		page = find_page_by_block(*malloc_page, block);
 		if (split_block(block, size) == 0)
-			page->nb_block_free--;
+			decr_nb_free_block_in_page(page);
 		SET_BLOCK_USE(block);
+		release_page(page);
 		return (GET_BLOCK_PTR(block));
 	}
-	page = create_page((page_allocation_size_for_zone(block_size)));
+	page = create_page(page_allocation_size_for_zone(block_size));
 	if (page == NULL)
 		return (NULL);
 	if (split_block(page->blocks, size) == 0)
-		page->nb_block_free--;
+		decr_nb_free_block_in_page(page);
 	SET_BLOCK_USE(page->blocks);
 	add_back_page_list(malloc_page, page);
 	return (GET_BLOCK_PTR(page->blocks));
