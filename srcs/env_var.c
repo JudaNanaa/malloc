@@ -1,4 +1,8 @@
 #include "../includes/malloc_internal.h"
+#include <bits/pthreadtypes.h>
+#include <pthread.h>
+
+pthread_mutex_t g_malloc_lock = PTHREAD_MUTEX_INITIALIZER;
 
 void	close_trace_file_fd(void)
 {
@@ -9,6 +13,7 @@ void	malloc_init(void)
 {
 	char	*env;
 
+	pthread_mutex_lock(&g_malloc_lock);
 	g_malloc.set = true;
 	env = getenv("MALLOC_VERBOSE");
 	if (env && env[0] == '1')
@@ -27,4 +32,5 @@ void	malloc_init(void)
 			ft_putendl_fd("Fail to pen trace file", STDERR_FILENO);
 		atexit(close_trace_file_fd);
 	}
+	pthread_mutex_unlock(&g_malloc_lock);
 }

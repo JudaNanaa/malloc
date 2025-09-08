@@ -4,7 +4,7 @@ CFLAGS = -Wall -Wextra -g3
 
 SRCS_DIR = srcs/
 
-SRCS = $(addprefix srcs/, main.c malloc.c free.c utils.c realloc.c calloc.c show_alloc_mem.c show_alloc_mem_ex.c env_var.c reallocarray.c strdup.c)
+SRCS = $(addprefix srcs/, main.c malloc.c free.c utils.c realloc.c calloc.c show_alloc_mem.c show_alloc_mem_ex.c env_var.c reallocarray.c strdup.c malloc_thread.c)
 
 OBJS_DIR = .objs/
 
@@ -23,7 +23,7 @@ endif
 all: $(LIBFT) test
 
 test: $(OBJS)
-	$(CC) $(CFLAGS) $(OBJS) -o test_malloc -L $(LIBFT_DIR) -lft
+	$(CC) $(CFLAGS) $(OBJS) -o test_malloc -L $(LIBFT_DIR) -lft -lpthread
 
 $(NAME): $(OBJS)
 	$(CC) -shared -o $(NAME) $(OBJS)

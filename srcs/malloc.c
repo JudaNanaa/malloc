@@ -133,7 +133,7 @@ void	*large_malloc(size_t size)
 
 bool	malloc_force_fail(size_t size)
 {
-	if (g_malloc.fail_size != 1 && (int)size == g_malloc.fail_size)
+	if (g_malloc_fail_size() != 1 && (int)size == g_malloc_fail_size())
 	{
 		ft_printf_fd(STDERR_FILENO,
 						"[DEBUG] malloc(size: %u) forced to fail!\n",
@@ -164,17 +164,17 @@ void	*malloc(size_t size)
 {
 	void	*ptr;
 
-	if (!g_malloc.set)
+	if (!g_malloc_is_set())
 		malloc_init();
 	ptr = malloc_internal(size);
-	if (g_malloc.verbose)
+	if (g_malloc_verbose())
 	{
 		ft_printf_fd(STDERR_FILENO, "[DEBUG] malloc(%u) -> %p\n",
 				size, ptr);
 	}
-	if (g_malloc.trace_file_fd != -1)
+	if (g_malloc_trace_file_fd() != -1)
 	{
-		ft_printf_fd(g_malloc.trace_file_fd,
+		ft_printf_fd(g_malloc_trace_file_fd(),
 						"malloc(%u) -> %p\n",
 						size,
 						ptr);

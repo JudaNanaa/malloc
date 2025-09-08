@@ -98,7 +98,7 @@ void	free_internal(void *ptr)
 
 void	free(void *ptr)
 {
-	if (g_malloc.verbose)
+	if (g_malloc_verbose())
 	{
 		if (ptr == NULL)
 			ft_printf_fd(STDERR_FILENO,
@@ -108,12 +108,12 @@ void	free(void *ptr)
 							"[DEBUG] free(%p)\n",
 							ptr);
 	}
-	if (g_malloc.trace_file_fd != -1)
+	if (g_malloc_trace_file_fd() != -1)
 	{
 		if (ptr == NULL)
-			ft_printf_fd(g_malloc.trace_file_fd, "free(NULL)\n");
+			ft_printf_fd(g_malloc_trace_file_fd(), "free(NULL)\n");
 		else
-			ft_printf_fd(g_malloc.trace_file_fd, "free(%p)\n",
+			ft_printf_fd(g_malloc_trace_file_fd(), "free(%p)\n",
 					ptr);
 	}
 	free_internal(ptr);

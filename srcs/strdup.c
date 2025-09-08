@@ -19,13 +19,13 @@ char *strdup(const char *s)
 
     dest = strdup_internal(s);
 
-    if (g_malloc.verbose) {
+    if (g_malloc_verbose()) {
         ft_printf_fd(STDERR_FILENO,
             "[DEBUG] strdup(\"%s\") -> %p\n", s, dest);
     }
 
-    if (g_malloc.trace_file_fd != -1) {
-        ft_printf_fd(g_malloc.trace_file_fd,
+    if (g_malloc_trace_file_fd() != -1) {
+        ft_printf_fd(g_malloc_trace_file_fd(),
             "strdup(\"%s\") -> %p\n", s, dest);
     }
 

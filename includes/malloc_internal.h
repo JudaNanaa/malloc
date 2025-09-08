@@ -6,6 +6,8 @@
 # include <stdbool.h>
 # include <stddef.h>
 # include <sys/mman.h>
+# include <pthread.h>
+#include <stdatomic.h>
 
 # define n 64   // taille en bytes pour etre considerer comme tiny malloc
 # define m 1024 // taille en bytes pour etre considerer comme small malloc
@@ -64,13 +66,14 @@ typedef struct s_malloc
 	t_page			*small; // page liee au small malloc
 	t_page			*large; // page liee au large malloc
 	int				fail_size;
-	bool			set;
+	atomic_bool			set;
 	bool			verbose;
 	bool			no_defrag;
 	int				trace_file_fd;
 }					t_malloc;
 
 extern t_malloc	g_malloc;
+extern pthread_mutex_t g_malloc_lock;
 
 t_block				*page_find_block_by_ptr(t_page *page, void *ptr,
 						t_block **prev_out);
@@ -85,5 +88,11 @@ void				free_internal(void *ptr);
 void				*realloc_internal(void *ptr, size_t size);
 bool				is_gonna_overflow(size_t nmemb, size_t size);
 char				*strdup_internal(const char *s);
+
+bool g_malloc_is_set(void);
+bool g_malloc_verbose(void);
+bool g_malloc_no_defrag(void);
+int g_malloc_fail_size(void);
+int g_malloc_trace_file_fd(void);
 
 #endif
