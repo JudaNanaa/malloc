@@ -1,4 +1,5 @@
 #include "../includes/malloc_internal.h"
+#include <pthread.h>
 
 t_malloc	g_malloc = {NULL, NULL, NULL, -1, false, false, false, -1};
 
@@ -46,7 +47,8 @@ t_block	*search_block_in_pages_for_alloc(t_page *pages, size_t size)
 			block = find_free_block_with_enough_spage(current_page, size);
 			return (block);
 		}
-		current_page = current_page->next;
+		current_page = next_page(current_page);
+		// current_page = current_page->next;
 	}
 	return (NULL);
 }
@@ -64,7 +66,8 @@ void	add_back_page_list(t_page **first, t_page *new)
 		current = *first;
 		while (current->next)
 		{
-			current = current->next;
+			current = next_page(current);
+			// current = current->next;
 		}
 		current->next = new;
 	}
@@ -133,7 +136,7 @@ void	*large_malloc(size_t size)
 
 bool	malloc_force_fail(size_t size)
 {
-	if (g_malloc_fail_size() != 1 && (int)size == g_malloc_fail_size())
+	if (g_malloc.fail_size != 1 && (int)size == g_malloc.fail_size)
 	{
 		ft_printf_fd(STDERR_FILENO,
 						"[DEBUG] malloc(size: %u) forced to fail!\n",
@@ -164,17 +167,19 @@ void	*malloc(size_t size)
 {
 	void	*ptr;
 
-	if (!g_malloc_is_set())
+	pthread_mutex_lock(&g_malloc_lock);
+	if (!g_malloc.set)
 		malloc_init();
+	pthread_mutex_unlock(&g_malloc_lock);
 	ptr = malloc_internal(size);
-	if (g_malloc_verbose())
+	if (g_malloc.verbose)
 	{
 		ft_printf_fd(STDERR_FILENO, "[DEBUG] malloc(%u) -> %p\n",
 				size, ptr);
 	}
-	if (g_malloc_trace_file_fd() != -1)
+	if (g_malloc.trace_file_fd != -1)
 	{
-		ft_printf_fd(g_malloc_trace_file_fd(),
+		ft_printf_fd(g_malloc.trace_file_fd,
 						"malloc(%u) -> %p\n",
 						size,
 						ptr);

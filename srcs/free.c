@@ -21,7 +21,10 @@ void	remove_page(t_page **pages_list, t_page *page)
 	{
 		current_page = *pages_list;
 		while (current_page->next != page)
-			current_page = current_page->next;
+		{
+			current_page = next_page(current_page);
+			// current_page = current_page->next;
+		}
 		current_page->next = page->next;
 	}
 	munmap(page, page->length);
@@ -60,7 +63,8 @@ int	free_block_from_zone(t_page **pages_list, void *ptr)
 				remove_page(pages_list, current_page);
 			return (1);
 		}
-		current_page = current_page->next;
+		current_page = next_page(current_page);
+		// current_page = current_page->next;
 	}
 	return (0);
 }
@@ -77,7 +81,8 @@ int	free_large_block(void *ptr)
 			remove_page(&g_malloc.large, current_page);
 			return (1);
 		}
-		current_page = current_page->next;
+		current_page = next_page(current_page);
+		// current_page = current_page->next;
 	}
 	return (0);
 }
@@ -98,7 +103,7 @@ void	free_internal(void *ptr)
 
 void	free(void *ptr)
 {
-	if (g_malloc_verbose())
+	if (g_malloc.verbose)
 	{
 		if (ptr == NULL)
 			ft_printf_fd(STDERR_FILENO,
@@ -108,12 +113,12 @@ void	free(void *ptr)
 							"[DEBUG] free(%p)\n",
 							ptr);
 	}
-	if (g_malloc_trace_file_fd() != -1)
+	if (g_malloc.trace_file_fd != -1)
 	{
 		if (ptr == NULL)
-			ft_printf_fd(g_malloc_trace_file_fd(), "free(NULL)\n");
+			ft_printf_fd(g_malloc.trace_file_fd, "free(NULL)\n");
 		else
-			ft_printf_fd(g_malloc_trace_file_fd(), "free(%p)\n",
+			ft_printf_fd(g_malloc.trace_file_fd, "free(%p)\n",
 					ptr);
 	}
 	free_internal(ptr);

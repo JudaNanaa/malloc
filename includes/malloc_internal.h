@@ -89,10 +89,7 @@ void				*realloc_internal(void *ptr, size_t size);
 bool				is_gonna_overflow(size_t nmemb, size_t size);
 char				*strdup_internal(const char *s);
 
-bool g_malloc_is_set(void);
-bool g_malloc_verbose(void);
-bool g_malloc_no_defrag(void);
-int g_malloc_fail_size(void);
-int g_malloc_trace_file_fd(void);
+t_page *next_page(t_page *current_page);
+
 
 #endif

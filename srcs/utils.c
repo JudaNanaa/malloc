@@ -27,7 +27,7 @@ int	merge_block(t_block *block, t_block *prev_block)
 	int		nb_merge;
 	t_block	*next_block;
 
-	if (g_malloc_no_defrag() == true)
+	if (g_malloc.no_defrag == true)
 		return 0;
 	nb_merge = 0;
 	next_block = NEXT_BLOCK(block);
