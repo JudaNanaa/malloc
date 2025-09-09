@@ -1,6 +1,6 @@
 CC = cc
 
-CFLAGS = -Wall -Wextra -g3
+CFLAGS = -Wall -Wextra -pg
 
 SRCS_DIR = srcs/
 
@@ -23,7 +23,7 @@ endif
 all: $(LIBFT) test
 
 test: $(OBJS)
-	$(CC) $(CFLAGS) $(OBJS) -o test_malloc -L $(LIBFT_DIR) -lft
+	$(CC) $(CFLAGS) $(OBJS) -o test_malloc -L $(LIBFT_DIR) -lft -lpthread
 
 $(NAME): $(OBJS)
 	$(CC) -shared -o $(NAME) $(OBJS)

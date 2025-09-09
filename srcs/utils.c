@@ -1,10 +1,17 @@
 #include "../includes/malloc_internal.h"
+#include <pthread.h>
+#include <stdbool.h>
+#include <stdio.h>
+#include <string.h>
+#include <time.h>
+#include <unistd.h>
 
 void	initialize_blocks(t_block **block, size_t size)
 {
 	t_block	*current_block;
 
 	current_block = *block;
+	
 	bzero(current_block->metadata, sizeof(current_block->metadata));
 	SET_BLOCK_SIZE(current_block, size);
 	SET_BLOCK_FREE(current_block);
@@ -80,7 +87,7 @@ int	split_block(t_block *block, size_t size)
 	aligned_size = ALIGN(size);
 	new_size = GET_BLOCK_SIZE(block) - aligned_size - BLOCK_HEADER_SIZE;
 	SET_BLOCK_SIZE(block, size);
-	new_block = (void *)block + sizeof(t_block) + aligned_size;
+	new_block = (void *)block + BLOCK_HEADER_SIZE + aligned_size;
 	initialize_blocks(&new_block, new_size);
 	if (IS_BLOCK_LAST(block))
 		SET_BLOCK_LAST(new_block);
@@ -91,22 +98,7 @@ int	split_block(t_block *block, size_t size)
 	return (1);
 }
 
-t_page	*find_page_by_block(t_page *pages, t_block *block)
-{
-	t_page	*current_page;
-
-	current_page = pages;
-	while (current_page)
-	{
-		if (page_find_block_by_ptr(current_page, GET_BLOCK_PTR(block),
-				NULL) != NULL)
-			return (current_page);
-		current_page = current_page->next;
-	}
-	return (NULL);
-}
-
-t_block	*find_block(t_page *pages, void *ptr)
+bool find_block(t_page *pages, void *ptr, t_page_block *out)
 {
 	t_page	*current_page;
 	t_block	*block;
@@ -116,10 +108,17 @@ t_block	*find_block(t_page *pages, void *ptr)
 	{
 		block = page_find_block_by_ptr(current_page, ptr, NULL);
 		if (block)
-			return (block);
+		{
+			out->block = block;
+			out->page = current_page;
+			return (true);
+		}
+		// current_page = next_page(current_page);
 		current_page = current_page->next;
 	}
-	return (NULL);
+	out->block = NULL;
+	out->page = NULL;
+	return (false);
 }
 bool is_gonna_overflow(size_t nmemb, size_t size)
 {

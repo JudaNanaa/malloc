@@ -3,9 +3,12 @@
 
 # include "../libft/libft.h"
 # include "../libft/printf_OK/ft_printf.h"
+#include <bits/pthreadtypes.h>
 # include <stdbool.h>
 # include <stddef.h>
 # include <sys/mman.h>
+# include <pthread.h>
+#include <stdatomic.h>
 
 # define n 64   // taille en bytes pour etre considerer comme tiny malloc
 # define m 1024 // taille en bytes pour etre considerer comme small malloc
@@ -44,6 +47,8 @@
 
 # define GET_BLOCK_PTR(block) ((void *)(block) + BLOCK_HEADER_SIZE)
 
+# define dbg(to_print) ft_printf_fd(STDERR_FILENO, "%s\n", to_print)
+
 typedef struct s_block
 {
 	unsigned int size;
@@ -58,26 +63,38 @@ typedef struct s_page
 	struct s_page	*next; // pointe vers la prochaine page
 }					t_page;
 
+typedef struct s_page_block
+{
+    t_page  *page;
+    t_block *block;
+}   t_page_block;
+
+typedef struct s_mutex_zone {
+	t_page *pages;
+	t_page *last;
+	pthread_mutex_t mutex;
+} t_mutex_zone;
+
 typedef struct s_malloc
 {
-	t_page			*tiny;  // page liee au tiny malloc
-	t_page			*small; // page liee au small malloc
-	t_page			*large; // page liee au large malloc
+	t_mutex_zone	tiny; // page liee au tiny malloc
+	t_mutex_zone	small; // page liee au small malloc
+	t_mutex_zone	large; // page liee au large malloc
 	int				fail_size;
-	bool			set;
+	atomic_bool			set;
 	bool			verbose;
 	bool			no_defrag;
 	int				trace_file_fd;
 }					t_malloc;
 
 extern t_malloc	g_malloc;
+extern pthread_mutex_t g_malloc_lock;
 
 t_block				*page_find_block_by_ptr(t_page *page, void *ptr,
 						t_block **prev_out);
 void				initialize_blocks(t_block **block, size_t size);
 int					split_block(t_block *block, size_t size);
-t_page				*find_page_by_block(t_page *pages, t_block *block);
-t_block				*find_block(t_page *pages, void *ptr);
+bool				find_block(t_page *pages, void *ptr, t_page_block *out);
 int					merge_block(t_block *block, t_block *prev_block);
 void				malloc_init(void);
 void				*malloc_internal(size_t size);
@@ -85,5 +102,8 @@ void				free_internal(void *ptr);
 void				*realloc_internal(void *ptr, size_t size);
 bool				is_gonna_overflow(size_t nmemb, size_t size);
 char				*strdup_internal(const char *s);
+
+// t_page *next_page(t_page *current_page);
+
 
 #endif

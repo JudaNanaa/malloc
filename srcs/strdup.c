@@ -10,13 +10,17 @@ char	*strdup_internal(const char *s)
 	dest = malloc_internal(len + 1);
 	if (dest == NULL)
 		return (dest);
-	return (memmove(dest, s, len + 1));
+	return (strcpy(dest, s));
 }
 
 char *strdup(const char *s)
 {
     char *dest;
 
+	pthread_mutex_lock(&g_malloc_lock);
+	if (!g_malloc.set)
+		malloc_init();
+	pthread_mutex_unlock(&g_malloc_lock);
     dest = strdup_internal(s);
 
     if (g_malloc.verbose) {
