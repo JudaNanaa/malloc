@@ -13,6 +13,10 @@ void	*calloc_internal(size_t nmemb, size_t size)
 void *calloc(size_t nmemb, size_t size) {
     void *ptr;
 
+	pthread_mutex_lock(&g_malloc_lock);
+	if (!g_malloc.set)
+		malloc_init();
+	pthread_mutex_unlock(&g_malloc_lock);	
     if (is_gonna_overflow(nmemb, size)) {
         if (g_malloc.verbose) {
             ft_printf_fd(STDERR_FILENO,

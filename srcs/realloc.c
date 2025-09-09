@@ -19,8 +19,7 @@ void	*shrink_memory(t_page *pages, size_t size, t_block *block)
 	if (split_block(block, size) == 0)
 	{
 		current_page = find_page_by_block(pages, block);
-		decr_nb_free_block_in_page(current_page);
-		// current_page->nb_block_free--;
+		current_page->nb_block_free--;
 	}
 	SET_BLOCK_SIZE(block, size);
 	return (GET_BLOCK_PTR(block));
@@ -49,7 +48,7 @@ int	increase_memory(t_page *pages, t_block *block, size_t size)
 	memmove(new_free_block, next_block, BLOCK_HEADER_SIZE);
 	SET_BLOCK_SIZE(new_free_block, new_size);
 	current_page = find_page_by_block(pages, block);
-	incr_nb_free_block_in_page(current_page);
+	current_page->nb_block_free++;
 	// current_page->nb_block_free++;
 	return (1);
 }

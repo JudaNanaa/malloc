@@ -1,5 +1,6 @@
 #include "../includes/malloc_internal.h"
 #include <pthread.h>
+#include <unistd.h>
 
 t_malloc	g_malloc = {NULL, NULL, NULL, -1, false, false, false, -1};
 
@@ -45,14 +46,14 @@ t_block	*search_block_in_pages_for_alloc(t_page *pages, size_t size)
 	{
 		if (get_nb_free_block_in_page(current_page) > 0)
 		{
-			// block_page(current_page);
+			block_page(current_page);
 			block = find_free_block_with_enough_spage(current_page, size);
 			if (block)
 				return (block);
-			// release_page(current_page);
+			release_page(current_page);
 		}
-		current_page = next_page(current_page);
-		// current_page = current_page->next;
+		// current_page = next_page(current_page);
+		current_page = current_page->next;
 	}
 	return (NULL);
 }
@@ -61,20 +62,20 @@ void	add_back_page_list(t_page **first, t_page *new)
 {
 	t_page	*current;
 
+	pthread_mutex_lock(&g_malloc_lock);
 	if (*first == NULL)
-	{
 		*first = new;
-	}
 	else
 	{
 		current = *first;
 		while (current->next)
 		{
-			current = next_page(current);
-			// current = current->next;
+			// current = next_page(current);
+			current = current->next;
 		}
 		current->next = new;
 	}
+	pthread_mutex_unlock(&g_malloc_lock);
 }
 
 size_t	page_allocation_size_for_zone(size_t block_size)
@@ -105,22 +106,24 @@ void	*optimized_malloc(t_page **malloc_page, size_t block_size, size_t size)
 {
 	t_page	*page;
 	t_block	*block;
+	void	*ptr;
 
 	block = search_block_in_pages_for_alloc(*malloc_page, size);
 	if (block)
 	{
 		page = find_page_by_block(*malloc_page, block);
 		if (split_block(block, size) == 0)
-			decr_nb_free_block_in_page(page);
+			page->nb_block_free--;
 		SET_BLOCK_USE(block);
+		ptr = GET_BLOCK_PTR(block);
 		release_page(page);
-		return (GET_BLOCK_PTR(block));
+		return (ptr);
 	}
 	page = create_page(page_allocation_size_for_zone(block_size));
 	if (page == NULL)
 		return (NULL);
 	if (split_block(page->blocks, size) == 0)
-		decr_nb_free_block_in_page(page);
+			page->nb_block_free--;
 	SET_BLOCK_USE(page->blocks);
 	add_back_page_list(malloc_page, page);
 	return (GET_BLOCK_PTR(page->blocks));

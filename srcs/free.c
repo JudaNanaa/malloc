@@ -17,28 +17,22 @@ void	remove_page(t_page **pages_list, t_page *page)
 {
 	t_page	*current_page;
 
-	dbg("je suis dans remove page");
-	ft_printf_fd(STDERR_FILENO, "page == %p\n", page);
-	ft_printf_fd(STDERR_FILENO, "*pages_list == %p\n", *pages_list);
+	pthread_mutex_lock(&g_malloc_lock);
 	if (*pages_list == page)
-	{
-		dbg("c'est la premiere page qui va etre enleve");
 		*pages_list = page->next;
-	}
 	else
 	{
-		dbg("c'est n'est pas la premiere page qui va etre enleve");
 		current_page = *pages_list;
 		while (current_page->next != page)
 		{
-			current_page = next_page(current_page);
-			// current_page = current_page->next;
+			// current_page = next_page(current_page);
+			current_page = current_page->next;
 		}
 		current_page->next = page->next;
 	}
 	pthread_mutex_destroy(&page->lock);
-	ft_printf_fd(STDERR_FILENO, "munmap(page: %p, page->length: %d)\n", page, page->length);
 	munmap(page, page->length);
+	pthread_mutex_unlock(&g_malloc_lock);
 }
 
 bool	is_all_blocks_free(t_block *blocks)
@@ -69,13 +63,13 @@ int	free_block_from_zone(t_page **pages_list, void *ptr)
 		{
 			block_free(block);
 			if (merge_block(block, prev_block) == 0)
-				incr_nb_free_block_in_page(current_page);
+				current_page->nb_block_free++;
 			if (is_all_blocks_free(current_page->blocks) == true)
 				remove_page(pages_list, current_page);
 			return (1);
 		}
-		current_page = next_page(current_page);
-		// current_page = current_page->next;
+		// current_page = next_page(current_page);
+		current_page = current_page->next;
 	}
 	return (0);
 }
@@ -92,8 +86,8 @@ int	free_large_block(void *ptr)
 			remove_page(&g_malloc.large, current_page);
 			return (1);
 		}
-		current_page = next_page(current_page);
-		// current_page = current_page->next;
+		// current_page = next_page(current_page);
+		current_page = current_page->next;
 	}
 	return (0);
 }
@@ -114,7 +108,10 @@ void	free_internal(void *ptr)
 
 void	free(void *ptr)
 {
-	dbg("je rentre dans free");
+	pthread_mutex_lock(&g_malloc_lock);
+	if (!g_malloc.set)
+		malloc_init();
+	pthread_mutex_unlock(&g_malloc_lock);
 	if (g_malloc.verbose)
 	{
 		if (ptr == NULL)
@@ -134,5 +131,4 @@ void	free(void *ptr)
 					ptr);
 	}
 	free_internal(ptr);
-	dbg("je sort de free");
 }

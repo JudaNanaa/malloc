@@ -93,10 +93,8 @@ void				*realloc_internal(void *ptr, size_t size);
 bool				is_gonna_overflow(size_t nmemb, size_t size);
 char				*strdup_internal(const char *s);
 
-t_page *next_page(t_page *current_page);
+// t_page *next_page(t_page *current_page);
 size_t	get_nb_free_block_in_page(t_page *page);
-void	decr_nb_free_block_in_page(t_page *page);
-void	incr_nb_free_block_in_page(t_page *page);
 void block_page(t_page *page);
 void release_page(t_page *page);
 
