@@ -17,7 +17,6 @@ void	remove_page(t_page **pages_list, t_page *page)
 {
 	t_page	*current_page;
 
-	pthread_mutex_lock(&g_malloc_lock);
 	if (*pages_list == page)
 		*pages_list = page->next;
 	else
@@ -30,9 +29,7 @@ void	remove_page(t_page **pages_list, t_page *page)
 		}
 		current_page->next = page->next;
 	}
-	pthread_mutex_destroy(&page->lock);
 	munmap(page, page->length);
-	pthread_mutex_unlock(&g_malloc_lock);
 }
 
 bool	is_all_blocks_free(t_block *blocks)
@@ -55,13 +52,9 @@ int	free_block_from_zone(t_page **pages_list, void *ptr)
 	t_block	*block;
 	t_block	*prev_block;
 	
-	pthread_mutex_lock(&g_malloc_lock);
 	current_page = *pages_list;
 	while (current_page)
 	{
-		pthread_mutex_unlock(&g_malloc_lock);
-		pthread_mutex_lock(&g_malloc_lock);
-		block_page(current_page);
 		block = page_find_block_by_ptr(current_page, ptr, &prev_block);
 		if (block)
 		{
@@ -70,11 +63,9 @@ int	free_block_from_zone(t_page **pages_list, void *ptr)
 				current_page->nb_block_free++;
 			if (is_all_blocks_free(current_page->blocks) == true)
 				remove_page(pages_list, current_page);
-			pthread_mutex_unlock(&g_malloc_lock);
 			return (1);
 		}
 		// current_page = next_page(current_page);
-		pthread_mutex_unlock(&g_malloc_lock);
 		current_page = current_page->next;
 	}
 	return (0);
@@ -84,12 +75,12 @@ int	free_large_block(void *ptr)
 {
 	t_page	*current_page;
 
-	current_page = g_malloc.large;
+	current_page = g_malloc.large.pages;
 	while (current_page)
 	{
 		if (page_find_block_by_ptr(current_page, ptr, NULL) != NULL)
 		{
-			remove_page(&g_malloc.large, current_page);
+			remove_page(&g_malloc.large.pages, current_page);
 			return (1);
 		}
 		// current_page = next_page(current_page);
@@ -102,17 +93,23 @@ void	free_internal(void *ptr)
 {
 	if (ptr == NULL)
 		return ;
-	if (free_block_from_zone(&g_malloc.tiny, ptr))
-		return ;
-	if (free_block_from_zone(&g_malloc.small, ptr))
-		return ;
+	pthread_mutex_lock(&g_malloc.tiny.mutex);
+	if (free_block_from_zone(&g_malloc.tiny.pages, ptr))
+		return (void)pthread_mutex_unlock(&g_malloc.tiny.mutex);
+	pthread_mutex_unlock(&g_malloc.tiny.mutex);
+	pthread_mutex_lock(&g_malloc.small.mutex);
+	if (free_block_from_zone(&g_malloc.small.pages, ptr))
+		return (void)pthread_mutex_unlock(&g_malloc.small.mutex);
+	pthread_mutex_unlock(&g_malloc.small.mutex);
+	pthread_mutex_lock(&g_malloc.large.mutex);
 	if (free_large_block(ptr))
-		return ;
+		return (void)pthread_mutex_unlock(&g_malloc.large.mutex);
+	pthread_mutex_unlock(&g_malloc.large.mutex);
 	ft_putendl_fd("free(): invalid pointer", STDERR_FILENO);
 	abort();
 }
 
-void	free(void *ptr)
+void	my_free(void *ptr)
 {
 	pthread_mutex_lock(&g_malloc_lock);
 	if (!g_malloc.set)

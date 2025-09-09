@@ -60,7 +60,6 @@ typedef struct s_page
 	size_t			length;
 	t_block			*blocks; // pointe vers le premier block de la page
 	size_t			nb_block_free;
-	pthread_mutex_t lock;
 	struct s_page	*next; // pointe vers la prochaine page
 }					t_page;
 
@@ -70,11 +69,17 @@ typedef struct s_page_block
     t_block *block;
 }   t_page_block;
 
+typedef struct s_mutex_zone {
+	t_page *pages;
+	t_page *last;
+	pthread_mutex_t mutex;
+} t_mutex_zone;
+
 typedef struct s_malloc
 {
-	t_page			*tiny;  // page liee au tiny malloc
-	t_page			*small; // page liee au small malloc
-	t_page			*large; // page liee au large malloc
+	t_mutex_zone	tiny; // page liee au tiny malloc
+	t_mutex_zone	small; // page liee au small malloc
+	t_mutex_zone	large; // page liee au large malloc
 	int				fail_size;
 	atomic_bool			set;
 	bool			verbose;
@@ -99,9 +104,6 @@ bool				is_gonna_overflow(size_t nmemb, size_t size);
 char				*strdup_internal(const char *s);
 
 // t_page *next_page(t_page *current_page);
-size_t	get_nb_free_block_in_page(t_page *page);
-void block_page(t_page *page);
-void release_page(t_page *page);
 
 
 #endif

@@ -1,4 +1,5 @@
 #include "../includes/malloc_internal.h"
+#include <pthread.h>
 #include <stdbool.h>
 #include <stdio.h>
 #include <string.h>

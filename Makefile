@@ -1,10 +1,10 @@
 CC = cc
 
-CFLAGS = -Wall -Wextra -g3
+CFLAGS = -Wall -Wextra -pg
 
 SRCS_DIR = srcs/
 
-SRCS = $(addprefix srcs/, main.c malloc.c free.c utils.c realloc.c calloc.c show_alloc_mem.c show_alloc_mem_ex.c env_var.c reallocarray.c strdup.c malloc_thread.c)
+SRCS = $(addprefix srcs/, main.c malloc.c free.c utils.c realloc.c calloc.c show_alloc_mem.c show_alloc_mem_ex.c env_var.c reallocarray.c strdup.c)
 
 OBJS_DIR = .objs/
 

@@ -94,9 +94,15 @@ void	show_alloc_mem_ex(void)
 
 	total_size = 0;
 	ft_putendl("\n================= Extended Memory Report =================");
-	total_size += print_memory_zone_ex(g_malloc.tiny, "TINY");
-	total_size += print_memory_zone_ex(g_malloc.small, "SMALL");
-	total_size += print_memory_zone_ex(g_malloc.large, "LARGE");
+	pthread_mutex_lock(&g_malloc.tiny.mutex);
+	total_size += print_memory_zone_ex(g_malloc.tiny.pages, "TINY");
+	pthread_mutex_unlock(&g_malloc.tiny.mutex);
+	pthread_mutex_lock(&g_malloc.small.mutex);
+	total_size += print_memory_zone_ex(g_malloc.small.pages, "SMALL");
+	pthread_mutex_unlock(&g_malloc.small.mutex);
+	pthread_mutex_lock(&g_malloc.large.mutex);
+	total_size += print_memory_zone_ex(g_malloc.large.pages, "LARGE");
+	pthread_mutex_unlock(&g_malloc.large.mutex);
 	ft_putstr("Total allocated (used only): ");
 	ft_putnbr(total_size);
 	ft_putendl(" bytes");

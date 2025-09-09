@@ -89,18 +89,34 @@ void	*realloc_internal(void *ptr, size_t size)
 		free_internal(ptr);
 		return (NULL);
 	}
-	if (find_block(g_malloc.tiny, ptr, &res))
+	pthread_mutex_lock(&g_malloc.tiny.mutex);
+	if (find_block(g_malloc.tiny.pages, ptr, &res))
+	{
 		new_ptr = realloc_tiny_block(ptr, size, &res);
+		pthread_mutex_unlock(&g_malloc.tiny.mutex);
+	}
 	else
 	{
-		if (find_block(g_malloc.small, ptr, &res))
+		pthread_mutex_unlock(&g_malloc.tiny.mutex);
+		pthread_mutex_lock(&g_malloc.small.mutex);
+		if (find_block(g_malloc.small.pages, ptr, &res))
+		{
 			new_ptr = realloc_small_block(ptr, size, &res);
+			pthread_mutex_unlock(&g_malloc.small.mutex);
+			
+		}
 		else
 		{
-			if (find_block(g_malloc.large, ptr, &res))
+			pthread_mutex_unlock(&g_malloc.small.mutex);
+			pthread_mutex_lock(&g_malloc.large.mutex);
+			if (find_block(g_malloc.large.pages, ptr, &res))
+			{
 				new_ptr = realloc_large_block(ptr, size, &res);
+				pthread_mutex_unlock(&g_malloc.large.mutex);
+			}
 			else
 			{
+				pthread_mutex_unlock(&g_malloc.large.mutex);
 				ft_putendl_fd("realloc(): invalid pointer", STDERR_FILENO);
 				abort();
 				return (NULL);
