@@ -54,10 +54,14 @@ int	free_block_from_zone(t_page **pages_list, void *ptr)
 	t_page	*current_page;
 	t_block	*block;
 	t_block	*prev_block;
-
+	
+	pthread_mutex_lock(&g_malloc_lock);
 	current_page = *pages_list;
 	while (current_page)
 	{
+		pthread_mutex_unlock(&g_malloc_lock);
+		pthread_mutex_lock(&g_malloc_lock);
+		block_page(current_page);
 		block = page_find_block_by_ptr(current_page, ptr, &prev_block);
 		if (block)
 		{
@@ -66,9 +70,11 @@ int	free_block_from_zone(t_page **pages_list, void *ptr)
 				current_page->nb_block_free++;
 			if (is_all_blocks_free(current_page->blocks) == true)
 				remove_page(pages_list, current_page);
+			pthread_mutex_unlock(&g_malloc_lock);
 			return (1);
 		}
 		// current_page = next_page(current_page);
+		pthread_mutex_unlock(&g_malloc_lock);
 		current_page = current_page->next;
 	}
 	return (0);

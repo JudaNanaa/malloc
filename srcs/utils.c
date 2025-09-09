@@ -1,6 +1,8 @@
 #include "../includes/malloc_internal.h"
+#include <stdbool.h>
 #include <stdio.h>
 #include <string.h>
+#include <time.h>
 #include <unistd.h>
 
 void	initialize_blocks(t_block **block, size_t size)
@@ -95,23 +97,7 @@ int	split_block(t_block *block, size_t size)
 	return (1);
 }
 
-t_page	*find_page_by_block(t_page *pages, t_block *block)
-{
-	t_page	*current_page;
-
-	current_page = pages;
-	while (current_page)
-	{
-		if (page_find_block_by_ptr(current_page, GET_BLOCK_PTR(block),
-				NULL) != NULL)
-			return (current_page);
-		// current_page = next_page(current_page);
-		current_page = current_page->next;
-	}
-	return (NULL);
-}
-
-t_block	*find_block(t_page *pages, void *ptr)
+bool find_block(t_page *pages, void *ptr, t_page_block *out)
 {
 	t_page	*current_page;
 	t_block	*block;
@@ -121,11 +107,17 @@ t_block	*find_block(t_page *pages, void *ptr)
 	{
 		block = page_find_block_by_ptr(current_page, ptr, NULL);
 		if (block)
-			return (block);
+		{
+			out->block = block;
+			out->page = current_page;
+			return (true);
+		}
 		// current_page = next_page(current_page);
 		current_page = current_page->next;
 	}
-	return (NULL);
+	out->block = NULL;
+	out->page = NULL;
+	return (false);
 }
 bool is_gonna_overflow(size_t nmemb, size_t size)
 {

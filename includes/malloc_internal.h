@@ -64,6 +64,12 @@ typedef struct s_page
 	struct s_page	*next; // pointe vers la prochaine page
 }					t_page;
 
+typedef struct s_page_block
+{
+    t_page  *page;
+    t_block *block;
+}   t_page_block;
+
 typedef struct s_malloc
 {
 	t_page			*tiny;  // page liee au tiny malloc
@@ -83,8 +89,7 @@ t_block				*page_find_block_by_ptr(t_page *page, void *ptr,
 						t_block **prev_out);
 void				initialize_blocks(t_block **block, size_t size);
 int					split_block(t_block *block, size_t size);
-t_page				*find_page_by_block(t_page *pages, t_block *block);
-t_block				*find_block(t_page *pages, void *ptr);
+bool				find_block(t_page *pages, void *ptr, t_page_block *out);
 int					merge_block(t_block *block, t_block *prev_block);
 void				malloc_init(void);
 void				*malloc_internal(size_t size);

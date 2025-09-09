@@ -2158,15 +2158,15 @@ int main() {
                thread_data[i].errors + thread_data[i].write_errors + thread_data[i].read_errors);
     }
     
-    // // Nettoyage (avec le free standard, pas le vôtre)
-    // for (int i = 0; i < NUM_THREADS; i++) {
-    //     if (thread_data[i].allocated_ptrs) {
-    //         free(thread_data[i].allocated_ptrs);  // free standard
-    //     }
-    //     if (thread_data[i].allocated_sizes) {
-    //         free(thread_data[i].allocated_sizes);  // free standard
-    //     }
-    // }
+    // Nettoyage (avec le free standard, pas le vôtre)
+    for (int i = 0; i < NUM_THREADS; i++) {
+        if (thread_data[i].allocated_ptrs) {
+            free(thread_data[i].allocated_ptrs);  // free standard
+        }
+        if (thread_data[i].allocated_sizes) {
+            free(thread_data[i].allocated_sizes);  // free standard
+        }
+    }
     
     if (total_errors == 0) {
         printf("\n✅ TOUS LES TESTS SONT PASSÉS!\n");
