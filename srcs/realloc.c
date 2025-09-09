@@ -130,8 +130,11 @@ void *realloc(void *ptr, size_t size)
 {
     void *new_ptr;
 
+	pthread_mutex_lock(&g_malloc_lock);
+	if (!g_malloc.set)
+		malloc_init();
+	pthread_mutex_unlock(&g_malloc_lock);
     new_ptr = realloc_internal(ptr, size);
-
     if (g_malloc.verbose)
     {
         ft_printf_fd(STDERR_FILENO, "[DEBUG] realloc(%p, %u) -> %p\n", ptr, size, new_ptr);
