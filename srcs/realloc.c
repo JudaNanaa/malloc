@@ -1,9 +1,11 @@
 #include "../includes/malloc_internal.h"
+#include <pthread.h>
 
-void	*need_to_reallocate(void *ptr, size_t size, size_t previous_size)
+void	*need_to_reallocate(void *ptr, size_t size, size_t previous_size, t_mutex_zone *zone)
 {
 	void	*new_ptr;
 
+	pthread_mutex_unlock(&zone->mutex);
 	new_ptr = malloc_internal(size);
 	if (!new_ptr)
 		return (NULL);
@@ -12,10 +14,10 @@ void	*need_to_reallocate(void *ptr, size_t size, size_t previous_size)
 	return (new_ptr);
 }
 
-void	*shrink_memory(size_t size, t_page_block *page_block)
+void	*shrink_memory(size_t size, t_page_block *page_block, t_mutex_zone *zone)
 {
-	if (split_block(page_block->block, size) == 0)
-		page_block->page->nb_block_free--;
+	split_block(page_block->page, page_block->block, size);
+	pthread_mutex_unlock(&zone->mutex);
 	return (GET_BLOCK_PTR(page_block->block));
 }
 
@@ -39,42 +41,42 @@ int	increase_memory(t_page_block *page_block, size_t size)
 	SET_BLOCK_SIZE(page_block->block, size);
 	new_free_block = (void *)page_block->block + BLOCK_HEADER_SIZE + ALIGN(size);
 	memmove(new_free_block, next_block, BLOCK_HEADER_SIZE);
+	SET_BLOCK_NEXT_FREE_PTR(new_free_block, next_block);
 	SET_BLOCK_SIZE(new_free_block, new_size);
-	page_block->page->nb_block_free++;
 	return (1);
 }
 
 void	*realloc_block(void *ptr, size_t new_size, t_page_block *page_block,
-		size_t min_size, size_t max_size)
+		size_t min_size, size_t max_size, t_mutex_zone *zone)
 {
 	size_t	old_size;
 
 	old_size = page_block->block->size;
 	if (new_size == old_size)
-		return (ptr);
+		return (pthread_mutex_unlock(&zone->mutex), ptr);
 	if (new_size < old_size)
-		return (shrink_memory(new_size, page_block));
+		return (shrink_memory(new_size, page_block, zone));
 	if (new_size >= min_size && new_size <= max_size)
 	{
 		if (increase_memory(page_block, new_size))
-			return (GET_BLOCK_PTR(page_block->block));
+			return (pthread_mutex_unlock(&zone->mutex), GET_BLOCK_PTR(page_block->block));
 	}
-	return (need_to_reallocate(ptr, new_size, old_size));
+	return (need_to_reallocate(ptr, new_size, old_size, zone));
 }
 
 void	*realloc_tiny_block(void *ptr, size_t size, t_page_block *page_block)
 {
-	return (realloc_block(ptr, size, page_block, 1, n));
+	return (realloc_block(ptr, size, page_block, 1, n, &g_malloc.tiny));
 }
 
 void	*realloc_small_block(void *ptr, size_t size, t_page_block *page_block)
 {
-	return (realloc_block(ptr, size, page_block, n + 1, m));
+	return (realloc_block(ptr, size, page_block, n + 1, m, &g_malloc.small));
 }
 
 void	*realloc_large_block(void *ptr, size_t size, t_page_block *page_block)
 {
-	return (realloc_block(ptr, size, page_block, m + 1, SIZE_MAX));
+	return (realloc_block(ptr, size, page_block, m + 1, SIZE_MAX, &g_malloc.large));
 }
 
 void	*realloc_internal(void *ptr, size_t size)
@@ -93,7 +95,6 @@ void	*realloc_internal(void *ptr, size_t size)
 	if (find_block(g_malloc.tiny.pages, ptr, &res))
 	{
 		new_ptr = realloc_tiny_block(ptr, size, &res);
-		pthread_mutex_unlock(&g_malloc.tiny.mutex);
 	}
 	else
 	{
@@ -102,7 +103,6 @@ void	*realloc_internal(void *ptr, size_t size)
 		if (find_block(g_malloc.small.pages, ptr, &res))
 		{
 			new_ptr = realloc_small_block(ptr, size, &res);
-			pthread_mutex_unlock(&g_malloc.small.mutex);
 			
 		}
 		else
@@ -112,7 +112,6 @@ void	*realloc_internal(void *ptr, size_t size)
 			if (find_block(g_malloc.large.pages, ptr, &res))
 			{
 				new_ptr = realloc_large_block(ptr, size, &res);
-				pthread_mutex_unlock(&g_malloc.large.mutex);
 			}
 			else
 			{

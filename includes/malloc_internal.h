@@ -18,26 +18,25 @@
 // arrondir un nombre au multiple de 8 superieur pour l'alignement
 # define ALIGN(x) (((x) + (MEMORY_ALIGNMENT - 1)) & ~(MEMORY_ALIGNMENT - 1))
 
-# define BLOCK_FREE 0 // flag pour le free
-# define BLOCK_LAST 1 // flag pour le dernier block
+# define BLOCK_FLAG_FREE (1 << 0) // flag pour le free
+# define BLOCK_FLAG_LAST (1 << 1) // flag pour le dernier block
 
-# define SET_BLOCK_FREE(block) ((block)->metadata[BLOCK_FREE] = true)
+# define SET_BLOCK_FREE(block) ((block)->flags |= BLOCK_FLAG_FREE)
 // mettre le block comme free
-# define SET_BLOCK_USE(block) ((block)->metadata[BLOCK_FREE] = false)
+# define SET_BLOCK_USE(block) ((block)->flags &= ~BLOCK_FLAG_FREE)
 // mettre le block comme utilise
-# define IS_BLOCK_FREE(block) ((block)->metadata[BLOCK_FREE])
+# define IS_BLOCK_FREE(block) (((block)->flags & BLOCK_FLAG_FREE) != 0)
 // savoir si le block est free
 
-# define SET_BLOCK_LAST(block) ((block)->metadata[BLOCK_LAST] = true)
+# define SET_BLOCK_LAST(block) ((block)->flags |= BLOCK_FLAG_LAST)
 // mettre le block comme le dernier block
-# define SET_BLOCK_NOT_LAST(block) ((block)->metadata[BLOCK_LAST] = false)
+# define SET_BLOCK_NOT_LAST(block) ((block)->flags &= ~BLOCK_FLAG_LAST)
 // mettre le block comme n'est pas le dernier block
-# define IS_BLOCK_LAST(block) ((block)->metadata[BLOCK_LAST])
+# define IS_BLOCK_LAST(block) (((block)->flags & BLOCK_FLAG_LAST) != 0)
 // savoir si le block est le dernier block de la page
 
 # define GET_BLOCK_SIZE(block) (ALIGN((block)->size))
 // avoir la taille du block
-// size need to be aligned !!
 # define SET_BLOCK_SIZE(block, sz) ((block)->size = sz)
 // set la taille du block
 
@@ -47,19 +46,28 @@
 
 # define GET_BLOCK_PTR(block) ((void *)(block) + BLOCK_HEADER_SIZE)
 
-# define dbg(to_print) ft_printf_fd(STDERR_FILENO, "%s\n", to_print)
+#define SET_BLOCK_NEXT_FREE_PTR(block, next) \
+    (*(void **)GET_BLOCK_PTR(block) = (next))
+
+#define GET_BLOCK_NEXT_FREE_PTR(block) \
+    (*(void **)GET_BLOCK_PTR(block))
 
 typedef struct s_block
 {
-	unsigned int size;
-	char		metadata[4];
+	unsigned int size; // changer ca en size_t
+	uint8_t		flags;
 }				t_block;
+
+typedef struct s_free_list {
+    t_block *head;  // pointeur vers premier block libre
+	t_block *last;
+} t_free_list;
 
 typedef struct s_page
 {
 	size_t			length;
 	t_block			*blocks; // pointe vers le premier block de la page
-	size_t			nb_block_free;
+	t_free_list		free_lists;
 	struct s_page	*next; // pointe vers la prochaine page
 }					t_page;
 
@@ -93,15 +101,17 @@ extern pthread_mutex_t g_malloc_lock;
 t_block				*page_find_block_by_ptr(t_page *page, void *ptr,
 						t_block **prev_out);
 void				initialize_blocks(t_block **block, size_t size);
-int					split_block(t_block *block, size_t size);
+void				split_block(t_page *page, t_block *block, size_t size);
 bool				find_block(t_page *pages, void *ptr, t_page_block *out);
-int					merge_block(t_block *block, t_block *prev_block);
+void				merge_block(t_page *page, t_block *block, t_block *prev_block);
 void				malloc_init(void);
 void				*malloc_internal(size_t size);
 void				free_internal(void *ptr);
 void				*realloc_internal(void *ptr, size_t size);
 bool				is_gonna_overflow(size_t nmemb, size_t size);
 char				*strdup_internal(const char *s);
+void				add_block_to_free_list(t_page *page, t_block *block);
+void				remove_block_free_list(t_page *page, t_block *block);
 
 // t_page *next_page(t_page *current_page);
 

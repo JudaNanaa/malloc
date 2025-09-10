@@ -1,6 +1,6 @@
 CC = cc
 
-CFLAGS = -Wall -Wextra -pg
+CFLAGS = -Wall -Wextra -pg -g3
 
 SRCS_DIR = srcs/
 
