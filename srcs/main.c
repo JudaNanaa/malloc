@@ -1,5 +1,5 @@
 // # include "../libft/printf_OK/ft_printf.h"
-// #include "../includes/lib_my_malloc.h"
+// #include "../includes/lib_malloc.h"
 // #include <stdio.h>
 // #include <string.h>
 // #include <unistd.h>
@@ -175,136 +175,138 @@
 //     for (int i = 0; i < 10; i += 2) {
 //         my_free(ptrs[i]);
 //     }
+// 	printf("je suis la\n");
 //     my_free(new_ptr);
+// 	printf("je suis la1\n");
 // }
 
-// void test_realloc_tiny_to_tiny() {
-//     TEST_SECTION("REALLOC TINY->TINY TESTS");
+// void test_my_realloc_tiny_to_tiny() {
+//     TEST_SECTION("my_realloc TINY->TINY TESTS");
     
 //     char *ptr = my_malloc(16);
-//     test_result(ptr != NULL, "Initial my_malloc(16) for realloc");
+//     test_result(ptr != NULL, "Initial my_malloc(16) for my_realloc");
     
 //     if (ptr) {
 //         strcpy(ptr, "Hello");
         
 //         // Agrandir dans TINY
-//         ptr = realloc(ptr, 32);
-//         test_result(ptr != NULL, "realloc(16->32) succeeds");
-//         test_result(strcmp(ptr, "Hello") == 0, "Data preserved in realloc(16->32)");
+//         ptr = my_realloc(ptr, 32);
+//         test_result(ptr != NULL, "my_realloc(16->32) succeeds");
+//         test_result(strcmp(ptr, "Hello") == 0, "Data preserved in my_realloc(16->32)");
         
 //         // Réduire dans TINY
-//         ptr = realloc(ptr, 8);
-//         test_result(ptr != NULL, "realloc(32->8) succeeds");
-//         test_result(strncmp(ptr, "Hello", 5) == 0, "Data preserved in realloc(32->8)");
+//         ptr = my_realloc(ptr, 8);
+//         test_result(ptr != NULL, "my_realloc(32->8) succeeds");
+//         test_result(strncmp(ptr, "Hello", 5) == 0, "Data preserved in my_realloc(32->8)");
         
 //         my_free(ptr);
 //     }
 // }
 
-// void test_realloc_small_to_small() {
-//     TEST_SECTION("REALLOC SMALL->SMALL TESTS");
+// void test_my_realloc_small_to_small() {
+//     TEST_SECTION("my_realloc SMALL->SMALL TESTS");
     
 //     char *ptr = my_malloc(200);
-//     test_result(ptr != NULL, "Initial my_malloc(200) for realloc");
+//     test_result(ptr != NULL, "Initial my_malloc(200) for my_realloc");
     
 //     if (ptr) {
 //         memset(ptr, 'A', 199);
 //         ptr[199] = '\0';
         
 //         // Agrandir dans SMALL
-//         ptr = realloc(ptr, 500);
-//         test_result(ptr != NULL, "realloc(200->500) succeeds");
-//         test_result(ptr[0] == 'A' && ptr[198] == 'A', "Data preserved in realloc(200->500)");
+//         ptr = my_realloc(ptr, 500);
+//         test_result(ptr != NULL, "my_realloc(200->500) succeeds");
+//         test_result(ptr[0] == 'A' && ptr[198] == 'A', "Data preserved in my_realloc(200->500)");
         
 //         // Réduire dans SMALL
-//         ptr = realloc(ptr, 150);
-//         test_result(ptr != NULL, "realloc(500->150) succeeds");
-//         test_result(ptr[0] == 'A' && ptr[149] == 'A', "Data preserved in realloc(500->150)");
+//         ptr = my_realloc(ptr, 150);
+//         test_result(ptr != NULL, "my_realloc(500->150) succeeds");
+//         test_result(ptr[0] == 'A' && ptr[149] == 'A', "Data preserved in my_realloc(500->150)");
         
 //         my_free(ptr);
 //     }
 // }
 
-// void test_realloc_large_to_large() {
-//     TEST_SECTION("REALLOC LARGE->LARGE TESTS");
+// void test_my_realloc_large_to_large() {
+//     TEST_SECTION("my_realloc LARGE->LARGE TESTS");
     
 //     char *ptr = my_malloc(2048);
-//     test_result(ptr != NULL, "Initial my_malloc(2048) for realloc");
+//     test_result(ptr != NULL, "Initial my_malloc(2048) for my_realloc");
     
 //     if (ptr) {
 //         memset(ptr, 'B', 2047);
 //         ptr[2047] = '\0';
         
 //         // Agrandir dans LARGE
-//         ptr = realloc(ptr, 4096);
-//         test_result(ptr != NULL, "realloc(2048->4096) succeeds");
-//         test_result(ptr[0] == 'B' && ptr[2046] == 'B', "Data preserved in realloc(2048->4096)");
+//         ptr = my_realloc(ptr, 4096);
+//         test_result(ptr != NULL, "my_realloc(2048->4096) succeeds");
+//         test_result(ptr[0] == 'B' && ptr[2046] == 'B', "Data preserved in my_realloc(2048->4096)");
         
 //         // Réduire dans LARGE
-//         ptr = realloc(ptr, 1500);
-//         test_result(ptr != NULL, "realloc(4096->1500) succeeds");
-//         test_result(ptr[0] == 'B' && ptr[1499] == 'B', "Data preserved in realloc(4096->1500)");
+//         ptr = my_realloc(ptr, 1500);
+//         test_result(ptr != NULL, "my_realloc(4096->1500) succeeds");
+//         test_result(ptr[0] == 'B' && ptr[1499] == 'B', "Data preserved in my_realloc(4096->1500)");
         
 //         my_free(ptr);
 //     }
 // }
 
-// void test_realloc_category_changes() {
-//     TEST_SECTION("REALLOC CATEGORY CHANGE TESTS");
+// void test_my_realloc_category_changes() {
+//     TEST_SECTION("my_realloc CATEGORY CHANGE TESTS");
     
 //     // TINY -> SMALL
 //     char *ptr = my_malloc(64);
 //     if (ptr) {
 //         strcpy(ptr, "TinyToSmall");
-//         ptr = realloc(ptr, 256);
-//         test_result(ptr != NULL, "realloc TINY->SMALL succeeds");
+//         ptr = my_realloc(ptr, 256);
+//         test_result(ptr != NULL, "my_realloc TINY->SMALL succeeds");
 //         test_result(strcmp(ptr, "TinyToSmall") == 0, "Data preserved TINY->SMALL");
         
 //         // SMALL -> LARGE
 //         strcat(ptr, " and SmallToLarge");
-//         ptr = realloc(ptr, 2048);
-//         test_result(ptr != NULL, "realloc SMALL->LARGE succeeds");
+//         ptr = my_realloc(ptr, 2048);
+//         test_result(ptr != NULL, "my_realloc SMALL->LARGE succeeds");
 //         test_result(strstr(ptr, "TinyToSmall") != NULL, "Data preserved SMALL->LARGE");
         
 //         // LARGE -> SMALL
-//         ptr = realloc(ptr, 512);
-//         test_result(ptr != NULL, "realloc LARGE->SMALL succeeds");
+//         ptr = my_realloc(ptr, 512);
+//         test_result(ptr != NULL, "my_realloc LARGE->SMALL succeeds");
 //         test_result(strstr(ptr, "TinyToSmall") != NULL, "Data preserved LARGE->SMALL");
         
 //         // SMALL -> TINY
-//         ptr = realloc(ptr, 32);
-//         test_result(ptr != NULL, "realloc SMALL->TINY succeeds");
+//         ptr = my_realloc(ptr, 32);
+//         test_result(ptr != NULL, "my_realloc SMALL->TINY succeeds");
 //         test_result(strncmp(ptr, "TinyToSmall", 11) == 0, "Data preserved SMALL->TINY");
         
 //         my_free(ptr);
 //     }
 // }
 
-// void test_realloc_edge_cases() {
-//     TEST_SECTION("REALLOC EDGE CASES");
+// void test_my_realloc_edge_cases() {
+//     TEST_SECTION("my_realloc EDGE CASES");
     
-//     // realloc(NULL, size) = my_malloc(size)
-//     char *ptr = realloc(NULL, 100);
-//     test_result(ptr != NULL, "realloc(NULL, 100) works like my_malloc");
+//     // my_realloc(NULL, size) = my_malloc(size)
+//     char *ptr = my_realloc(NULL, 100);
+//     test_result(ptr != NULL, "my_realloc(NULL, 100) works like my_malloc");
 //     if (ptr) {
-//         strcpy(ptr, "Realloc NULL test");
-//         test_result(strcmp(ptr, "Realloc NULL test") == 0, "Write after realloc(NULL)");
+//         strcpy(ptr, "my_realloc NULL test");
+//         test_result(strcmp(ptr, "my_realloc NULL test") == 0, "Write after my_realloc(NULL)");
 //     }
     
-//     // realloc(ptr, 0) = my_free(ptr) + return implementation-defined
-//     void *result = realloc(ptr, 0);
-//     test_result(1, "realloc(ptr, 0) completes without crash");
+//     // my_realloc(ptr, 0) = my_free(ptr) + return implementation-defined
+//     void *result = my_realloc(ptr, 0);
+//     test_result(1, "my_realloc(ptr, 0) completes without crash");
 //     if (result) my_free(result);
     
-//     // realloc même taille
+//     // my_realloc même taille
 //     ptr = my_malloc(100);
 //     if (ptr) {
 //         strcpy(ptr, "Same size test");
 //         char *old_ptr = ptr;
-//         ptr = realloc(ptr, 100);
-//         test_result(ptr != NULL, "realloc same size succeeds");
-//         test_result(strcmp(ptr, "Same size test") == 0, "Data preserved same size realloc");
-//         test_result(old_ptr == ptr, "Pointer preserved same size realloc");
+//         ptr = my_realloc(ptr, 100);
+//         test_result(ptr != NULL, "my_realloc same size succeeds");
+//         test_result(strcmp(ptr, "Same size test") == 0, "Data preserved same size my_realloc");
+//         test_result(old_ptr == ptr, "Pointer preserved same size my_realloc");
 //         my_free(ptr);
 //     }
 // }
@@ -353,8 +355,8 @@
 //     }
 // }
 
-// void test_stress_realloc() {
-//     TEST_SECTION("STRESS REALLOC TEST");
+// void test_stress_my_realloc() {
+//     TEST_SECTION("STRESS my_realloc TEST");
     
 //     char *ptr = my_malloc(16);
 //     test_result(ptr != NULL, "Initial allocation for stress test");
@@ -362,13 +364,13 @@
 //     if (ptr) {
 //         strcpy(ptr, "Start");
         
-//         // Série de realloc avec des tailles croissantes et décroissantes
+//         // Série de my_realloc avec des tailles croissantes et décroissantes
 //         size_t sizes[] = {32, 64, 128, 256, 512, 1024, 2048, 4096, 2048, 1024, 512, 256, 128, 64, 32, 16};
 //         int num_sizes = sizeof(sizes) / sizeof(sizes[0]);
 //         int all_success = 1;
         
 //         for (int i = 0; i < num_sizes; i++) {
-//             ptr = realloc(ptr, sizes[i]);
+//             ptr = my_realloc(ptr, sizes[i]);
 //             if (!ptr) {
 //                 all_success = 0;
 //                 break;
@@ -380,7 +382,7 @@
 //             }
 //         }
         
-//         test_result(all_success, "Stress realloc sequence succeeds");
+//         test_result(all_success, "Stress my_realloc sequence succeeds");
         
 //         if (ptr) my_free(ptr);
 //     }
@@ -699,12 +701,12 @@
 //     show_alloc_mem();
 // }
 
-// void test_reallocarray_basic() {
-//     TEST_SECTION("REALLOCARRAY BASIC TESTS");
+// void test_my_reallocarray_basic() {
+//     TEST_SECTION("my_reallocARRAY BASIC TESTS");
     
-//     // Test 1: reallocarray(NULL, nmemb, size) = my_calloc(nmemb, size)
-//     int *arr = reallocarray(NULL, 10, sizeof(int));
-//     test_result(arr != NULL, "reallocarray(NULL, 10, sizeof(int)) succeeds");
+//     // Test 1: my_reallocarray(NULL, nmemb, size) = my_calloc(nmemb, size)
+//     int *arr = my_reallocarray(NULL, 10, sizeof(int));
+//     test_result(arr != NULL, "my_reallocarray(NULL, 10, sizeof(int)) succeeds");
     
 //     if (arr) {
 //         // Initialiser avec des valeurs
@@ -720,11 +722,11 @@
 //                 break;
 //             }
 //         }
-//         test_result(values_ok, "reallocarray initial data integrity");
+//         test_result(values_ok, "my_reallocarray initial data integrity");
         
 //         // Test 2: agrandir le tableau
-//         arr = reallocarray(arr, 20, sizeof(int));
-//         test_result(arr != NULL, "reallocarray expand (10->20) succeeds");
+//         arr = my_reallocarray(arr, 20, sizeof(int));
+//         test_result(arr != NULL, "my_reallocarray expand (10->20) succeeds");
         
 //         if (arr) {
 //             // Vérifier que les anciennes données sont préservées
@@ -735,7 +737,7 @@
 //                     break;
 //                 }
 //             }
-//             test_result(old_data_ok, "reallocarray preserves old data on expand");
+//             test_result(old_data_ok, "my_reallocarray preserves old data on expand");
             
 //             // Initialiser les nouveaux éléments
 //             for (int i = 10; i < 20; i++) {
@@ -743,8 +745,8 @@
 //             }
             
 //             // Test 3: réduire le tableau
-//             arr = reallocarray(arr, 15, sizeof(int));
-//             test_result(arr != NULL, "reallocarray shrink (20->15) succeeds");
+//             arr = my_reallocarray(arr, 15, sizeof(int));
+//             test_result(arr != NULL, "my_reallocarray shrink (20->15) succeeds");
             
 //             if (arr) {
 //                 // Vérifier les données restantes
@@ -761,7 +763,7 @@
 //                         break;
 //                     }
 //                 }
-//                 test_result(remaining_data_ok, "reallocarray preserves data on shrink");
+//                 test_result(remaining_data_ok, "my_reallocarray preserves data on shrink");
                 
 //                 my_free(arr);
 //             }
@@ -771,8 +773,8 @@
 //     show_alloc_mem();
 // }
 
-// void test_reallocarray_overflow() {
-//     TEST_SECTION("REALLOCARRAY OVERFLOW TESTS");
+// void test_my_reallocarray_overflow() {
+//     TEST_SECTION("my_reallocARRAY OVERFLOW TESTS");
     
 //     // Test overflow detection avec un pointeur existant
 //     void *ptr = my_calloc(100, 1);
@@ -780,17 +782,17 @@
 //         strcpy((char*)ptr, "Test data");
         
 //         // Tentative d'overflow
-//         void *overflow1 = reallocarray(ptr, SIZE_MAX/2, SIZE_MAX/2);
-//         test_result(overflow1 == NULL, "reallocarray overflow detection (huge*huge)");
+//         void *overflow1 = my_reallocarray(ptr, SIZE_MAX/2, SIZE_MAX/2);
+//         test_result(overflow1 == NULL, "my_reallocarray overflow detection (huge*huge)");
         
-//         // Le pointeur original doit rester valide si reallocarray échoue
+//         // Le pointeur original doit rester valide si my_reallocarray échoue
 //         if (overflow1 == NULL) {
 //             test_result(strcmp((char*)ptr, "Test data") == 0, "Original pointer valid after overflow");
 //         }
         
 //         // Test autre cas d'overflow
-//         void *overflow2 = reallocarray(ptr, SIZE_MAX, 2);
-//         test_result(overflow2 == NULL, "reallocarray overflow detection (SIZE_MAX*2)");
+//         void *overflow2 = my_reallocarray(ptr, SIZE_MAX, 2);
+//         test_result(overflow2 == NULL, "my_reallocarray overflow detection (SIZE_MAX*2)");
 //         if (overflow2 == NULL) {
 //             test_result(strcmp((char*)ptr, "Test data") == 0, "Original pointer still valid");
 //         }
@@ -798,30 +800,30 @@
 //         my_free(ptr);
 //     }
     
-//     // Test reallocarray(NULL, overflow_values)
-//     void *overflow3 = reallocarray(NULL, SIZE_MAX, SIZE_MAX);
-//     test_result(overflow3 == NULL, "reallocarray(NULL, overflow) fails safely");
+//     // Test my_reallocarray(NULL, overflow_values)
+//     void *overflow3 = my_reallocarray(NULL, SIZE_MAX, SIZE_MAX);
+//     test_result(overflow3 == NULL, "my_reallocarray(NULL, overflow) fails safely");
 //     if (overflow3) my_free(overflow3);
     
 //     // Test cas limite valide
-//     void *valid = reallocarray(NULL, 1000, 1000); // 1MB
-//     test_result(valid != NULL, "reallocarray large but valid allocation");
+//     void *valid = my_reallocarray(NULL, 1000, 1000); // 1MB
+//     test_result(valid != NULL, "my_reallocarray large but valid allocation");
 //     if (valid) my_free(valid);
 // }
 
-// void test_reallocarray_categories() {
-//     TEST_SECTION("REALLOCARRAY SIZE CATEGORIES");
+// void test_my_reallocarray_categories() {
+//     TEST_SECTION("my_reallocARRAY SIZE CATEGORIES");
     
 //     // TINY -> SMALL
-//     char *ptr = reallocarray(NULL, 64, 1); // 64 bytes TINY
-//     test_result(ptr != NULL, "reallocarray TINY (64*1) succeeds");
+//     char *ptr = my_reallocarray(NULL, 64, 1); // 64 bytes TINY
+//     test_result(ptr != NULL, "my_reallocarray TINY (64*1) succeeds");
     
 //     if (ptr) {
 //         memset(ptr, 'T', 64);
         
 //         // Passer à SMALL
-//         ptr = reallocarray(ptr, 200, 1); // 200 bytes SMALL
-//         test_result(ptr != NULL, "reallocarray TINY->SMALL succeeds");
+//         ptr = my_reallocarray(ptr, 200, 1); // 200 bytes SMALL
+//         test_result(ptr != NULL, "my_reallocarray TINY->SMALL succeeds");
         
 //         if (ptr) {
 //             int data_ok = 1;
@@ -831,14 +833,14 @@
 //                     break;
 //                 }
 //             }
-//             test_result(data_ok, "reallocarray TINY->SMALL preserves data");
+//             test_result(data_ok, "my_reallocarray TINY->SMALL preserves data");
             
 //             // Remplir le reste
 //             memset(ptr + 64, 'S', 136);
             
 //             // Passer à LARGE
-//             ptr = reallocarray(ptr, 2048, 1); // 2048 bytes LARGE
-//             test_result(ptr != NULL, "reallocarray SMALL->LARGE succeeds");
+//             ptr = my_reallocarray(ptr, 2048, 1); // 2048 bytes LARGE
+//             test_result(ptr != NULL, "my_reallocarray SMALL->LARGE succeeds");
             
 //             if (ptr) {
 //                 int data_ok = 1;
@@ -854,11 +856,11 @@
 //                         break;
 //                     }
 //                 }
-//                 test_result(data_ok, "reallocarray SMALL->LARGE preserves data");
+//                 test_result(data_ok, "my_reallocarray SMALL->LARGE preserves data");
                 
 //                 // Test retour LARGE -> SMALL
-//                 ptr = reallocarray(ptr, 512, 1); // 512 bytes SMALL
-//                 test_result(ptr != NULL, "reallocarray LARGE->SMALL succeeds");
+//                 ptr = my_reallocarray(ptr, 512, 1); // 512 bytes SMALL
+//                 test_result(ptr != NULL, "my_reallocarray LARGE->SMALL succeeds");
                 
 //                 if (ptr) {
 //                     int data_ok = 1;
@@ -874,11 +876,11 @@
 //                             break;
 //                         }
 //                     }
-//                     test_result(data_ok, "reallocarray LARGE->SMALL preserves data");
+//                     test_result(data_ok, "my_reallocarray LARGE->SMALL preserves data");
                     
 //                     // Test retour SMALL -> TINY
-//                     ptr = reallocarray(ptr, 100, 1); // 100 bytes TINY
-//                     test_result(ptr != NULL, "reallocarray SMALL->TINY succeeds");
+//                     ptr = my_reallocarray(ptr, 100, 1); // 100 bytes TINY
+//                     test_result(ptr != NULL, "my_reallocarray SMALL->TINY succeeds");
                     
 //                     if (ptr) {
 //                         int data_ok = 1;
@@ -894,7 +896,7 @@
 //                                 break;
 //                             }
 //                         }
-//                         test_result(data_ok, "reallocarray SMALL->TINY preserves data");
+//                         test_result(data_ok, "my_reallocarray SMALL->TINY preserves data");
                         
 //                         my_free(ptr);
 //                     }
@@ -904,30 +906,30 @@
 //     }
 // }
 
-// void test_reallocarray_edge_cases() {
-//     TEST_SECTION("REALLOCARRAY EDGE CASES");
+// void test_my_reallocarray_edge_cases() {
+//     TEST_SECTION("my_reallocARRAY EDGE CASES");
     
-//     // Test reallocarray(ptr, 0, size) 
+//     // Test my_reallocarray(ptr, 0, size) 
 //     void *ptr = my_calloc(100, 1);
 //     if (ptr) {
 //         strcpy((char*)ptr, "Edge test");
         
-//         void *result1 = reallocarray(ptr, 0, 10);
-//         test_result(result1 != NULL || result1 == NULL, "reallocarray(ptr, 0, 10) returns valid result");
+//         void *result1 = my_reallocarray(ptr, 0, 10);
+//         test_result(result1 != NULL || result1 == NULL, "my_reallocarray(ptr, 0, 10) returns valid result");
         
 //             my_free(result1);
 //             ptr = NULL; // ptr a été libéré
 //     }
     
-//     // Test reallocarray(ptr, nmemb, 0)
+//     // Test my_reallocarray(ptr, nmemb, 0)
 //     if (!ptr) {
 //         ptr = my_calloc(100, 1);
 //         strcpy((char*)ptr, "Edge test 2");
 //     }
     
 //     if (ptr) {
-//         void *result2 = reallocarray(ptr, 10, 0);
-//         test_result(result2 != NULL || result2 == NULL, "reallocarray(ptr, 10, 0) returns valid result");
+//         void *result2 = my_reallocarray(ptr, 10, 0);
+//         test_result(result2 != NULL || result2 == NULL, "my_reallocarray(ptr, 10, 0) returns valid result");
         
 //         if (result2) {
 //             my_free(result2);
@@ -935,15 +937,15 @@
 // 		ptr = NULL;
 //     }
     
-//     // Test reallocarray same size
-//     double *darr = reallocarray(NULL, 50, sizeof(double));
+//     // Test my_reallocarray same size
+//     double *darr = my_reallocarray(NULL, 50, sizeof(double));
 //     if (darr) {
 //         for (int i = 0; i < 50; i++) {
 //             darr[i] = i * 3.14;
 //         }
         
-//         double *same = reallocarray(darr, 50, sizeof(double));
-//         test_result(same != NULL, "reallocarray same size succeeds");
+//         double *same = my_reallocarray(darr, 50, sizeof(double));
+//         test_result(same != NULL, "my_reallocarray same size succeeds");
         
 //         if (same) {
 //             int data_ok = 1;
@@ -953,23 +955,23 @@
 //                     break;
 //                 }
 //             }
-//             test_result(data_ok, "reallocarray same size preserves data");
+//             test_result(data_ok, "my_reallocarray same size preserves data");
 //             my_free(same);
 //         }
 //     }
     
-//     // Test reallocarray(NULL, 1, 1)
-//     void *minimal = reallocarray(NULL, 1, 1);
-//     test_result(minimal != NULL, "reallocarray(NULL, 1, 1) succeeds");
+//     // Test my_reallocarray(NULL, 1, 1)
+//     void *minimal = my_reallocarray(NULL, 1, 1);
+//     test_result(minimal != NULL, "my_reallocarray(NULL, 1, 1) succeeds");
 //     if (minimal) {
 //         *(char*)minimal = 'X';
-//         test_result(*(char*)minimal == 'X', "reallocarray minimal allocation works");
+//         test_result(*(char*)minimal == 'X', "my_reallocarray minimal allocation works");
 //         my_free(minimal);
 //     }
 // }
 
-// void test_reallocarray_stress() {
-//     TEST_SECTION("REALLOCARRAY STRESS TEST");
+// void test_my_reallocarray_stress() {
+//     TEST_SECTION("my_reallocARRAY STRESS TEST");
     
 //     // Tableau qui grandit et rétrécit de façon dynamique
 //     int *dynamic_arr = NULL;
@@ -983,7 +985,7 @@
 //     for (int round = 0; round < num_sizes; round++) {
 //         size_t new_size = sizes[round];
         
-//         dynamic_arr = reallocarray(dynamic_arr, new_size, sizeof(int));
+//         dynamic_arr = my_reallocarray(dynamic_arr, new_size, sizeof(int));
 //         if (!dynamic_arr) {
 //             stress_ok = 0;
 //             break;
@@ -1011,15 +1013,15 @@
 //         current_size = new_size;
 //     }
     
-//     test_result(stress_ok, "reallocarray stress test completes");
+//     test_result(stress_ok, "my_reallocarray stress test completes");
     
 //     if (dynamic_arr) {
 //         my_free(dynamic_arr);
 //     }
 // }
 
-// void test_reallocarray_data_integrity() {
-//     TEST_SECTION("REALLOCARRAY DATA INTEGRITY");
+// void test_my_reallocarray_data_integrity() {
+//     TEST_SECTION("my_reallocARRAY DATA INTEGRITY");
     
 //     // Test avec un pattern spécifique
 //     struct data_block {
@@ -1028,8 +1030,8 @@
 //         int checksum;
 //     };
     
-//     struct data_block *blocks = reallocarray(NULL, 10, sizeof(struct data_block));
-//     test_result(blocks != NULL, "reallocarray data blocks allocation");
+//     struct data_block *blocks = my_reallocarray(NULL, 10, sizeof(struct data_block));
+//     test_result(blocks != NULL, "my_reallocarray data blocks allocation");
     
 //     if (blocks) {
 //         // Initialiser avec un pattern reconnaissable
@@ -1040,8 +1042,8 @@
 //         }
         
 //         // Agrandir le tableau
-//         blocks = reallocarray(blocks, 20, sizeof(struct data_block));
-//         test_result(blocks != NULL, "reallocarray data blocks expansion");
+//         blocks = my_reallocarray(blocks, 20, sizeof(struct data_block));
+//         test_result(blocks != NULL, "my_reallocarray data blocks expansion");
         
 //         if (blocks) {
 //             // Vérifier l'intégrité des données originales
@@ -1059,15 +1061,15 @@
 //                 }
 //                 if (!integrity_ok) break;
 //             }
-//             test_result(integrity_ok, "reallocarray preserves complex data structures");
+//             test_result(integrity_ok, "my_reallocarray preserves complex data structures");
             
 //             my_free(blocks);
 //         }
 //     }
 // }
 
-// void test_my_calloc_reallocarray_interaction() {
-//     TEST_SECTION("my_calloc + REALLOCARRAY INTERACTION");
+// void test_my_calloc_my_reallocarray_interaction() {
+//     TEST_SECTION("my_calloc + my_reallocARRAY INTERACTION");
     
 //     // Créer un tableau avec my_calloc
 //     long *arr = my_calloc(20, sizeof(long));
@@ -1082,16 +1084,16 @@
 //                 break;
 //             }
 //         }
-//         test_result(all_zero, "my_calloc result is zeroed before reallocarray");
+//         test_result(all_zero, "my_calloc result is zeroed before my_reallocarray");
         
 //         // Modifier quelques valeurs
 //         for (int i = 0; i < 20; i++) {
 //             arr[i] = i * 100;
 //         }
         
-//         // Utiliser reallocarray pour agrandir
-//         arr = reallocarray(arr, 40, sizeof(long));
-//         test_result(arr != NULL, "reallocarray after my_calloc succeeds");
+//         // Utiliser my_reallocarray pour agrandir
+//         arr = my_reallocarray(arr, 40, sizeof(long));
+//         test_result(arr != NULL, "my_reallocarray after my_calloc succeeds");
         
 //         if (arr) {
 //             // Vérifier que les données originales sont préservées
@@ -1102,14 +1104,14 @@
 //                     break;
 //                 }
 //             }
-//             test_result(data_preserved, "reallocarray preserves my_calloc'd data");
+//             test_result(data_preserved, "my_reallocarray preserves my_calloc'd data");
             
 //             my_free(arr);
 //         }
 //     }
     
-//     // Test inverse: reallocarray puis comparaison avec my_calloc
-//     char *buf1 = reallocarray(NULL, 100, sizeof(char));
+//     // Test inverse: my_reallocarray puis comparaison avec my_calloc
+//     char *buf1 = my_reallocarray(NULL, 100, sizeof(char));
 //     char *buf2 = my_calloc(100, sizeof(char));
     
 //     if (buf1 && buf2) {
@@ -1121,26 +1123,26 @@
 //                 break;
 //             }
 //         }
-//         test_result(buf2_zero, "my_calloc vs reallocarray: my_calloc is zeroed");
+//         test_result(buf2_zero, "my_calloc vs my_reallocarray: my_calloc is zeroed");
         
 //         my_free(buf1);
 //         my_free(buf2);
 //     }
 // }
 
-// void test_reallocarray_boundary() {
-//     TEST_SECTION("REALLOCARRAY BOUNDARY TESTS");
+// void test_my_reallocarray_boundary() {
+//     TEST_SECTION("my_reallocARRAY BOUNDARY TESTS");
     
 //     // Tests aux limites exactes des catégories
-//     void *tiny_max = reallocarray(NULL, 128, 1); // Max TINY
-//     void *small_min = reallocarray(NULL, 129, 1); // Min SMALL  
-//     void *small_max = reallocarray(NULL, 1024, 1); // Max SMALL
-//     void *large_min = reallocarray(NULL, 1025, 1); // Min LARGE
+//     void *tiny_max = my_reallocarray(NULL, 128, 1); // Max TINY
+//     void *small_min = my_reallocarray(NULL, 129, 1); // Min SMALL  
+//     void *small_max = my_reallocarray(NULL, 1024, 1); // Max SMALL
+//     void *large_min = my_reallocarray(NULL, 1025, 1); // Min LARGE
     
-//     test_result(tiny_max != NULL, "reallocarray TINY max boundary (128)");
-//     test_result(small_min != NULL, "reallocarray SMALL min boundary (129)");
-//     test_result(small_max != NULL, "reallocarray SMALL max boundary (1024)");
-//     test_result(large_min != NULL, "reallocarray LARGE min boundary (1025)");
+//     test_result(tiny_max != NULL, "my_reallocarray TINY max boundary (128)");
+//     test_result(small_min != NULL, "my_reallocarray SMALL min boundary (129)");
+//     test_result(small_max != NULL, "my_reallocarray SMALL max boundary (1024)");
+//     test_result(large_min != NULL, "my_reallocarray LARGE min boundary (1025)");
     
 //     // Test d'écriture dans chaque bloc
 //     if (tiny_max) {
@@ -1601,7 +1603,7 @@
 //         char temp[50];
 //         snprintf(temp, sizeof(temp), "NewFrag_%02d", i);
 //         frags[i] = strdup(temp);
-//         test_result(frags[i] != NULL, "strdup fragmentation reallocation");
+//         test_result(frags[i] != NULL, "strdup fragmentation my_reallocation");
 //     }
     
 //     // Nettoyer la fragmentation
@@ -1692,19 +1694,19 @@
 // }
 
 // int main(void) {
-//     printf(YELLOW "Starting comprehensive my_malloc/realloc/my_free test suite...\n" RESET);
+//     printf(YELLOW "Starting comprehensive my_malloc/my_realloc/my_free test suite...\n" RESET);
     
 //     test_basic_my_malloc();
 //     test_small_my_malloc();
 //     test_large_my_malloc();
 //     test_fragmentation();
-//     test_realloc_tiny_to_tiny();
-//     test_realloc_small_to_small();
-//     test_realloc_large_to_large();
-//     test_realloc_category_changes();
-//     test_realloc_edge_cases();
+//     test_my_realloc_tiny_to_tiny();
+//     test_my_realloc_small_to_small();
+//     test_my_realloc_large_to_large();
+//     test_my_realloc_category_changes();
+//     test_my_realloc_edge_cases();
 //     test_multiple_allocations();
-//     test_stress_realloc();
+//     test_stress_my_realloc();
 //     test_boundary_values();
 //     test_my_free_edge_cases();
 //     test_memory_patterns();
@@ -1714,17 +1716,17 @@
 //     test_my_calloc_patterns();
 //     test_my_calloc_extreme();
     
-//     // Tests reallocarray hardcore  
-//     test_reallocarray_basic();
-//     test_reallocarray_overflow();
-//     test_reallocarray_categories();
-//     test_reallocarray_edge_cases();
-//     test_reallocarray_stress();
-//     test_reallocarray_data_integrity();
-//     test_reallocarray_boundary();
+//     // Tests my_reallocarray hardcore  
+//     test_my_reallocarray_basic();
+//     test_my_reallocarray_overflow();
+//     test_my_reallocarray_categories();
+//     test_my_reallocarray_edge_cases();
+//     test_my_reallocarray_stress();
+//     test_my_reallocarray_data_integrity();
+//     test_my_reallocarray_boundary();
     
 //     // Tests d'interaction
-//     test_my_calloc_reallocarray_interaction();
+//     test_my_calloc_my_reallocarray_interaction();
 
 // 	test_strdup_basic();
 //     test_strdup_sizes();

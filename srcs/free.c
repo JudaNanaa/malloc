@@ -24,7 +24,6 @@ void	remove_page(t_page **pages_list, t_page *page)
 		current_page = *pages_list;
 		while (current_page->next != page)
 		{
-			// current_page = next_page(current_page);
 			current_page = current_page->next;
 		}
 		current_page->next = page->next;
@@ -59,13 +58,11 @@ int	free_block_from_zone(t_page **pages_list, void *ptr)
 		if (block)
 		{
 			block_free(block);
-			if (merge_block(block, prev_block) == 0)
-				current_page->nb_block_free++;
+			merge_block(current_page, block, prev_block);
 			if (is_all_blocks_free(current_page->blocks) == true)
 				remove_page(pages_list, current_page);
 			return (1);
 		}
-		// current_page = next_page(current_page);
 		current_page = current_page->next;
 	}
 	return (0);
@@ -83,7 +80,6 @@ int	free_large_block(void *ptr)
 			remove_page(&g_malloc.large.pages, current_page);
 			return (1);
 		}
-		// current_page = next_page(current_page);
 		current_page = current_page->next;
 	}
 	return (0);

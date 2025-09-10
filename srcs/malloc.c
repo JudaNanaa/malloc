@@ -1,5 +1,6 @@
 #include "../includes/malloc_internal.h"
 #include <pthread.h>
+#include <strings.h>
 #include <unistd.h>
 
 t_malloc g_malloc = {
@@ -23,7 +24,7 @@ t_page	*create_page(size_t length)
 		return (NULL);
 	new_page->length = length;
 	new_page->next = NULL;
-	new_page->nb_block_free = 1;
+	bzero(&new_page->free_lists, sizeof(new_page->free_lists));
 	new_page->blocks = (void *)new_page + sizeof(t_page);
 	initialize_blocks(&new_page->blocks, length - sizeof(t_page) - BLOCK_HEADER_SIZE);
 	return (new_page);
@@ -33,12 +34,13 @@ t_block	*find_free_block_with_enough_spage(t_page *page, size_t size)
 {
 	t_block	*current_block;
 
-	current_block = page->blocks;
+	current_block = page->free_lists.head;
 	while (current_block)
 	{
-		if (IS_BLOCK_FREE(current_block)
-			&& GET_BLOCK_SIZE(current_block) >= size)
+		if (GET_BLOCK_SIZE(current_block) >= size) {
+			remove_block_free_list(page, current_block);
 			return (current_block);
+		}
 		current_block = NEXT_BLOCK(current_block);
 	}
 	return (NULL);
@@ -52,16 +54,13 @@ bool search_block_in_pages_for_alloc(t_page *pages, size_t size, t_page_block *o
     current_page = pages;
     while (current_page)
     {
-        if (current_page->nb_block_free > 0)
-        {
-            block = find_free_block_with_enough_spage(current_page, size);
-            if (block)
-            {
-                out->page = current_page;
-                out->block = block;
-                return true;
-            }
-        }
+		block = find_free_block_with_enough_spage(current_page, size);
+		if (block)
+		{
+			out->page = current_page;
+			out->block = block;
+			return true;
+		}
         current_page = current_page->next;
     }
     out->page = NULL;
@@ -105,26 +104,19 @@ size_t	page_allocation_size_for_large(size_t size)
 void	*optimized_malloc(t_mutex_zone *zone, size_t block_size, size_t size)
 {
 	t_page_block res;
-	void	*ptr;
 
-	pthread_mutex_lock(&zone->mutex);
 	if (search_block_in_pages_for_alloc(zone->pages, size, &res))
 	{
-		if (split_block(res.block, size) == 0)
-			res.page->nb_block_free--;
+		split_block(res.page, res.block, size);
 		SET_BLOCK_USE(res.block);
-		ptr = GET_BLOCK_PTR(res.block);
-		pthread_mutex_unlock(&zone->mutex);
-		return (ptr);
+		return (GET_BLOCK_PTR(res.block));
 	}
 	res.page = create_page(page_allocation_size_for_zone(block_size));
 	if (res.page == NULL)
-		return (pthread_mutex_unlock(&zone->mutex), NULL);
-	if (split_block(res.page->blocks, size) == 0)
-			res.page->nb_block_free--;
+		return (NULL);
+	split_block(res.page, res.page->blocks, size);
 	SET_BLOCK_USE(res.page->blocks);
 	add_back_page_list(zone, res.page);
-	pthread_mutex_unlock(&zone->mutex);
 	return (GET_BLOCK_PTR(res.page->blocks));
 }
 
@@ -132,14 +124,12 @@ void	*large_malloc(size_t size)
 {
 	t_page	*page;
 
-	pthread_mutex_lock(&g_malloc.large.mutex);
 	page = create_page(page_allocation_size_for_large(size));
 	if (page == NULL)
-		return (pthread_mutex_unlock(&g_malloc.large.mutex), NULL);
-	split_block(page->blocks, size);
+		return (NULL);
+	split_block(page, page->blocks, size);
 	SET_BLOCK_USE(page->blocks);
 	add_back_page_list(&g_malloc.large, page);
-	pthread_mutex_unlock(&g_malloc.large.mutex);
 	return (GET_BLOCK_PTR(page->blocks));
 }
 
@@ -163,18 +153,12 @@ void	*malloc_internal(size_t size)
 		return (NULL);
 	if (size == 0)
 		return (NULL);
-	if (size <= n) {
+	if (size <= n)
 		ptr = optimized_malloc(&g_malloc.tiny, n, size);
-	}
-	else if (size <= m) {
-		
+	else if (size <= m)
 		ptr = optimized_malloc(&g_malloc.small, m, size);
-
-	}
 	else
-	{
 		ptr = large_malloc(size);
-	}
 	return (ptr);
 }
 
@@ -186,7 +170,19 @@ void	*my_malloc(size_t size)
 	if (!g_malloc.set)
 		malloc_init();
 	pthread_mutex_unlock(&g_malloc_lock);
+	if (size <= n)
+		pthread_mutex_lock(&g_malloc.tiny.mutex);
+	else if (size <= m)
+		pthread_mutex_lock(&g_malloc.small.mutex);
+	else
+		pthread_mutex_lock(&g_malloc.large.mutex);
 	ptr = malloc_internal(size);
+	if (size <= n)
+		pthread_mutex_unlock(&g_malloc.tiny.mutex);
+	else if (size <= m)
+		pthread_mutex_unlock(&g_malloc.small.mutex);
+	else
+		pthread_mutex_unlock(&g_malloc.large.mutex);
 	if (g_malloc.verbose)
 	{
 		ft_printf_fd(STDERR_FILENO, "[DEBUG] malloc(%u) -> %p\n",
