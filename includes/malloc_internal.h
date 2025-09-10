@@ -10,23 +10,23 @@
 # include <pthread.h>
 #include <stdatomic.h>
 
-# define n 64   // taille en bytes pour etre considerer comme tiny malloc
-# define m 1024 // taille en bytes pour etre considerer comme small malloc
+# define n 64   // taille en bytes pour etre considerer comme tiny my_malloc
+# define m 1024 // taille en bytes pour etre considerer comme small my_malloc
 # define NB_BLOCK 100
 # define MEMORY_ALIGNMENT sizeof(size_t) // alignement de la memoire de 8bytes
 # define BLOCK_HEADER_SIZE sizeof(t_block)
 // arrondir un nombre au multiple de 8 superieur pour l'alignement
 # define ALIGN(x) (((x) + (MEMORY_ALIGNMENT - 1)) & ~(MEMORY_ALIGNMENT - 1))
 
-# define BLOCK_FLAG_FREE (1 << 0) // flag pour le free
+# define BLOCK_FLAG_FREE (1 << 0) // flag pour le my_free
 # define BLOCK_FLAG_LAST (1 << 1) // flag pour le dernier block
 
 # define SET_BLOCK_FREE(block) ((block)->flags |= BLOCK_FLAG_FREE)
-// mettre le block comme free
+// mettre le block comme my_free
 # define SET_BLOCK_USE(block) ((block)->flags &= ~BLOCK_FLAG_FREE)
 // mettre le block comme utilise
 # define IS_BLOCK_FREE(block) (((block)->flags & BLOCK_FLAG_FREE) != 0)
-// savoir si le block est free
+// savoir si le block est my_free
 
 # define SET_BLOCK_LAST(block) ((block)->flags |= BLOCK_FLAG_LAST)
 // mettre le block comme le dernier block
@@ -46,16 +46,12 @@
 
 # define GET_BLOCK_PTR(block) ((void *)(block) + BLOCK_HEADER_SIZE)
 
-#define SET_BLOCK_NEXT_FREE_PTR(block, next) \
-    (*(void **)GET_BLOCK_PTR(block) = (next))
-
-#define GET_BLOCK_NEXT_FREE_PTR(block) \
-    (*(void **)GET_BLOCK_PTR(block))
-
 typedef struct s_block
 {
-	unsigned int size; // changer ca en size_t
+	size_t size; // changer ca en size_t
 	uint8_t		flags;
+	struct s_block *next_free;
+	struct s_block *prev_free;
 }				t_block;
 
 typedef struct s_free_list {
@@ -85,9 +81,9 @@ typedef struct s_mutex_zone {
 
 typedef struct s_malloc
 {
-	t_mutex_zone	tiny; // page liee au tiny malloc
-	t_mutex_zone	small; // page liee au small malloc
-	t_mutex_zone	large; // page liee au large malloc
+	t_mutex_zone	tiny; // page liee au tiny my_malloc
+	t_mutex_zone	small; // page liee au small my_malloc
+	t_mutex_zone	large; // page liee au large my_malloc
 	int				fail_size;
 	atomic_bool			set;
 	bool			verbose;
@@ -112,8 +108,5 @@ bool				is_gonna_overflow(size_t nmemb, size_t size);
 char				*strdup_internal(const char *s);
 void				add_block_to_free_list(t_page *page, t_block *block);
 void				remove_block_free_list(t_page *page, t_block *block);
-
-// t_page *next_page(t_page *current_page);
-
 
 #endif

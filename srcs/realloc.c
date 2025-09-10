@@ -1,5 +1,4 @@
 #include "../includes/malloc_internal.h"
-#include <pthread.h>
 
 void	*need_to_reallocate(void *ptr, size_t size, size_t previous_size, t_mutex_zone *zone)
 {
@@ -27,6 +26,8 @@ int	increase_memory(t_page_block *page_block, size_t size)
 	size_t	total;
 	t_block	*new_free_block;
 	t_block	*next_block;
+	t_block *next;
+	t_block *prev;
 
 	next_block = NEXT_BLOCK(page_block->block);
 	if (next_block == NULL)
@@ -41,7 +42,12 @@ int	increase_memory(t_page_block *page_block, size_t size)
 	SET_BLOCK_SIZE(page_block->block, size);
 	new_free_block = (void *)page_block->block + BLOCK_HEADER_SIZE + ALIGN(size);
 	memmove(new_free_block, next_block, BLOCK_HEADER_SIZE);
-	SET_BLOCK_NEXT_FREE_PTR(new_free_block, next_block);
+	next = new_free_block->next_free;
+	prev = new_free_block->prev_free;
+	if (prev)
+		prev->next_free = new_free_block;
+	if (next)
+		next->prev_free = new_free_block;
 	SET_BLOCK_SIZE(new_free_block, new_size);
 	return (1);
 }
@@ -116,7 +122,7 @@ void	*realloc_internal(void *ptr, size_t size)
 			else
 			{
 				pthread_mutex_unlock(&g_malloc.large.mutex);
-				ft_putendl_fd("realloc(): invalid pointer", STDERR_FILENO);
+				ft_putendl_fd("my_realloc(): invalid pointer", STDERR_FILENO);
 				abort();
 				return (NULL);
 			}
@@ -125,7 +131,7 @@ void	*realloc_internal(void *ptr, size_t size)
 	return (new_ptr);
 }
 
-void *realloc(void *ptr, size_t size)
+void *my_realloc(void *ptr, size_t size)
 {
     void *new_ptr;
 
@@ -136,14 +142,14 @@ void *realloc(void *ptr, size_t size)
     new_ptr = realloc_internal(ptr, size);
     if (g_malloc.verbose)
     {
-        ft_printf_fd(STDERR_FILENO, "[DEBUG] realloc(%p, %u) -> %p\n", ptr, size, new_ptr);
+        ft_printf_fd(STDERR_FILENO, "[DEBUG] my_realloc(%p, %u) -> %p\n", ptr, size, new_ptr);
         ft_printf_fd(STDERR_FILENO, "Stack trace (most recent first):\n");
     }
 
     if (g_malloc.trace_file_fd != -1)
     {
         ft_printf_fd(g_malloc.trace_file_fd,
-                     "realloc(%p, %u) -> %p\n",
+                     "my_realloc(%p, %u) -> %p\n",
                      ptr,
                      size,
                      new_ptr);

@@ -1,7 +1,4 @@
 #include "../includes/malloc_internal.h"
-#include <pthread.h>
-#include <strings.h>
-#include <unistd.h>
 
 t_malloc g_malloc = {
 	{ NULL, NULL, PTHREAD_MUTEX_INITIALIZER },
@@ -138,7 +135,7 @@ bool	malloc_force_fail(size_t size)
 	if (g_malloc.fail_size != 1 && (int)size == g_malloc.fail_size)
 	{
 		ft_printf_fd(STDERR_FILENO,
-						"[DEBUG] malloc(size: %u) forced to fail!\n",
+						"[DEBUG] my_malloc(size: %u) forced to fail!\n",
 						size);
 		return (true);
 	}
@@ -162,7 +159,7 @@ void	*malloc_internal(size_t size)
 	return (ptr);
 }
 
-void	*malloc(size_t size)
+void	*my_malloc(size_t size)
 {
 	void	*ptr;
 
@@ -185,13 +182,13 @@ void	*malloc(size_t size)
 		pthread_mutex_unlock(&g_malloc.large.mutex);
 	if (g_malloc.verbose)
 	{
-		ft_printf_fd(STDERR_FILENO, "[DEBUG] malloc(%u) -> %p\n",
+		ft_printf_fd(STDERR_FILENO, "[DEBUG] my_malloc(%u) -> %p\n",
 				size, ptr);
 	}
 	if (g_malloc.trace_file_fd != -1)
 	{
 		ft_printf_fd(g_malloc.trace_file_fd,
-						"malloc(%u) -> %p\n",
+						"my_malloc(%u) -> %p\n",
 						size,
 						ptr);
 	}

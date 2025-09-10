@@ -48,7 +48,7 @@ void* test_sequential_alloc_free(void* arg) {
         size_t size = MIN_ALLOC_SIZE + (rand() % (MAX_ALLOC_SIZE - MIN_ALLOC_SIZE));
         
         // Allocation
-        void* ptr = malloc(size);
+        void* ptr = my_malloc(size);
         if (!ptr) {
             printf("Thread %d: Erreur allocation %zu bytes\n", data->thread_id, size);
             data->errors++;
@@ -67,7 +67,7 @@ void* test_sequential_alloc_free(void* arg) {
         }
         
         // Libération immédiate
-        free(ptr);
+        my_free(ptr);
         data->deallocations_made++;
         
         // Petite pause occasionnelle
@@ -84,7 +84,7 @@ void* test_sequential_alloc_free(void* arg) {
     total_errors += data->errors;
     pthread_mutex_unlock(&stats_mutex);
     
-    printf("Thread %d: Terminé - %d alloc, %d free, %d erreurs\n", 
+    printf("Thread %d: Terminé - %d alloc, %d my_free, %d erreurs\n", 
            data->thread_id, data->allocations_made, data->deallocations_made, data->errors);
     
     return NULL;
@@ -94,14 +94,14 @@ void* test_sequential_alloc_free(void* arg) {
 void* test_batch_alloc_free(void* arg) {
     thread_data_t* data = (thread_data_t*)arg;
     double start_time = get_time_us();
-    void** ptrs = malloc(data->operations_count * sizeof(void*));
+    void** ptrs = my_malloc(data->operations_count * sizeof(void*));
     
     printf("Thread %d: Démarrage test par batch\n", data->thread_id);
     
     // Phase d'allocation
     for (int i = 0; i < data->operations_count; i++) {
         size_t size = MIN_ALLOC_SIZE + (rand() % (MAX_ALLOC_SIZE - MIN_ALLOC_SIZE));
-        ptrs[i] = malloc(size);
+        ptrs[i] = my_malloc(size);
         
         if (!ptrs[i]) {
             printf("Thread %d: Erreur allocation %zu bytes (op %d)\n", data->thread_id, size, i);
@@ -119,12 +119,12 @@ void* test_batch_alloc_free(void* arg) {
     // Phase de libération
     for (int i = 0; i < data->operations_count; i++) {
         if (ptrs[i]) {
-            free(ptrs[i]);
+            my_free(ptrs[i]);
             data->deallocations_made++;
         }
     }
     
-    free(ptrs);
+    my_free(ptrs);
     data->execution_time = get_time_us() - start_time;
     
     pthread_mutex_lock(&stats_mutex);
@@ -133,7 +133,7 @@ void* test_batch_alloc_free(void* arg) {
     total_errors += data->errors;
     pthread_mutex_unlock(&stats_mutex);
     
-    printf("Thread %d: Batch terminé - %d alloc, %d free, %d erreurs\n", 
+    printf("Thread %d: Batch terminé - %d alloc, %d my_free, %d erreurs\n", 
            data->thread_id, data->allocations_made, data->deallocations_made, data->errors);
     
     return NULL;
@@ -143,7 +143,7 @@ void* test_batch_alloc_free(void* arg) {
 void* test_random_alloc_free(void* arg) {
     thread_data_t* data = (thread_data_t*)arg;
     double start_time = get_time_us();
-    void** ptrs = calloc(data->operations_count, sizeof(void*));
+    void** ptrs = my_calloc(data->operations_count, sizeof(void*));
     int active_ptrs = 0;
     
     printf("Thread %d: Démarrage test aléatoire\n", data->thread_id);
@@ -163,7 +163,7 @@ void* test_random_alloc_free(void* arg) {
             }
             
             if (slot != -1) {
-                ptrs[slot] = malloc(size);
+                ptrs[slot] = my_malloc(size);
                 if (ptrs[slot]) {
                     data->allocations_made++;
                     active_ptrs++;
@@ -176,7 +176,7 @@ void* test_random_alloc_free(void* arg) {
             // Libération
             int slot = rand() % data->operations_count;
             if (ptrs[slot]) {
-                free(ptrs[slot]);
+                my_free(ptrs[slot]);
                 ptrs[slot] = NULL;
                 data->deallocations_made++;
                 active_ptrs--;
@@ -191,12 +191,12 @@ void* test_random_alloc_free(void* arg) {
     // Nettoyer les allocations restantes
     for (int i = 0; i < data->operations_count; i++) {
         if (ptrs[i]) {
-            free(ptrs[i]);
+            my_free(ptrs[i]);
             data->deallocations_made++;
         }
     }
     
-    free(ptrs);
+    my_free(ptrs);
     data->execution_time = get_time_us() - start_time;
     
     pthread_mutex_lock(&stats_mutex);
@@ -205,7 +205,7 @@ void* test_random_alloc_free(void* arg) {
     total_errors += data->errors;
     pthread_mutex_unlock(&stats_mutex);
     
-    printf("Thread %d: Aléatoire terminé - %d alloc, %d free, %d erreurs\n", 
+    printf("Thread %d: Aléatoire terminé - %d alloc, %d my_free, %d erreurs\n", 
            data->thread_id, data->allocations_made, data->deallocations_made, data->errors);
     
     return NULL;
@@ -224,7 +224,7 @@ void* test_stress_different_sizes(void* arg) {
     for (int i = 0; i < data->operations_count; i++) {
         size_t size = sizes[i % num_sizes];
         
-        void* ptr = malloc(size);
+        void* ptr = my_malloc(size);
         if (!ptr) {
             data->errors++;
             continue;
@@ -242,7 +242,7 @@ void* test_stress_different_sizes(void* arg) {
             }
         }
         
-        free(ptr);
+        my_free(ptr);
         data->deallocations_made++;
     }
     
@@ -254,14 +254,14 @@ void* test_stress_different_sizes(void* arg) {
     total_errors += data->errors;
     pthread_mutex_unlock(&stats_mutex);
     
-    printf("Thread %d: Stress terminé - %d alloc, %d free, %d erreurs\n", 
+    printf("Thread %d: Stress terminé - %d alloc, %d my_free, %d erreurs\n", 
            data->thread_id, data->allocations_made, data->deallocations_made, data->errors);
     
     return NULL;
 }
 
 int main() {
-    printf("=== Test Multi-threadé pour malloc/free personnalisé ===\n\n");
+    printf("=== Test Multi-threadé pour my_malloc/my_free personnalisé ===\n\n");
     
     pthread_t threads[NUM_THREADS];
     thread_data_t thread_data[NUM_THREADS];

@@ -1,12 +1,10 @@
 #include "../includes/malloc_internal.h"
-#include <pthread.h>
-#include <unistd.h>
 
 void	block_free(t_block *block)
 {
 	if (IS_BLOCK_FREE(block) == true)
 	{
-		ft_putendl_fd("free(): double free detected in tcache 2",
+		ft_putendl_fd("my_free(): double my_free detected in tcache 2",
 						STDERR_FILENO);
 		abort();
 	}
@@ -101,11 +99,11 @@ void	free_internal(void *ptr)
 	if (free_large_block(ptr))
 		return (void)pthread_mutex_unlock(&g_malloc.large.mutex);
 	pthread_mutex_unlock(&g_malloc.large.mutex);
-	ft_putendl_fd("free(): invalid pointer", STDERR_FILENO);
+	ft_putendl_fd("my_free(): invalid pointer", STDERR_FILENO);
 	abort();
 }
 
-void	free(void *ptr)
+void	my_free(void *ptr)
 {
 	pthread_mutex_lock(&g_malloc_lock);
 	if (!g_malloc.set)
@@ -115,18 +113,18 @@ void	free(void *ptr)
 	{
 		if (ptr == NULL)
 			ft_printf_fd(STDERR_FILENO,
-							"[DEBUG] free(NULL)\n");
+							"[DEBUG] my_free(NULL)\n");
 		else
 			ft_printf_fd(STDERR_FILENO,
-							"[DEBUG] free(%p)\n",
+							"[DEBUG] my_free(%p)\n",
 							ptr);
 	}
 	if (g_malloc.trace_file_fd != -1)
 	{
 		if (ptr == NULL)
-			ft_printf_fd(g_malloc.trace_file_fd, "free(NULL)\n");
+			ft_printf_fd(g_malloc.trace_file_fd, "my_free(NULL)\n");
 		else
-			ft_printf_fd(g_malloc.trace_file_fd, "free(%p)\n",
+			ft_printf_fd(g_malloc.trace_file_fd, "my_free(%p)\n",
 					ptr);
 	}
 	free_internal(ptr);

@@ -10,7 +10,7 @@ char	*strdup_internal(const char *s)
 	dest = malloc_internal(len + 1);
 	if (dest == NULL)
 		return (dest);
-	return (strcpy(dest, s));
+	return (memmove(dest, s, len + 1));
 }
 
 char *strdup(const char *s)

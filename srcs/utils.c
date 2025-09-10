@@ -1,37 +1,50 @@
 #include "../includes/malloc_internal.h"
-#include "../includes/lib_malloc.h"
-#include <pthread.h>
-#include <stdbool.h>
-#include <stdio.h>
-#include <string.h>
-#include <time.h>
-#include <unistd.h>
 
 void	initialize_blocks(t_block **block, size_t size)
 {
 	t_block	*current_block;
 
 	current_block = *block;
-	
-	current_block->flags = 0;
+	memset(current_block, 0, sizeof(t_block));
 	SET_BLOCK_SIZE(current_block, size);
 	SET_BLOCK_FREE(current_block);
 	SET_BLOCK_LAST(current_block);
-	SET_BLOCK_NEXT_FREE_PTR(current_block, NULL);
 }
 
 void	block_merge_with_next(t_page *page, t_block *first, t_block *second)
 {
 	size_t	total_size;
+	t_block *prev;
 
 	total_size = GET_BLOCK_SIZE(first) + BLOCK_HEADER_SIZE
 		+ GET_BLOCK_SIZE(second);
 	SET_BLOCK_SIZE(first, total_size);
 	if (IS_BLOCK_LAST(second))
 		SET_BLOCK_LAST(first);
-	SET_BLOCK_NEXT_FREE_PTR(first, GET_BLOCK_NEXT_FREE_PTR(second));
+	prev = second->prev_free;
+	first->prev_free = prev;
+	if (prev)
+		prev->next_free = first;
 	if (page->free_lists.head == second)
 		page->free_lists.head = first;
+}
+
+void	block_merge_with_prev(t_page *page, t_block *first, t_block *second)
+{
+	size_t	total_size;
+	t_block *next;
+
+	total_size = GET_BLOCK_SIZE(first) + BLOCK_HEADER_SIZE
+		+ GET_BLOCK_SIZE(second);
+	SET_BLOCK_SIZE(first, total_size);
+	if (IS_BLOCK_LAST(second))
+		SET_BLOCK_LAST(first);
+	next = second->next_free;
+	first->next_free = next;
+	if (next)
+		next->prev_free = first;
+	if (page->free_lists.last == second)
+		page->free_lists.last = first;
 }
 
 void merge_block(t_page *page, t_block *block, t_block *prev_block)
@@ -44,7 +57,7 @@ void merge_block(t_page *page, t_block *block, t_block *prev_block)
 	if (next_block && IS_BLOCK_FREE(next_block) == true)
 		block_merge_with_next(page, block, next_block);
 	if (prev_block && IS_BLOCK_FREE(prev_block) == true)
-		block_merge_with_next(page, prev_block, block);
+		block_merge_with_prev(page, prev_block, block);
 }
 
 t_block	*page_find_block_by_ptr(t_page *page, void *ptr, t_block **prev_out)
@@ -82,11 +95,8 @@ void	split_block(t_page *page, t_block *block, size_t size)
 	}
 	aligned_size = ALIGN(size);
 	new_size = GET_BLOCK_SIZE(block) - aligned_size - BLOCK_HEADER_SIZE;
-	if (new_size == 0)
-	{
-		SET_BLOCK_SIZE(block, size);
+	if (new_size <= 0)
 		return ;
-	}
 	SET_BLOCK_SIZE(block, size);
 	new_block = (void *)block + BLOCK_HEADER_SIZE + aligned_size;
 	initialize_blocks(&new_block, new_size);
@@ -137,24 +147,29 @@ void add_block_to_free_list(t_page *page, t_block *block)
 	if (page->free_lists.head == NULL)
 		page->free_lists.head = block;
 	else
-		SET_BLOCK_NEXT_FREE_PTR(page->free_lists.last, block);
+		page->free_lists.last->next_free = block;
 	page->free_lists.last = block;
 
 }
 
 void remove_block_free_list(t_page *page, t_block *block)
 {
-	t_block *current_block;
-
+	t_block *prev;
+	t_block *next;
 
 	if (page->free_lists.head == block)
-		page->free_lists.head = GET_BLOCK_NEXT_FREE_PTR(block);
+		page->free_lists.head = block->next_free;
+	else if (page->free_lists.last == block)
+		page->free_lists.last = block->prev_free;
 	else
 	{
-		current_block = page->free_lists.head;
-		while (GET_BLOCK_NEXT_FREE_PTR(current_block) != block) {
-			current_block = GET_BLOCK_NEXT_FREE_PTR(current_block);
-		}
-		SET_BLOCK_NEXT_FREE_PTR(current_block, GET_BLOCK_NEXT_FREE_PTR(block));
+		prev = block->prev_free;
+		next = block->next_free;
+		if (prev)
+			prev->next_free = next;
+		if (next)
+			next->prev_free = prev;
 	}
+
+
 }

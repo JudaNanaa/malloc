@@ -1,6 +1,4 @@
 #include "../includes/malloc_internal.h"
-#include <bits/pthreadtypes.h>
-#include <pthread.h>
 
 pthread_mutex_t g_malloc_lock = PTHREAD_MUTEX_INITIALIZER;
 
