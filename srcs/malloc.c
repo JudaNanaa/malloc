@@ -162,7 +162,7 @@ void	*malloc_internal(size_t size)
 	return (ptr);
 }
 
-void	*my_malloc(size_t size)
+void	*malloc(size_t size)
 {
 	void	*ptr;
 

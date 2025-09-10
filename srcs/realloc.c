@@ -125,7 +125,7 @@ void	*realloc_internal(void *ptr, size_t size)
 	return (new_ptr);
 }
 
-void *my_realloc(void *ptr, size_t size)
+void *realloc(void *ptr, size_t size)
 {
     void *new_ptr;
 

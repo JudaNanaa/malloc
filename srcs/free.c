@@ -105,7 +105,7 @@ void	free_internal(void *ptr)
 	abort();
 }
 
-void	my_free(void *ptr)
+void	free(void *ptr)
 {
 	pthread_mutex_lock(&g_malloc_lock);
 	if (!g_malloc.set)
