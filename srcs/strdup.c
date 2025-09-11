@@ -32,6 +32,5 @@ char *strdup(const char *s)
         ft_printf_fd(g_malloc.trace_file_fd,
             "strdup(\"%s\") -> %p\n", s, dest);
     }
-
     return dest;
 }

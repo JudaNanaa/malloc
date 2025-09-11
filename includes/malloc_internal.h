@@ -81,9 +81,11 @@ typedef struct s_mutex_zone {
 
 typedef struct s_malloc
 {
-	t_mutex_zone	tiny; // page liee au tiny my_malloc
-	t_mutex_zone	small; // page liee au small my_malloc
-	t_mutex_zone	large; // page liee au large my_malloc
+	t_mutex_zone	tiny; // page liee au tiny malloc
+	t_mutex_zone	small; // page liee au small malloc
+	t_mutex_zone	large; // page liee au large malloc
+	size_t			tiny_malloc_size;
+	size_t			small_malloc_size;
 	int				fail_size;
 	atomic_bool			set;
 	bool			verbose;

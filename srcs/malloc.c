@@ -4,6 +4,8 @@ t_malloc g_malloc = {
 	{ NULL, NULL, PTHREAD_MUTEX_INITIALIZER },
 	{ NULL, NULL, PTHREAD_MUTEX_INITIALIZER },
 	{ NULL, NULL, PTHREAD_MUTEX_INITIALIZER },
+	n,
+	m,
 	-1,
 	false,
 	false,
@@ -150,10 +152,10 @@ void	*malloc_internal(size_t size)
 		return (NULL);
 	if (size == 0)
 		return (NULL);
-	if (size <= n)
-		ptr = optimized_malloc(&g_malloc.tiny, n, size);
-	else if (size <= m)
-		ptr = optimized_malloc(&g_malloc.small, m, size);
+	if (size <= g_malloc.tiny_malloc_size)
+		ptr = optimized_malloc(&g_malloc.tiny, g_malloc.tiny_malloc_size, size);
+	else if (size <= g_malloc.small_malloc_size)
+		ptr = optimized_malloc(&g_malloc.small, g_malloc.small_malloc_size, size);
 	else
 		ptr = large_malloc(size);
 	return (ptr);
