@@ -52,4 +52,6 @@ void	malloc_init(void)
 			abort();
 		}
 	}
+	ft_printf_fd(STDERR_FILENO, "g_malloc.tiny_malloc_size == %u\n", g_malloc.tiny_malloc_size);
+	ft_printf_fd(STDERR_FILENO, "g_malloc.small_malloc_size == %u\n", g_malloc.small_malloc_size);
 }

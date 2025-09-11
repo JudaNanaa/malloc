@@ -169,16 +169,16 @@ void	*my_malloc(size_t size)
 	if (!g_malloc.set)
 		malloc_init();
 	pthread_mutex_unlock(&g_malloc_lock);
-	if (size <= n)
+	if (size <= g_malloc.tiny_malloc_size)
 		pthread_mutex_lock(&g_malloc.tiny.mutex);
-	else if (size <= m)
+	else if (size <= g_malloc.small_malloc_size)
 		pthread_mutex_lock(&g_malloc.small.mutex);
 	else
 		pthread_mutex_lock(&g_malloc.large.mutex);
 	ptr = malloc_internal(size);
-	if (size <= n)
+	if (size <= g_malloc.tiny_malloc_size)
 		pthread_mutex_unlock(&g_malloc.tiny.mutex);
-	else if (size <= m)
+	else if (size <= g_malloc.small_malloc_size)
 		pthread_mutex_unlock(&g_malloc.small.mutex);
 	else
 		pthread_mutex_unlock(&g_malloc.large.mutex);
