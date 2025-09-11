@@ -66,17 +66,17 @@ void	*realloc_block(void *ptr, size_t new_size, t_page_block *page_block,
 
 void	*realloc_tiny_block(void *ptr, size_t size, t_page_block *page_block)
 {
-	return (realloc_block(ptr, size, page_block, 1, n, &g_malloc.tiny));
+	return (realloc_block(ptr, size, page_block, 1, g_malloc.tiny_malloc_size, &g_malloc.tiny));
 }
 
 void	*realloc_small_block(void *ptr, size_t size, t_page_block *page_block)
 {
-	return (realloc_block(ptr, size, page_block, n + 1, m, &g_malloc.small));
+	return (realloc_block(ptr, size, page_block, g_malloc.tiny_malloc_size + 1, g_malloc.small_malloc_size, &g_malloc.small));
 }
 
 void	*realloc_large_block(void *ptr, size_t size, t_page_block *page_block)
 {
-	return (realloc_block(ptr, size, page_block, m + 1, SIZE_MAX, &g_malloc.large));
+	return (realloc_block(ptr, size, page_block, g_malloc.small_malloc_size + 1, SIZE_MAX, &g_malloc.large));
 }
 
 void	*realloc_internal(void *ptr, size_t size)

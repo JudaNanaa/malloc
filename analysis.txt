@@ -1,0 +1,349 @@
+Flat profile:
+
+Each sample counts as 0.01 seconds.
+  %   cumulative   self              self     total           
+ time   seconds   seconds    calls  us/call  us/call  name    
+ 33.33      0.19     0.19                             test_sequential_malloc
+ 26.32      0.34     0.15    45733     3.28     3.69  create_page
+ 12.28      0.41     0.07    78417     0.89     0.89  page_find_block_by_ptr
+ 12.28      0.48     0.07                             test_delayed_verification
+  8.77      0.53     0.05   124223     0.40     0.40  initialize_blocks
+  3.51      0.55     0.02                             test_rapid_malloc
+  1.75      0.56     0.01    74360     0.13     2.81  malloc
+  1.75      0.57     0.01      200    50.00    50.00  remove_page
+  0.00      0.57     0.00  1352399     0.00     0.00  find_free_block_with_enough_spage
+  0.00      0.57     0.00    77669     0.00     0.40  split_block
+  0.00      0.57     0.00    77231     0.00     0.00  merge_block
+  0.00      0.57     0.00    76975     0.00     0.00  add_block_to_free_list
+  0.00      0.57     0.00    76685     0.00     0.00  malloc_force_fail
+  0.00      0.57     0.00    75455     0.00     2.65  malloc_internal
+  0.00      0.57     0.00    46686     0.00     0.00  add_back_page_list
+  0.00      0.57     0.00    46016     0.00     0.00  page_allocation_size_for_large
+  0.00      0.57     0.00    45576     0.00     4.11  large_malloc
+  0.00      0.57     0.00    30514     0.00     0.00  search_block_in_pages_for_alloc
+  0.00      0.57     0.00    30437     0.00     0.00  remove_block_free_list
+  0.00      0.57     0.00    30305     0.00     0.42  optimized_malloc
+  0.00      0.57     0.00     1844     0.00    43.38  free_internal
+  0.00      0.57     0.00      585     0.00    55.59  free_block_from_zone
+  0.00      0.57     0.00      286     0.00     2.61  calloc_internal
+  0.00      0.57     0.00      281     0.00     0.00  is_gonna_overflow
+  0.00      0.57     0.00      200     0.00   400.00  free
+  0.00      0.57     0.00      200     0.00   237.40  free_large_block
+  0.00      0.57     0.00      192     0.00     3.89  calloc
+  0.00      0.57     0.00      187     0.00     0.00  get_time_us
+  0.00      0.57     0.00      147     0.00     0.00  page_allocation_size_for_zone
+  0.00      0.57     0.00      100     0.00     0.00  check_pointer_alignment
+  0.00      0.57     0.00       93     0.00     0.00  is_all_blocks_free
+  0.00      0.57     0.00       91     0.00     0.00  block_free
+  0.00      0.57     0.00       51     0.00     0.00  block_merge_with_next
+
+ %         the percentage of the total running time of the
+time       program used by this function.
+
+cumulative a running sum of the number of seconds accounted
+ seconds   for by this function and those listed above it.
+
+ self      the number of seconds accounted for by this
+seconds    function alone.  This is the major sort for this
+           listing.
+
+calls      the number of times this function was invoked, if
+           this function is profiled, else blank.
+
+ self      the average number of milliseconds spent in this
+ms/call    function per call, if this function is profiled,
+	   else blank.
+
+ total     the average number of milliseconds spent in this
+ms/call    function and its descendents per call, if this
+	   function is profiled, else blank.
+
+name       the name of the function.  This is the minor sort
+           for this listing. The index shows the location of
+	   the function in the gprof listing. If the index is
+	   in parenthesis it shows where it would appear in
+	   the gprof listing if it were to be printed.
+
+Copyright (C) 2012-2022 Free Software Foundation, Inc.
+
+Copying and distribution of this file, with or without modification,
+are permitted in any medium without royalty provided the copyright
+notice and this notice are preserved.
+
+		     Call graph (explanation follows)
+
+
+granularity: each sample hit covers 4 byte(s) for 1.75% of 0.57 seconds
+
+index % time    self  children    called     name
+                                                 <spontaneous>
+[1]     44.3    0.19    0.06                 test_sequential_malloc [1]
+                0.00    0.06   22208/74360       malloc [2]
+                0.00    0.00      50/192         calloc [20]
+                0.00    0.00      48/187         get_time_us [30]
+-----------------------------------------------
+                0.00    0.01    5398/74360       test_large_allocations [16]
+                0.00    0.06   22208/74360       test_sequential_malloc [1]
+                0.00    0.06   23206/74360       test_rapid_malloc [7]
+                0.00    0.06   23548/74360       test_delayed_verification [6]
+[2]     36.7    0.01    0.20   74360         malloc [2]
+                0.00    0.20   75173/75455       malloc_internal [3]
+-----------------------------------------------
+                0.00    0.00     282/75455       calloc_internal [19]
+                0.00    0.20   75173/75455       malloc [2]
+[3]     35.1    0.00    0.20   75455         malloc_internal [3]
+                0.00    0.19   45576/45576       large_malloc [4]
+                0.00    0.01   30305/30305       optimized_malloc [17]
+                0.00    0.00   76685/76685       malloc_force_fail [24]
+-----------------------------------------------
+                0.00    0.19   45576/45576       malloc_internal [3]
+[4]     32.8    0.00    0.19   45576         large_malloc [4]
+                0.15    0.02   45588/45733       create_page [5]
+                0.00    0.02   47096/77669       split_block [15]
+                0.00    0.00   46537/46686       add_back_page_list [25]
+                0.00    0.00   46016/46016       page_allocation_size_for_large [26]
+-----------------------------------------------
+                0.00    0.00     145/45733       optimized_malloc [17]
+                0.15    0.02   45588/45733       large_malloc [4]
+[5]     29.6    0.15    0.02   45733         create_page [5]
+                0.02    0.00   46952/124223      initialize_blocks [12]
+-----------------------------------------------
+                                                 <spontaneous>
+[6]     23.9    0.07    0.07                 test_delayed_verification [6]
+                0.00    0.06   23548/74360       malloc [2]
+                0.00    0.00      48/192         calloc [20]
+                0.00    0.00      46/187         get_time_us [30]
+-----------------------------------------------
+                                                 <spontaneous>
+[7]     15.0    0.02    0.07                 test_rapid_malloc [7]
+                0.00    0.06   23206/74360       malloc [2]
+                0.00    0.00      46/192         calloc [20]
+                0.00    0.00      45/187         get_time_us [30]
+-----------------------------------------------
+                0.00    0.08    1844/1844        free [9]
+[8]     14.0    0.00    0.08    1844         free_internal [8]
+                0.00    0.05     200/200         free_large_block [13]
+                0.00    0.03     585/585         free_block_from_zone [14]
+-----------------------------------------------
+                0.00    0.08     200/200         main [10]
+[9]     14.0    0.00    0.08     200         free [9]
+                0.00    0.08    1844/1844        free_internal [8]
+-----------------------------------------------
+                                                 <spontaneous>
+[10]    14.0    0.00    0.08                 main [10]
+                0.00    0.08     200/200         free [9]
+                0.00    0.00     100/100         check_pointer_alignment [32]
+                0.00    0.00       2/187         get_time_us [30]
+-----------------------------------------------
+                0.03    0.00   36431/78417       free_block_from_zone [14]
+                0.04    0.00   41986/78417       free_large_block [13]
+[11]    12.3    0.07    0.00   78417         page_find_block_by_ptr [11]
+-----------------------------------------------
+                0.02    0.00   46952/124223      create_page [5]
+                0.03    0.00   77271/124223      split_block [15]
+[12]     8.8    0.05    0.00  124223         initialize_blocks [12]
+-----------------------------------------------
+                0.00    0.05     200/200         free_internal [8]
+[13]     8.3    0.00    0.05     200         free_large_block [13]
+                0.04    0.00   41986/78417       page_find_block_by_ptr [11]
+                0.01    0.00     200/200         remove_page [18]
+-----------------------------------------------
+                0.00    0.03     585/585         free_internal [8]
+[14]     5.7    0.00    0.03     585         free_block_from_zone [14]
+                0.03    0.00   36431/78417       page_find_block_by_ptr [11]
+                0.00    0.00      93/93          is_all_blocks_free [33]
+                0.00    0.00      92/77231       merge_block [22]
+                0.00    0.00      91/91          block_free [34]
+-----------------------------------------------
+                0.00    0.01   30573/77669       optimized_malloc [17]
+                0.00    0.02   47096/77669       large_malloc [4]
+[15]     5.5    0.00    0.03   77669         split_block [15]
+                0.03    0.00   77271/124223      initialize_blocks [12]
+                0.00    0.00   77139/77231       merge_block [22]
+                0.00    0.00   76975/76975       add_block_to_free_list [23]
+-----------------------------------------------
+                                                 <spontaneous>
+[16]     2.7    0.00    0.02                 test_large_allocations [16]
+                0.00    0.01    5398/74360       malloc [2]
+                0.00    0.00      48/192         calloc [20]
+                0.00    0.00      46/187         get_time_us [30]
+-----------------------------------------------
+                0.00    0.01   30305/30305       malloc_internal [3]
+[17]     2.2    0.00    0.01   30305         optimized_malloc [17]
+                0.00    0.01   30573/77669       split_block [15]
+                0.00    0.00     145/45733       create_page [5]
+                0.00    0.00   30514/30514       search_block_in_pages_for_alloc [27]
+                0.00    0.00     149/46686       add_back_page_list [25]
+                0.00    0.00     147/147         page_allocation_size_for_zone [31]
+-----------------------------------------------
+                0.01    0.00     200/200         free_large_block [13]
+[18]     1.8    0.01    0.00     200         remove_page [18]
+-----------------------------------------------
+                0.00    0.00     286/286         calloc [20]
+[19]     0.1    0.00    0.00     286         calloc_internal [19]
+                0.00    0.00     282/75455       malloc_internal [3]
+-----------------------------------------------
+                0.00    0.00      46/192         test_rapid_malloc [7]
+                0.00    0.00      48/192         test_delayed_verification [6]
+                0.00    0.00      48/192         test_large_allocations [16]
+                0.00    0.00      50/192         test_sequential_malloc [1]
+[20]     0.1    0.00    0.00     192         calloc [20]
+                0.00    0.00     286/286         calloc_internal [19]
+                0.00    0.00     281/281         is_gonna_overflow [29]
+-----------------------------------------------
+                0.00    0.00 1352399/1352399     search_block_in_pages_for_alloc [27]
+[21]     0.0    0.00    0.00 1352399         find_free_block_with_enough_spage [21]
+                0.00    0.00   30437/30437       remove_block_free_list [28]
+-----------------------------------------------
+                0.00    0.00      92/77231       free_block_from_zone [14]
+                0.00    0.00   77139/77231       split_block [15]
+[22]     0.0    0.00    0.00   77231         merge_block [22]
+                0.00    0.00      51/51          block_merge_with_next [35]
+-----------------------------------------------
+                0.00    0.00   76975/76975       split_block [15]
+[23]     0.0    0.00    0.00   76975         add_block_to_free_list [23]
+-----------------------------------------------
+                0.00    0.00   76685/76685       malloc_internal [3]
+[24]     0.0    0.00    0.00   76685         malloc_force_fail [24]
+-----------------------------------------------
+                0.00    0.00     149/46686       optimized_malloc [17]
+                0.00    0.00   46537/46686       large_malloc [4]
+[25]     0.0    0.00    0.00   46686         add_back_page_list [25]
+-----------------------------------------------
+                0.00    0.00   46016/46016       large_malloc [4]
+[26]     0.0    0.00    0.00   46016         page_allocation_size_for_large [26]
+-----------------------------------------------
+                0.00    0.00   30514/30514       optimized_malloc [17]
+[27]     0.0    0.00    0.00   30514         search_block_in_pages_for_alloc [27]
+                0.00    0.00 1352399/1352399     find_free_block_with_enough_spage [21]
+-----------------------------------------------
+                0.00    0.00   30437/30437       find_free_block_with_enough_spage [21]
+[28]     0.0    0.00    0.00   30437         remove_block_free_list [28]
+-----------------------------------------------
+                0.00    0.00     281/281         calloc [20]
+[29]     0.0    0.00    0.00     281         is_gonna_overflow [29]
+-----------------------------------------------
+                0.00    0.00       2/187         main [10]
+                0.00    0.00      45/187         test_rapid_malloc [7]
+                0.00    0.00      46/187         test_delayed_verification [6]
+                0.00    0.00      46/187         test_large_allocations [16]
+                0.00    0.00      48/187         test_sequential_malloc [1]
+[30]     0.0    0.00    0.00     187         get_time_us [30]
+-----------------------------------------------
+                0.00    0.00     147/147         optimized_malloc [17]
+[31]     0.0    0.00    0.00     147         page_allocation_size_for_zone [31]
+-----------------------------------------------
+                0.00    0.00     100/100         main [10]
+[32]     0.0    0.00    0.00     100         check_pointer_alignment [32]
+-----------------------------------------------
+                0.00    0.00      93/93          free_block_from_zone [14]
+[33]     0.0    0.00    0.00      93         is_all_blocks_free [33]
+-----------------------------------------------
+                0.00    0.00      91/91          free_block_from_zone [14]
+[34]     0.0    0.00    0.00      91         block_free [34]
+-----------------------------------------------
+                0.00    0.00      51/51          merge_block [22]
+[35]     0.0    0.00    0.00      51         block_merge_with_next [35]
+-----------------------------------------------
+
+ This table describes the call tree of the program, and was sorted by
+ the total amount of time spent in each function and its children.
+
+ Each entry in this table consists of several lines.  The line with the
+ index number at the left hand margin lists the current function.
+ The lines above it list the functions that called this function,
+ and the lines below it list the functions this one called.
+ This line lists:
+     index	A unique number given to each element of the table.
+		Index numbers are sorted numerically.
+		The index number is printed next to every function name so
+		it is easier to look up where the function is in the table.
+
+     % time	This is the percentage of the `total' time that was spent
+		in this function and its children.  Note that due to
+		different viewpoints, functions excluded by options, etc,
+		these numbers will NOT add up to 100%.
+
+     self	This is the total amount of time spent in this function.
+
+     children	This is the total amount of time propagated into this
+		function by its children.
+
+     called	This is the number of times the function was called.
+		If the function called itself recursively, the number
+		only includes non-recursive calls, and is followed by
+		a `+' and the number of recursive calls.
+
+     name	The name of the current function.  The index number is
+		printed after it.  If the function is a member of a
+		cycle, the cycle number is printed between the
+		function's name and the index number.
+
+
+ For the function's parents, the fields have the following meanings:
+
+     self	This is the amount of time that was propagated directly
+		from the function into this parent.
+
+     children	This is the amount of time that was propagated from
+		the function's children into this parent.
+
+     called	This is the number of times this parent called the
+		function `/' the total number of times the function
+		was called.  Recursive calls to the function are not
+		included in the number after the `/'.
+
+     name	This is the name of the parent.  The parent's index
+		number is printed after it.  If the parent is a
+		member of a cycle, the cycle number is printed between
+		the name and the index number.
+
+ If the parents of the function cannot be determined, the word
+ `<spontaneous>' is printed in the `name' field, and all the other
+ fields are blank.
+
+ For the function's children, the fields have the following meanings:
+
+     self	This is the amount of time that was propagated directly
+		from the child into the function.
+
+     children	This is the amount of time that was propagated from the
+		child's children to the function.
+
+     called	This is the number of times the function called
+		this child `/' the total number of times the child
+		was called.  Recursive calls by the child are not
+		listed in the number after the `/'.
+
+     name	This is the name of the child.  The child's index
+		number is printed after it.  If the child is a
+		member of a cycle, the cycle number is printed
+		between the name and the index number.
+
+ If there are any cycles (circles) in the call graph, there is an
+ entry for the cycle-as-a-whole.  This entry shows who called the
+ cycle (as parents) and the members of the cycle (as children.)
+ The `+' recursive calls entry shows the number of function calls that
+ were internal to the cycle, and the calls entry for each member shows,
+ for that member, how many times it was called from other members of
+ the cycle.
+
+Copyright (C) 2012-2022 Free Software Foundation, Inc.
+
+Copying and distribution of this file, with or without modification,
+are permitted in any medium without royalty provided the copyright
+notice and this notice are preserved.
+
+Index by function name
+
+  [25] add_back_page_list      [8] free_internal          [17] optimized_malloc
+  [23] add_block_to_free_list [13] free_large_block       [26] page_allocation_size_for_large
+  [34] block_free             [30] get_time_us            [31] page_allocation_size_for_zone
+  [35] block_merge_with_next  [12] initialize_blocks      [11] page_find_block_by_ptr
+  [20] calloc                 [33] is_all_blocks_free     [28] remove_block_free_list
+  [19] calloc_internal        [29] is_gonna_overflow      [18] remove_page
+  [32] check_pointer_alignment [4] large_malloc           [27] search_block_in_pages_for_alloc
+   [5] create_page             [2] malloc                 [15] split_block
+  [21] find_free_block_with_enough_spage [24] malloc_force_fail [6] test_delayed_verification
+   [9] free                    [3] malloc_internal         [7] test_rapid_malloc
+  [14] free_block_from_zone   [22] merge_block             [1] test_sequential_malloc
