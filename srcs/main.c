@@ -865,12 +865,14 @@ void test_reallocarray_categories() {
                 if (ptr) {
                     int data_ok = 1;
                     for (int i = 0; i < 64; i++) {
+					printf("i == %d\n", i);
                         if (ptr[i] != 'T') {
                             data_ok = 0;
                             break;
                         }
                     }
                     for (int i = 64; i < 200 && data_ok; i++) {
+					printf("i == %d\n", i);
                         if (ptr[i] != 'S') {
                             data_ok = 0;
                             break;
@@ -985,14 +987,12 @@ void test_reallocarray_stress() {
     for (int round = 0; round < num_sizes; round++) {
         size_t new_size = sizes[round];
         
-		printf("round == %d\n", round);
         dynamic_arr = my_reallocarray(dynamic_arr, new_size, sizeof(int));
         if (!dynamic_arr) {
             stress_ok = 0;
             break;
         }
         
-		printf("je suis ici\n");
         // Si on grandit, initialiser les nouveaux éléments
         if (new_size > current_size) {
             for (size_t i = current_size; i < new_size; i++) {
@@ -1006,7 +1006,6 @@ void test_reallocarray_stress() {
             dynamic_arr[new_size - 1] = 67890;
             
             if (dynamic_arr[0] != 12345 || dynamic_arr[new_size - 1] != 67890) {
-				ft_printf_fd(STDERR_FILENO, "ok chellout\n");
                 stress_ok = 0;
                 break;
             }
@@ -1695,7 +1694,311 @@ void test_strdup_boundary_conditions() {
     }
 }
 
-int main(void) {
+#include <pthread.h>
+#include <sys/time.h>
+// Configuration des tests
+#define NUM_THREADS 100
+#define ALLOCATIONS_PER_THREAD 1000
+#define MAX_ALLOC_SIZE 4096
+#define MIN_ALLOC_SIZE 8
+
+// Structure pour passer les paramètres aux threads
+typedef struct {
+    int thread_id;
+    int allocations_target;
+    int allocations_made;
+    int errors;
+    int write_errors;
+    int read_errors;
+    double execution_time;
+    void** allocated_ptrs;
+    size_t* allocated_sizes;
+} thread_data_t;
+
+// Variables globales pour les statistiques
+pthread_mutex_t stats_mutex = PTHREAD_MUTEX_INITIALIZER;
+int total_allocations = 0;
+int total_errors = 0;
+size_t total_memory_allocated = 0;
+
+// Fonction utilitaire pour obtenir le temps en microsecondes
+double get_time_us() {
+    struct timeval tv;
+    gettimeofday(&tv, NULL);
+    return tv.tv_sec * 1000000.0 + tv.tv_usec;
+}
+
+// Test 1: Allocations séquentielles avec vérification d'intégrité
+void* test_sequential_malloc(void* arg) {
+    thread_data_t* data = (thread_data_t*)arg;
+    double start_time = get_time_us();
+    
+    printf("Thread %d: Démarrage test séquentiel (%d allocations)\n", 
+           data->thread_id, data->allocations_target);
+    
+    data->allocated_ptrs = my_calloc(data->allocations_target, sizeof(void*));
+    data->allocated_sizes = my_calloc(data->allocations_target, sizeof(size_t));
+    
+    if (!data->allocated_ptrs || !data->allocated_sizes) {
+        printf("Thread %d: Erreur allocation tableaux de suivi\n", data->thread_id);
+        data->errors++;
+        return NULL;
+    }
+    
+    for (int i = 0; i < data->allocations_target; i++) {
+        size_t size = MIN_ALLOC_SIZE + (rand() % (MAX_ALLOC_SIZE - MIN_ALLOC_SIZE));
+        
+        // Allocation
+        void* ptr = my_malloc(size);
+        if (!ptr) {
+            printf("Thread %d: Erreur allocation %zu bytes (allocation #%d)\n", 
+                   data->thread_id, size, i);
+            data->errors++;
+            continue;
+        }
+        
+        data->allocated_ptrs[i] = ptr;
+        data->allocated_sizes[i] = size;
+        data->allocations_made++;
+        
+        // Test d'écriture avec pattern unique par thread
+        unsigned char pattern = (data->thread_id * 13 + i) % 256;
+        memset(ptr, pattern, size);
+        
+        // Vérification immédiate de l'écriture
+        unsigned char* byte_ptr = (unsigned char*)ptr;
+        for (size_t j = 0; j < size; j++) {
+            if (byte_ptr[j] != pattern) {
+                printf("Thread %d: Erreur écriture à l'offset %zu (alloc #%d)\n", 
+                       data->thread_id, j, i);
+                data->write_errors++;
+                break;
+            }
+        }
+        
+        // Pause occasionnelle pour laisser de la place aux autres threads
+        if (i % 50 == 0) {
+            usleep(1);
+        }
+    }
+    
+    data->execution_time = get_time_us() - start_time;
+    
+    pthread_mutex_lock(&stats_mutex);
+    total_allocations += data->allocations_made;
+    total_errors += data->errors + data->write_errors;
+    for (int i = 0; i < data->allocations_made; i++) {
+        if (data->allocated_ptrs[i]) {
+            total_memory_allocated += data->allocated_sizes[i];
+        }
+    }
+    pthread_mutex_unlock(&stats_mutex);
+    
+    printf("Thread %d: Séquentiel terminé - %d/%d allocations réussies, %d erreurs\n", 
+           data->thread_id, data->allocations_made, data->allocations_target, 
+           data->errors + data->write_errors);
+    
+    return NULL;
+}
+
+// Test 2: Allocations rapides avec différentes tailles
+void* test_rapid_malloc(void* arg) {
+    thread_data_t* data = (thread_data_t*)arg;
+    double start_time = get_time_us();
+    
+    printf("Thread %d: Démarrage test rapide\n", data->thread_id);
+    
+    data->allocated_ptrs = my_calloc(data->allocations_target, sizeof(void*));
+    data->allocated_sizes = my_calloc(data->allocations_target, sizeof(size_t));
+    
+    // Tailles prédéfinies pour tester différents cas
+    size_t test_sizes[] = {8, 16, 32, 64, 128, 256, 512, 1024, 2048, 4096};
+    int num_test_sizes = sizeof(test_sizes) / sizeof(test_sizes[0]);
+    
+    for (int i = 0; i < data->allocations_target; i++) {
+        size_t size = test_sizes[i % num_test_sizes];
+        
+        void* ptr = my_malloc(size);
+        if (!ptr) {
+            printf("Thread %d: Erreur allocation %zu bytes\n", data->thread_id, size);
+            data->errors++;
+            continue;
+        }
+        
+        data->allocated_ptrs[i] = ptr;
+        data->allocated_sizes[i] = size;
+        data->allocations_made++;
+        
+        // Pattern d'écriture basé sur la taille et l'index
+        unsigned char pattern = (size + i) % 256;
+        memset(ptr, pattern, size);
+    }
+    
+    data->execution_time = get_time_us() - start_time;
+    
+    pthread_mutex_lock(&stats_mutex);
+    total_allocations += data->allocations_made;
+    total_errors += data->errors;
+    for (int i = 0; i < data->allocations_made; i++) {
+        if (data->allocated_ptrs[i]) {
+            total_memory_allocated += data->allocated_sizes[i];
+        }
+    }
+    pthread_mutex_unlock(&stats_mutex);
+    
+    printf("Thread %d: Rapide terminé - %d allocations, %d erreurs\n", 
+           data->thread_id, data->allocations_made, data->errors);
+    
+    return NULL;
+}
+
+// Test 3: Allocations avec vérification différée de l'intégrité
+void* test_delayed_verification(void* arg) {
+    thread_data_t* data = (thread_data_t*)arg;
+    double start_time = get_time_us();
+    
+    printf("Thread %d: Démarrage test avec vérification différée\n", data->thread_id);
+    
+    data->allocated_ptrs = my_calloc(data->allocations_target, sizeof(void*));
+    data->allocated_sizes = my_calloc(data->allocations_target, sizeof(size_t));
+    
+    // Phase 1: Allocations rapides
+    for (int i = 0; i < data->allocations_target; i++) {
+        size_t size = MIN_ALLOC_SIZE + (rand() % (MAX_ALLOC_SIZE - MIN_ALLOC_SIZE));
+        
+        void* ptr = my_malloc(size);
+        if (!ptr) {
+            data->errors++;
+            continue;
+        }
+        
+        data->allocated_ptrs[i] = ptr;
+        data->allocated_sizes[i] = size;
+        data->allocations_made++;
+        
+        // Écriture d'un pattern identifiable
+        unsigned char pattern = (data->thread_id * 17 + i * 3) % 256;
+        memset(ptr, pattern, size);
+    }
+    
+    // Pause pour laisser les autres threads travailler
+    usleep(5000);
+    
+    // Phase 2: Vérification différée de toutes les allocations
+    for (int i = 0; i < data->allocations_made; i++) {
+        if (!data->allocated_ptrs[i]) continue;
+        
+        unsigned char expected_pattern = (data->thread_id * 17 + i * 3) % 256;
+        unsigned char* byte_ptr = (unsigned char*)data->allocated_ptrs[i];
+        size_t size = data->allocated_sizes[i];
+        
+        for (size_t j = 0; j < size; j++) {
+            if (byte_ptr[j] != expected_pattern) {
+                printf("Thread %d: Corruption détectée dans l'allocation #%d à l'offset %zu\n", 
+                       data->thread_id, i, j);
+                data->read_errors++;
+                break;
+            }
+        }
+    }
+    
+    data->execution_time = get_time_us() - start_time;
+    
+    pthread_mutex_lock(&stats_mutex);
+    total_allocations += data->allocations_made;
+    total_errors += data->errors + data->read_errors;
+    for (int i = 0; i < data->allocations_made; i++) {
+        if (data->allocated_ptrs[i]) {
+            total_memory_allocated += data->allocated_sizes[i];
+        }
+    }
+    pthread_mutex_unlock(&stats_mutex);
+    
+    printf("Thread %d: Vérification différée terminée - %d allocations, %d erreurs lecture\n", 
+           data->thread_id, data->allocations_made, data->read_errors);
+    
+    return NULL;
+}
+
+// Test 4: Stress test avec allocations de grandes tailles
+void* test_large_allocations(void* arg) {
+    thread_data_t* data = (thread_data_t*)arg;
+    double start_time = get_time_us();
+    
+    printf("Thread %d: Démarrage test grandes allocations\n", data->thread_id);
+    
+    // Réduire le nombre pour les grandes allocations
+    int large_alloc_count = data->allocations_target / 4;
+    data->allocated_ptrs = my_calloc(large_alloc_count, sizeof(void*));
+    data->allocated_sizes = my_calloc(large_alloc_count, sizeof(size_t));
+    
+    for (int i = 0; i < large_alloc_count; i++) {
+        // Tailles entre 1KB et 16KB
+        size_t size = 1024 + (rand() % (16 * 1024 - 1024));
+        
+        void* ptr = my_malloc(size);
+        if (!ptr) {
+            printf("Thread %d: Erreur allocation grande taille %zu bytes\n", 
+                   data->thread_id, size);
+            data->errors++;
+            continue;
+        }
+        
+        data->allocated_ptrs[i] = ptr;
+        data->allocated_sizes[i] = size;
+        data->allocations_made++;
+        
+        // Écriture par blocs pour les grandes allocations
+        unsigned char pattern = (data->thread_id + i) % 256;
+        unsigned char* byte_ptr = (unsigned char*)ptr;
+        
+        // Écrire au début, milieu et fin
+        byte_ptr[0] = pattern;
+        byte_ptr[size/2] = pattern;
+        byte_ptr[size-1] = pattern;
+        
+        // Vérification immédiate des positions critiques
+        if (byte_ptr[0] != pattern || byte_ptr[size/2] != pattern || byte_ptr[size-1] != pattern) {
+            printf("Thread %d: Erreur écriture grande allocation #%d\n", data->thread_id, i);
+            data->write_errors++;
+        }
+        
+        // Pause plus longue pour les grandes allocations
+        usleep(10);
+    }
+    
+    data->execution_time = get_time_us() - start_time;
+    
+    pthread_mutex_lock(&stats_mutex);
+    total_allocations += data->allocations_made;
+    total_errors += data->errors + data->write_errors;
+    for (int i = 0; i < data->allocations_made; i++) {
+        if (data->allocated_ptrs[i]) {
+            total_memory_allocated += data->allocated_sizes[i];
+        }
+    }
+    pthread_mutex_unlock(&stats_mutex);
+    
+    printf("Thread %d: Grandes allocations terminées - %d allocations, %d erreurs\n", 
+           data->thread_id, data->allocations_made, data->errors + data->write_errors);
+    
+    return NULL;
+}
+
+// Fonction pour vérifier l'alignement des pointeurs
+void check_pointer_alignment(void** ptrs, int count, int thread_id) {
+    int misaligned = 0;
+    for (int i = 0; i < count; i++) {
+        if (ptrs[i] && ((uintptr_t)ptrs[i] % sizeof(void*)) != 0) {
+            misaligned++;
+        }
+    }
+    if (misaligned > 0) {
+        printf("Thread %d: ATTENTION - %d pointeurs mal alignés détectés\n", thread_id, misaligned);
+    }
+}
+
+int main() {
     printf(YELLOW "Starting comprehensive my_malloc/my_realloc/my_free test suite...\n" RESET);
     
     test_basic_malloc();
@@ -1751,433 +2054,116 @@ int main(void) {
     
     if (tests_failed == 0) {
         printf(GREEN "🎉 ALL TESTS PASSED! 🎉" RESET "\n");
-        return 0;
     } else {
         printf(RED "⚠️  Some tests failed. Check implementation." RESET "\n");
         return 1;
     }
+
+    printf("=== Test Multi-threadé pour my_malloc uniquement ===\n");
+    printf("Configuration: %d threads, %d allocations par thread\n", 
+           NUM_THREADS, ALLOCATIONS_PER_THREAD);
+    printf("Tailles: %d à %d bytes\n\n", MIN_ALLOC_SIZE, MAX_ALLOC_SIZE);
+    
+    pthread_t threads[NUM_THREADS];
+    thread_data_t thread_data[NUM_THREADS];
+    
+    // Initialiser le générateur aléatoire
+    srand(time(NULL));
+    
+    // Test avec mix de différents patterns
+    printf(">>> Démarrage test multi-threadé avec patterns variés\n");
+    total_allocations = total_errors = 0;
+    total_memory_allocated = 0;
+    
+    void* (*test_functions[])(void*) = {
+        test_sequential_malloc,
+        test_rapid_malloc,
+        test_delayed_verification,
+        test_large_allocations
+    };
+    
+    const char* test_names[] = {
+        "Séquentiel",
+        "Rapide", 
+        "Vérification différée",
+        "Grandes allocations"
+    };
+    
+    double global_start = get_time_us();
+    
+    for (int i = 0; i < NUM_THREADS; i++) {
+        thread_data[i].thread_id = i;
+        thread_data[i].allocations_target = ALLOCATIONS_PER_THREAD;
+        thread_data[i].allocations_made = 0;
+        thread_data[i].errors = 0;
+        thread_data[i].write_errors = 0;
+        thread_data[i].read_errors = 0;
+        thread_data[i].allocated_ptrs = NULL;
+        thread_data[i].allocated_sizes = NULL;
+        
+        // Alterner entre les différents types de tests
+        void* (*test_func)(void*) = test_functions[i % 4];
+        printf("Thread %d utilise: %s\n", i, test_names[i % 4]);
+        
+        pthread_create(&threads[i], NULL, test_func, &thread_data[i]);
+    }
+    
+    // Attendre tous les threads
+    for (int i = 0; i < NUM_THREADS; i++) {
+        pthread_join(threads[i], NULL);
+    }
+    
+    double global_time = get_time_us() - global_start;
+    
+    // Vérifications post-test
+    printf("\n=== Vérifications finales ===\n");
+    for (int i = 0; i < NUM_THREADS; i++) {
+        if (thread_data[i].allocated_ptrs) {
+            check_pointer_alignment(thread_data[i].allocated_ptrs, 
+                                  thread_data[i].allocations_made, 
+                                  thread_data[i].thread_id);
+        }
+    }
+    
+    // Afficher les statistiques finales
+    printf("\n=== Résultats finaux ===\n");
+    printf("Allocations totales réussies: %d\n", total_allocations);
+    printf("Mémoire totale allouée: %.2f MB\n", total_memory_allocated / (1024.0 * 1024.0));
+    printf("Erreurs totales: %d\n", total_errors);
+    printf("Temps total: %.2f ms\n", global_time / 1000.0);
+    printf("Débit global: %.0f allocations/seconde\n", 
+           total_allocations * 1000000.0 / global_time);
+    
+    // Statistiques par thread
+    printf("\n=== Détails par thread ===\n");
+    for (int i = 0; i < NUM_THREADS; i++) {
+        printf("Thread %d (%s): %d allocs, %.2f ms, %.0f ops/sec, %d erreurs\n",
+               thread_data[i].thread_id,
+               test_names[i % 4],
+               thread_data[i].allocations_made,
+               thread_data[i].execution_time / 1000.0,
+               thread_data[i].allocations_made * 1000000.0 / thread_data[i].execution_time,
+               thread_data[i].errors + thread_data[i].write_errors + thread_data[i].read_errors);
+    }
+    
+    // Nettoyage (avec le my_free standard, pas le vôtre)
+    for (int i = 0; i < NUM_THREADS; i++) {
+        if (thread_data[i].allocated_ptrs) {
+            my_free(thread_data[i].allocated_ptrs);  // my_free standard
+        }
+        if (thread_data[i].allocated_sizes) {
+            my_free(thread_data[i].allocated_sizes);  // my_free standard
+        }
+    }
+    
+	// show_alloc_mem_ex();
+    if (total_errors == 0) {
+        printf("\n✅ TOUS LES TESTS SONT PASSÉS!\n");
+        printf("Votre my_malloc semble fonctionner correctement en multi-threading.\n");
+        return 0;
+    } else {
+        printf("\n❌ %d ERREURS DÉTECTÉES\n", total_errors);
+        printf("Vérifiez la thread-safety de votre my_malloc.\n");
+        return 1;
+    }
 }
-
-
-// #include <stdint.h>
-// #include <stdio.h>
-// #include <stdlib.h>
-// #include <pthread.h>
-// #include <unistd.h>
-// #include <string.h>
-// #include <time.h>
-// #include <assert.h>
-// #include <sys/time.h>
-// #include "../includes/lib_malloc.h"
-
-// // Configuration des tests
-// #define NUM_THREADS 100
-// #define ALLOCATIONS_PER_THREAD 1000
-// #define MAX_ALLOC_SIZE 4096
-// #define MIN_ALLOC_SIZE 8
-
-// // Structure pour passer les paramètres aux threads
-// typedef struct {
-//     int thread_id;
-//     int allocations_target;
-//     int allocations_made;
-//     int errors;
-//     int write_errors;
-//     int read_errors;
-//     double execution_time;
-//     void** allocated_ptrs;
-//     size_t* allocated_sizes;
-// } thread_data_t;
-
-// // Variables globales pour les statistiques
-// pthread_mutex_t stats_mutex = PTHREAD_MUTEX_INITIALIZER;
-// int total_allocations = 0;
-// int total_errors = 0;
-// size_t total_memory_allocated = 0;
-
-// // Fonction utilitaire pour obtenir le temps en microsecondes
-// double get_time_us() {
-//     struct timeval tv;
-//     gettimeofday(&tv, NULL);
-//     return tv.tv_sec * 1000000.0 + tv.tv_usec;
-// }
-
-// // Test 1: Allocations séquentielles avec vérification d'intégrité
-// void* test_sequential_malloc(void* arg) {
-//     thread_data_t* data = (thread_data_t*)arg;
-//     double start_time = get_time_us();
-    
-//     printf("Thread %d: Démarrage test séquentiel (%d allocations)\n", 
-//            data->thread_id, data->allocations_target);
-    
-//     data->allocated_ptrs = my_calloc(data->allocations_target, sizeof(void*));
-//     data->allocated_sizes = my_calloc(data->allocations_target, sizeof(size_t));
-    
-//     if (!data->allocated_ptrs || !data->allocated_sizes) {
-//         printf("Thread %d: Erreur allocation tableaux de suivi\n", data->thread_id);
-//         data->errors++;
-//         return NULL;
-//     }
-    
-//     for (int i = 0; i < data->allocations_target; i++) {
-//         size_t size = MIN_ALLOC_SIZE + (rand() % (MAX_ALLOC_SIZE - MIN_ALLOC_SIZE));
-        
-//         // Allocation
-//         void* ptr = my_malloc(size);
-//         if (!ptr) {
-//             printf("Thread %d: Erreur allocation %zu bytes (allocation #%d)\n", 
-//                    data->thread_id, size, i);
-//             data->errors++;
-//             continue;
-//         }
-        
-//         data->allocated_ptrs[i] = ptr;
-//         data->allocated_sizes[i] = size;
-//         data->allocations_made++;
-        
-//         // Test d'écriture avec pattern unique par thread
-//         unsigned char pattern = (data->thread_id * 13 + i) % 256;
-//         memset(ptr, pattern, size);
-        
-//         // Vérification immédiate de l'écriture
-//         unsigned char* byte_ptr = (unsigned char*)ptr;
-//         for (size_t j = 0; j < size; j++) {
-//             if (byte_ptr[j] != pattern) {
-//                 printf("Thread %d: Erreur écriture à l'offset %zu (alloc #%d)\n", 
-//                        data->thread_id, j, i);
-//                 data->write_errors++;
-//                 break;
-//             }
-//         }
-        
-//         // Pause occasionnelle pour laisser de la place aux autres threads
-//         if (i % 50 == 0) {
-//             usleep(1);
-//         }
-//     }
-    
-//     data->execution_time = get_time_us() - start_time;
-    
-//     pthread_mutex_lock(&stats_mutex);
-//     total_allocations += data->allocations_made;
-//     total_errors += data->errors + data->write_errors;
-//     for (int i = 0; i < data->allocations_made; i++) {
-//         if (data->allocated_ptrs[i]) {
-//             total_memory_allocated += data->allocated_sizes[i];
-//         }
-//     }
-//     pthread_mutex_unlock(&stats_mutex);
-    
-//     printf("Thread %d: Séquentiel terminé - %d/%d allocations réussies, %d erreurs\n", 
-//            data->thread_id, data->allocations_made, data->allocations_target, 
-//            data->errors + data->write_errors);
-    
-//     return NULL;
-// }
-
-// // Test 2: Allocations rapides avec différentes tailles
-// void* test_rapid_malloc(void* arg) {
-//     thread_data_t* data = (thread_data_t*)arg;
-//     double start_time = get_time_us();
-    
-//     printf("Thread %d: Démarrage test rapide\n", data->thread_id);
-    
-//     data->allocated_ptrs = my_calloc(data->allocations_target, sizeof(void*));
-//     data->allocated_sizes = my_calloc(data->allocations_target, sizeof(size_t));
-    
-//     // Tailles prédéfinies pour tester différents cas
-//     size_t test_sizes[] = {8, 16, 32, 64, 128, 256, 512, 1024, 2048, 4096};
-//     int num_test_sizes = sizeof(test_sizes) / sizeof(test_sizes[0]);
-    
-//     for (int i = 0; i < data->allocations_target; i++) {
-//         size_t size = test_sizes[i % num_test_sizes];
-        
-//         void* ptr = my_malloc(size);
-//         if (!ptr) {
-//             printf("Thread %d: Erreur allocation %zu bytes\n", data->thread_id, size);
-//             data->errors++;
-//             continue;
-//         }
-        
-//         data->allocated_ptrs[i] = ptr;
-//         data->allocated_sizes[i] = size;
-//         data->allocations_made++;
-        
-//         // Pattern d'écriture basé sur la taille et l'index
-//         unsigned char pattern = (size + i) % 256;
-//         memset(ptr, pattern, size);
-//     }
-    
-//     data->execution_time = get_time_us() - start_time;
-    
-//     pthread_mutex_lock(&stats_mutex);
-//     total_allocations += data->allocations_made;
-//     total_errors += data->errors;
-//     for (int i = 0; i < data->allocations_made; i++) {
-//         if (data->allocated_ptrs[i]) {
-//             total_memory_allocated += data->allocated_sizes[i];
-//         }
-//     }
-//     pthread_mutex_unlock(&stats_mutex);
-    
-//     printf("Thread %d: Rapide terminé - %d allocations, %d erreurs\n", 
-//            data->thread_id, data->allocations_made, data->errors);
-    
-//     return NULL;
-// }
-
-// // Test 3: Allocations avec vérification différée de l'intégrité
-// void* test_delayed_verification(void* arg) {
-//     thread_data_t* data = (thread_data_t*)arg;
-//     double start_time = get_time_us();
-    
-//     printf("Thread %d: Démarrage test avec vérification différée\n", data->thread_id);
-    
-//     data->allocated_ptrs = my_calloc(data->allocations_target, sizeof(void*));
-//     data->allocated_sizes = my_calloc(data->allocations_target, sizeof(size_t));
-    
-//     // Phase 1: Allocations rapides
-//     for (int i = 0; i < data->allocations_target; i++) {
-//         size_t size = MIN_ALLOC_SIZE + (rand() % (MAX_ALLOC_SIZE - MIN_ALLOC_SIZE));
-        
-//         void* ptr = my_malloc(size);
-//         if (!ptr) {
-//             data->errors++;
-//             continue;
-//         }
-        
-//         data->allocated_ptrs[i] = ptr;
-//         data->allocated_sizes[i] = size;
-//         data->allocations_made++;
-        
-//         // Écriture d'un pattern identifiable
-//         unsigned char pattern = (data->thread_id * 17 + i * 3) % 256;
-//         memset(ptr, pattern, size);
-//     }
-    
-//     // Pause pour laisser les autres threads travailler
-//     usleep(5000);
-    
-//     // Phase 2: Vérification différée de toutes les allocations
-//     for (int i = 0; i < data->allocations_made; i++) {
-//         if (!data->allocated_ptrs[i]) continue;
-        
-//         unsigned char expected_pattern = (data->thread_id * 17 + i * 3) % 256;
-//         unsigned char* byte_ptr = (unsigned char*)data->allocated_ptrs[i];
-//         size_t size = data->allocated_sizes[i];
-        
-//         for (size_t j = 0; j < size; j++) {
-//             if (byte_ptr[j] != expected_pattern) {
-//                 printf("Thread %d: Corruption détectée dans l'allocation #%d à l'offset %zu\n", 
-//                        data->thread_id, i, j);
-//                 data->read_errors++;
-//                 break;
-//             }
-//         }
-//     }
-    
-//     data->execution_time = get_time_us() - start_time;
-    
-//     pthread_mutex_lock(&stats_mutex);
-//     total_allocations += data->allocations_made;
-//     total_errors += data->errors + data->read_errors;
-//     for (int i = 0; i < data->allocations_made; i++) {
-//         if (data->allocated_ptrs[i]) {
-//             total_memory_allocated += data->allocated_sizes[i];
-//         }
-//     }
-//     pthread_mutex_unlock(&stats_mutex);
-    
-//     printf("Thread %d: Vérification différée terminée - %d allocations, %d erreurs lecture\n", 
-//            data->thread_id, data->allocations_made, data->read_errors);
-    
-//     return NULL;
-// }
-
-// // Test 4: Stress test avec allocations de grandes tailles
-// void* test_large_allocations(void* arg) {
-//     thread_data_t* data = (thread_data_t*)arg;
-//     double start_time = get_time_us();
-    
-//     printf("Thread %d: Démarrage test grandes allocations\n", data->thread_id);
-    
-//     // Réduire le nombre pour les grandes allocations
-//     int large_alloc_count = data->allocations_target / 4;
-//     data->allocated_ptrs = my_calloc(large_alloc_count, sizeof(void*));
-//     data->allocated_sizes = my_calloc(large_alloc_count, sizeof(size_t));
-    
-//     for (int i = 0; i < large_alloc_count; i++) {
-//         // Tailles entre 1KB et 16KB
-//         size_t size = 1024 + (rand() % (16 * 1024 - 1024));
-        
-//         void* ptr = my_malloc(size);
-//         if (!ptr) {
-//             printf("Thread %d: Erreur allocation grande taille %zu bytes\n", 
-//                    data->thread_id, size);
-//             data->errors++;
-//             continue;
-//         }
-        
-//         data->allocated_ptrs[i] = ptr;
-//         data->allocated_sizes[i] = size;
-//         data->allocations_made++;
-        
-//         // Écriture par blocs pour les grandes allocations
-//         unsigned char pattern = (data->thread_id + i) % 256;
-//         unsigned char* byte_ptr = (unsigned char*)ptr;
-        
-//         // Écrire au début, milieu et fin
-//         byte_ptr[0] = pattern;
-//         byte_ptr[size/2] = pattern;
-//         byte_ptr[size-1] = pattern;
-        
-//         // Vérification immédiate des positions critiques
-//         if (byte_ptr[0] != pattern || byte_ptr[size/2] != pattern || byte_ptr[size-1] != pattern) {
-//             printf("Thread %d: Erreur écriture grande allocation #%d\n", data->thread_id, i);
-//             data->write_errors++;
-//         }
-        
-//         // Pause plus longue pour les grandes allocations
-//         usleep(10);
-//     }
-    
-//     data->execution_time = get_time_us() - start_time;
-    
-//     pthread_mutex_lock(&stats_mutex);
-//     total_allocations += data->allocations_made;
-//     total_errors += data->errors + data->write_errors;
-//     for (int i = 0; i < data->allocations_made; i++) {
-//         if (data->allocated_ptrs[i]) {
-//             total_memory_allocated += data->allocated_sizes[i];
-//         }
-//     }
-//     pthread_mutex_unlock(&stats_mutex);
-    
-//     printf("Thread %d: Grandes allocations terminées - %d allocations, %d erreurs\n", 
-//            data->thread_id, data->allocations_made, data->errors + data->write_errors);
-    
-//     return NULL;
-// }
-
-// // Fonction pour vérifier l'alignement des pointeurs
-// void check_pointer_alignment(void** ptrs, int count, int thread_id) {
-//     int misaligned = 0;
-//     for (int i = 0; i < count; i++) {
-//         if (ptrs[i] && ((uintptr_t)ptrs[i] % sizeof(void*)) != 0) {
-//             misaligned++;
-//         }
-//     }
-//     if (misaligned > 0) {
-//         printf("Thread %d: ATTENTION - %d pointeurs mal alignés détectés\n", thread_id, misaligned);
-//     }
-// }
-
-// int main() {
-//     printf("=== Test Multi-threadé pour my_malloc uniquement ===\n");
-//     printf("Configuration: %d threads, %d allocations par thread\n", 
-//            NUM_THREADS, ALLOCATIONS_PER_THREAD);
-//     printf("Tailles: %d à %d bytes\n\n", MIN_ALLOC_SIZE, MAX_ALLOC_SIZE);
-    
-//     pthread_t threads[NUM_THREADS];
-//     thread_data_t thread_data[NUM_THREADS];
-    
-//     // Initialiser le générateur aléatoire
-//     srand(time(NULL));
-    
-//     // Test avec mix de différents patterns
-//     printf(">>> Démarrage test multi-threadé avec patterns variés\n");
-//     total_allocations = total_errors = 0;
-//     total_memory_allocated = 0;
-    
-//     void* (*test_functions[])(void*) = {
-//         test_sequential_malloc,
-//         test_rapid_malloc,
-//         test_delayed_verification,
-//         test_large_allocations
-//     };
-    
-//     const char* test_names[] = {
-//         "Séquentiel",
-//         "Rapide", 
-//         "Vérification différée",
-//         "Grandes allocations"
-//     };
-    
-//     double global_start = get_time_us();
-    
-//     for (int i = 0; i < NUM_THREADS; i++) {
-//         thread_data[i].thread_id = i;
-//         thread_data[i].allocations_target = ALLOCATIONS_PER_THREAD;
-//         thread_data[i].allocations_made = 0;
-//         thread_data[i].errors = 0;
-//         thread_data[i].write_errors = 0;
-//         thread_data[i].read_errors = 0;
-//         thread_data[i].allocated_ptrs = NULL;
-//         thread_data[i].allocated_sizes = NULL;
-        
-//         // Alterner entre les différents types de tests
-//         void* (*test_func)(void*) = test_functions[i % 4];
-//         printf("Thread %d utilise: %s\n", i, test_names[i % 4]);
-        
-//         pthread_create(&threads[i], NULL, test_func, &thread_data[i]);
-//     }
-    
-//     // Attendre tous les threads
-//     for (int i = 0; i < NUM_THREADS; i++) {
-//         pthread_join(threads[i], NULL);
-//     }
-    
-//     double global_time = get_time_us() - global_start;
-    
-//     // Vérifications post-test
-//     printf("\n=== Vérifications finales ===\n");
-//     for (int i = 0; i < NUM_THREADS; i++) {
-//         if (thread_data[i].allocated_ptrs) {
-//             check_pointer_alignment(thread_data[i].allocated_ptrs, 
-//                                   thread_data[i].allocations_made, 
-//                                   thread_data[i].thread_id);
-//         }
-//     }
-    
-//     // Afficher les statistiques finales
-//     printf("\n=== Résultats finaux ===\n");
-//     printf("Allocations totales réussies: %d\n", total_allocations);
-//     printf("Mémoire totale allouée: %.2f MB\n", total_memory_allocated / (1024.0 * 1024.0));
-//     printf("Erreurs totales: %d\n", total_errors);
-//     printf("Temps total: %.2f ms\n", global_time / 1000.0);
-//     printf("Débit global: %.0f allocations/seconde\n", 
-//            total_allocations * 1000000.0 / global_time);
-    
-//     // Statistiques par thread
-//     printf("\n=== Détails par thread ===\n");
-//     for (int i = 0; i < NUM_THREADS; i++) {
-//         printf("Thread %d (%s): %d allocs, %.2f ms, %.0f ops/sec, %d erreurs\n",
-//                thread_data[i].thread_id,
-//                test_names[i % 4],
-//                thread_data[i].allocations_made,
-//                thread_data[i].execution_time / 1000.0,
-//                thread_data[i].allocations_made * 1000000.0 / thread_data[i].execution_time,
-//                thread_data[i].errors + thread_data[i].write_errors + thread_data[i].read_errors);
-//     }
-    
-//     // Nettoyage (avec le my_free standard, pas le vôtre)
-//     for (int i = 0; i < NUM_THREADS; i++) {
-//         if (thread_data[i].allocated_ptrs) {
-//             my_free(thread_data[i].allocated_ptrs);  // my_free standard
-//         }
-//         if (thread_data[i].allocated_sizes) {
-//             my_free(thread_data[i].allocated_sizes);  // my_free standard
-//         }
-//     }
-    
-// 	// show_alloc_mem_ex();
-//     if (total_errors == 0) {
-//         printf("\n✅ TOUS LES TESTS SONT PASSÉS!\n");
-//         printf("Votre my_malloc semble fonctionner correctement en multi-threading.\n");
-//         return 0;
-//     } else {
-//         printf("\n❌ %d ERREURS DÉTECTÉES\n", total_errors);
-//         printf("Vérifiez la thread-safety de votre my_malloc.\n");
-//         return 1;
-//     }
-// }

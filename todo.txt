@@ -1,2 +1,0 @@
-gerer la variable d'environement qui permettent de changer le taille des zones
-gerer la variable d'environement qui permettent de changer le nombre de zones

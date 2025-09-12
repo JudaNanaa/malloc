@@ -40,6 +40,7 @@ int	increase_memory(t_page_block *page_block, size_t size)
 	if (total < size)
 		return (0);
 	SET_BLOCK_SIZE(page_block->block, size);
+	remove_block_free_list(page_block->page, next_block);
 	if (total <= ALIGN(size) + BLOCK_HEADER_SIZE)
 		return (1);
 	new_size = total - ALIGN(size) - BLOCK_HEADER_SIZE;
@@ -102,27 +103,19 @@ void	*realloc_internal(void *ptr, size_t size)
 	}
 	pthread_mutex_lock(&g_malloc.tiny.mutex);
 	if (find_block(g_malloc.tiny.pages, ptr, &res))
-	{
 		new_ptr = realloc_tiny_block(ptr, size, &res);
-	}
 	else
 	{
 		pthread_mutex_unlock(&g_malloc.tiny.mutex);
 		pthread_mutex_lock(&g_malloc.small.mutex);
 		if (find_block(g_malloc.small.pages, ptr, &res))
-		{
 			new_ptr = realloc_small_block(ptr, size, &res);
-			
-		}
 		else
 		{
 			pthread_mutex_unlock(&g_malloc.small.mutex);
 			pthread_mutex_lock(&g_malloc.large.mutex);
 			if (find_block(g_malloc.large.pages, ptr, &res))
-			{
-				printf("je susi chaud\n");
 				new_ptr = realloc_large_block(ptr, size, &res);
-			}
 			else
 			{
 				pthread_mutex_unlock(&g_malloc.large.mutex);

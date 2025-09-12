@@ -10,8 +10,8 @@
 # include <pthread.h>
 #include <stdatomic.h>
 
-# define n 64   // taille en bytes pour etre considerer comme tiny my_malloc
-# define m 1024 // taille en bytes pour etre considerer comme small my_malloc
+# define n 4096   // taille en bytes pour etre considerer comme tiny my_malloc
+# define m 131072 // taille en bytes pour etre considerer comme small my_malloc
 # define NB_BLOCK 100
 # define MEMORY_ALIGNMENT sizeof(size_t) // alignement de la memoire de 8bytes
 # define BLOCK_HEADER_SIZE sizeof(t_block)
