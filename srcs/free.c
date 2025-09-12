@@ -1,15 +1,16 @@
 #include "../includes/malloc_internal.h"
+#include <unistd.h>
 
 void double_free(void)
 {
-	ft_putendl_fd("my_free(): double my_free detected in tcache 2",
+	ft_putendl_fd("free(): double free detected in tcache 2",
 					STDERR_FILENO);
 	abort();
 }
 
 void invalid_pointer(void)
 {
-	ft_putendl_fd("my_free(): invalid pointer", STDERR_FILENO);
+	ft_putendl_fd("free(): invalid pointer", STDERR_FILENO);
 	abort();
 }
 
@@ -54,7 +55,7 @@ bool	is_all_blocks_free(t_block *blocks)
 
 bool ptr_is_in_page(t_page *page, void *ptr)
 {
-	return ptr > (void *)page && ptr < (void *)page + page->length;
+    return ptr > (void *)page && ptr < (void *)((char *)page + page->length);
 }
 
 int	free_block_from_zone(t_page **pages_list, void *ptr)
@@ -77,6 +78,7 @@ int	free_block_from_zone(t_page **pages_list, void *ptr)
 					remove_page(pages_list, current_page);
 				return (1);
 			}
+			ft_putendl_fd("je suis ici\n", STDERR_FILENO);
 			invalid_pointer();
 		}
 		current_page = current_page->next;
@@ -120,7 +122,7 @@ void	free_internal(void *ptr)
 	invalid_pointer();
 }
 
-void	my_free(void *ptr)
+void	free(void *ptr)
 {
 	pthread_mutex_lock(&g_malloc_lock);
 	if (!g_malloc.set)
@@ -130,18 +132,18 @@ void	my_free(void *ptr)
 	{
 		if (ptr == NULL)
 			ft_printf_fd(STDERR_FILENO,
-							"[DEBUG] my_free(NULL)\n");
+							"[DEBUG] free(NULL)\n");
 		else
 			ft_printf_fd(STDERR_FILENO,
-							"[DEBUG] my_free(%p)\n",
+							"[DEBUG] free(%p)\n",
 							ptr);
 	}
 	if (g_malloc.trace_file_fd != -1)
 	{
 		if (ptr == NULL)
-			ft_printf_fd(g_malloc.trace_file_fd, "my_free(NULL)\n");
+			ft_printf_fd(g_malloc.trace_file_fd, "free(NULL)\n");
 		else
-			ft_printf_fd(g_malloc.trace_file_fd, "my_free(%p)\n",
+			ft_printf_fd(g_malloc.trace_file_fd, "free(%p)\n",
 					ptr);
 	}
 	free_internal(ptr);

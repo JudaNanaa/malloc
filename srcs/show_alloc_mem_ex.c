@@ -62,7 +62,7 @@ size_t	print_page_blocks_ex(t_page *page)
 			used_blocks++;
 		block = NEXT_BLOCK(block);
 	}
-	ft_printf_fd(STDERR_FILENO, "   -> Page stats: %u used, %u my_free\n",
+	ft_printf_fd(STDERR_FILENO, "   -> Page stats: %u used, %u free\n",
 			used_blocks, free_blocks);
 	return (total_size);
 }

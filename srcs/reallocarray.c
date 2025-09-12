@@ -1,6 +1,6 @@
 #include "../includes/malloc_internal.h"
 
-void *my_reallocarray(void *ptr, size_t nmemb, size_t size) {
+void *reallocarray(void *ptr, size_t nmemb, size_t size) {
     void *new_ptr;
 
 	pthread_mutex_lock(&g_malloc_lock);
@@ -10,11 +10,11 @@ void *my_reallocarray(void *ptr, size_t nmemb, size_t size) {
     if (is_gonna_overflow(nmemb, size)) {
         if (g_malloc.verbose) {
             ft_printf_fd(STDERR_FILENO,
-                "[ERROR] my_reallocarray overflow detected\n\t-> nmemb: %u, size: %u (multiplication too large)\n", nmemb, size);
+                "[ERROR] reallocarray overflow detected\n\t-> nmemb: %u, size: %u (multiplication too large)\n", nmemb, size);
         }
         if (g_malloc.trace_file_fd != -1) {
 			ft_printf_fd(g_malloc.trace_file_fd,
-                "[ERROR] my_reallocarray overflow (nmemb: %u, size: %u)\n", nmemb, size);
+                "[ERROR] reallocarray overflow (nmemb: %u, size: %u)\n", nmemb, size);
         }
         return NULL;
     }
@@ -23,13 +23,13 @@ void *my_reallocarray(void *ptr, size_t nmemb, size_t size) {
 
     if (g_malloc.verbose) {
         ft_printf_fd(STDERR_FILENO,
-            "[DEBUG] my_reallocarray(ptr: %p, nmemb: %u, size: %u)\n\t-> allocated %u bytes at %p\n",
+            "[DEBUG] reallocarray(ptr: %p, nmemb: %u, size: %u)\n\t-> allocated %u bytes at %p\n",
             ptr, nmemb, size, nmemb * size, new_ptr);
     }
 
     if (g_malloc.trace_file_fd != -1) {
         ft_printf_fd(g_malloc.trace_file_fd,
-            "my_reallocarray(ptr: %p, nmemb: %u, size: %u) -> %p\n",
+            "reallocarray(ptr: %p, nmemb: %u, size: %u) -> %p\n",
             ptr, nmemb, size, new_ptr);
     }
 

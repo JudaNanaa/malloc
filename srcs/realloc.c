@@ -40,7 +40,7 @@ int	increase_memory(t_page_block *page_block, size_t size)
 	if (total < size)
 		return (0);
 	SET_BLOCK_SIZE(page_block->block, size);
-	remove_block_free_list(page_block->page, next_block);
+	remove_block_free_list(&page_block->page->free_lists, next_block);
 	if (total <= ALIGN(size) + BLOCK_HEADER_SIZE)
 		return (1);
 	new_size = total - ALIGN(size) - BLOCK_HEADER_SIZE;
@@ -119,7 +119,7 @@ void	*realloc_internal(void *ptr, size_t size)
 			else
 			{
 				pthread_mutex_unlock(&g_malloc.large.mutex);
-				ft_putendl_fd("my_realloc(): invalid pointer", STDERR_FILENO);
+				ft_putendl_fd("realloc(): invalid pointer", STDERR_FILENO);
 				abort();
 				return (NULL);
 			}
@@ -128,7 +128,7 @@ void	*realloc_internal(void *ptr, size_t size)
 	return (new_ptr);
 }
 
-void *my_realloc(void *ptr, size_t size)
+void *realloc(void *ptr, size_t size)
 {
     void *new_ptr;
 
@@ -139,14 +139,14 @@ void *my_realloc(void *ptr, size_t size)
     new_ptr = realloc_internal(ptr, size);
     if (g_malloc.verbose)
     {
-        ft_printf_fd(STDERR_FILENO, "[DEBUG] my_realloc(%p, %u) -> %p\n", ptr, size, new_ptr);
+        ft_printf_fd(STDERR_FILENO, "[DEBUG] realloc(%p, %u) -> %p\n", ptr, size, new_ptr);
         ft_printf_fd(STDERR_FILENO, "Stack trace (most recent first):\n");
     }
 
     if (g_malloc.trace_file_fd != -1)
     {
         ft_printf_fd(g_malloc.trace_file_fd,
-                     "my_realloc(%p, %u) -> %p\n",
+                     "realloc(%p, %u) -> %p\n",
                      ptr,
                      size,
                      new_ptr);
