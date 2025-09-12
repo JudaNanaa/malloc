@@ -2146,7 +2146,6 @@ int main() {
                thread_data[i].errors + thread_data[i].write_errors + thread_data[i].read_errors);
     }
     
-    // Nettoyage (avec le my_free standard, pas le vôtre)
     for (int i = 0; i < NUM_THREADS; i++) {
         if (thread_data[i].allocated_ptrs) {
             my_free(thread_data[i].allocated_ptrs);  // my_free standard
