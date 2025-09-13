@@ -6,11 +6,13 @@ char	*strdup_internal(const char *s)
 	char	*dest;
 	size_t	len;
 
+	if (s == NULL)
+		return NULL;
 	len = strlen(s);
 	dest = malloc_internal(len + 1);
 	if (dest == NULL)
 		return (dest);
-	return (strcpy(dest, s));
+	return (memmove(dest, s, len + 1));
 }
 
 char *strdup(const char *s)

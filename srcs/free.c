@@ -1,15 +1,24 @@
 #include "../includes/malloc_internal.h"
-#include <pthread.h>
 #include <unistd.h>
 
-void	block_free(t_block *block)
+void double_free(void)
+{
+	ft_putendl_fd("free(): double free detected in tcache 2",
+					STDERR_FILENO);
+	abort();
+}
+
+void invalid_pointer(void)
+{
+	ft_putendl_fd("free(): invalid pointer", STDERR_FILENO);
+	abort();
+}
+
+void	block_free(t_free_list *free_lists, t_block *block)
 {
 	if (IS_BLOCK_FREE(block) == true)
-	{
-		ft_putendl_fd("free(): double free detected in tcache 2",
-						STDERR_FILENO);
-		abort();
-	}
+		double_free();
+	add_block_to_free_list(free_lists, block);
 	SET_BLOCK_FREE(block);
 }
 
@@ -45,6 +54,11 @@ bool	is_all_blocks_free(t_block *blocks)
 	return (true);
 }
 
+bool ptr_is_in_page(t_page *page, void *ptr)
+{
+    return ptr > (void *)page && ptr < (void *)((char *)page + page->length);
+}
+
 int	free_block_from_zone(t_page **pages_list, void *ptr)
 {
 	t_page	*current_page;
@@ -54,14 +68,18 @@ int	free_block_from_zone(t_page **pages_list, void *ptr)
 	current_page = *pages_list;
 	while (current_page)
 	{
-		block = page_find_block_by_ptr(current_page, ptr, &prev_block);
-		if (block)
+		if (ptr_is_in_page(current_page, ptr))
 		{
-			block_free(block);
-			merge_block(current_page, block, prev_block);
-			if (is_all_blocks_free(current_page->blocks) == true)
-				remove_page(pages_list, current_page);
-			return (1);
+			block = page_find_block_by_ptr(current_page, ptr, &prev_block);
+			if (block)
+			{
+				block_free(&current_page->free_lists, block);
+				merge_block(current_page, block, prev_block);
+				if (is_all_blocks_free(current_page->blocks) == true)
+					remove_page(pages_list, current_page);
+				return (1);
+			}
+			invalid_pointer();
 		}
 		current_page = current_page->next;
 	}
@@ -101,8 +119,7 @@ void	free_internal(void *ptr)
 	if (free_large_block(ptr))
 		return (void)pthread_mutex_unlock(&g_malloc.large.mutex);
 	pthread_mutex_unlock(&g_malloc.large.mutex);
-	ft_putendl_fd("free(): invalid pointer", STDERR_FILENO);
-	abort();
+	invalid_pointer();
 }
 
 void	free(void *ptr)

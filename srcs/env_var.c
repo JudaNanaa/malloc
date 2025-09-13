@@ -1,8 +1,4 @@
 #include "../includes/malloc_internal.h"
-#include <bits/pthreadtypes.h>
-#include <pthread.h>
-#include <stdlib.h>
-#include <unistd.h>
 
 pthread_mutex_t g_malloc_lock = PTHREAD_MUTEX_INITIALIZER;
 
@@ -38,7 +34,6 @@ void	malloc_init(void)
 	if (env)
 	{
 		g_malloc.tiny_malloc_size = strtoul(env, &end, 10);
-		g_malloc.tiny_malloc_size = ALIGN(g_malloc.tiny_malloc_size);
 		if (g_malloc.tiny_malloc_size <= 0)
 		{
 			ft_putendl_fd("malloc_init() : MALLOC_TINY_SIZE env var is not good", STDERR_FILENO);
@@ -49,11 +44,12 @@ void	malloc_init(void)
 	if (env)
 	{
 		g_malloc.small_malloc_size = strtoul(env, &end, 10);
-		g_malloc.small_malloc_size = ALIGN(g_malloc.small_malloc_size);
 		if (g_malloc.small_malloc_size <= 0)
 		{
 			ft_putendl_fd("malloc_init() : MALLOC_SMALL_SIZE env var is not good", STDERR_FILENO);
 			abort();
 		}
 	}
+	g_malloc.tiny_malloc_size = ALIGN(g_malloc.tiny_malloc_size);
+	g_malloc.small_malloc_size = ALIGN(g_malloc.small_malloc_size);
 }

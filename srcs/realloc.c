@@ -1,5 +1,5 @@
 #include "../includes/malloc_internal.h"
-#include <pthread.h>
+#include <stdio.h>
 
 void	*need_to_reallocate(void *ptr, size_t size, size_t previous_size, t_mutex_zone *zone)
 {
@@ -27,6 +27,8 @@ int	increase_memory(t_page_block *page_block, size_t size)
 	size_t	total;
 	t_block	*new_free_block;
 	t_block	*next_block;
+	t_block *next;
+	t_block *prev;
 
 	next_block = NEXT_BLOCK(page_block->block);
 	if (next_block == NULL)
@@ -37,11 +39,19 @@ int	increase_memory(t_page_block *page_block, size_t size)
 		+ GET_BLOCK_SIZE(next_block);
 	if (total < size)
 		return (0);
-	new_size = total - ALIGN(size) - BLOCK_HEADER_SIZE;
 	SET_BLOCK_SIZE(page_block->block, size);
+	remove_block_free_list(&page_block->page->free_lists, next_block);
+	if (total <= ALIGN(size) + BLOCK_HEADER_SIZE)
+		return (1);
+	new_size = total - ALIGN(size) - BLOCK_HEADER_SIZE;
 	new_free_block = (void *)page_block->block + BLOCK_HEADER_SIZE + ALIGN(size);
 	memmove(new_free_block, next_block, BLOCK_HEADER_SIZE);
-	SET_BLOCK_NEXT_FREE_PTR(new_free_block, next_block);
+	next = new_free_block->next_free;
+	prev = new_free_block->prev_free;
+	if (prev)
+		prev->next_free = new_free_block;
+	if (next)
+		next->prev_free = new_free_block;
 	SET_BLOCK_SIZE(new_free_block, new_size);
 	return (1);
 }
@@ -93,26 +103,19 @@ void	*realloc_internal(void *ptr, size_t size)
 	}
 	pthread_mutex_lock(&g_malloc.tiny.mutex);
 	if (find_block(g_malloc.tiny.pages, ptr, &res))
-	{
 		new_ptr = realloc_tiny_block(ptr, size, &res);
-	}
 	else
 	{
 		pthread_mutex_unlock(&g_malloc.tiny.mutex);
 		pthread_mutex_lock(&g_malloc.small.mutex);
 		if (find_block(g_malloc.small.pages, ptr, &res))
-		{
 			new_ptr = realloc_small_block(ptr, size, &res);
-			
-		}
 		else
 		{
 			pthread_mutex_unlock(&g_malloc.small.mutex);
 			pthread_mutex_lock(&g_malloc.large.mutex);
 			if (find_block(g_malloc.large.pages, ptr, &res))
-			{
 				new_ptr = realloc_large_block(ptr, size, &res);
-			}
 			else
 			{
 				pthread_mutex_unlock(&g_malloc.large.mutex);

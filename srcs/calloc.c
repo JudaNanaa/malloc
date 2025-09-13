@@ -4,16 +4,16 @@ void	*calloc_internal(size_t nmemb, size_t size)
 {
 	void	*ptr;
 
-	if (nmemb * size <= n)
+	if (nmemb * size <= g_malloc.tiny_malloc_size)
 		pthread_mutex_lock(&g_malloc.tiny.mutex);
-	else if (nmemb * size <= m)
+	else if (nmemb * size <= g_malloc.small_malloc_size)
 		pthread_mutex_lock(&g_malloc.small.mutex);
 	else
 		pthread_mutex_lock(&g_malloc.large.mutex);
 	ptr = malloc_internal(nmemb * size);
-	if (nmemb * size <= n)
+	if (nmemb * size <= g_malloc.tiny_malloc_size)
 		pthread_mutex_unlock(&g_malloc.tiny.mutex);
-	else if (nmemb * size <= m)
+	else if (nmemb * size <= g_malloc.small_malloc_size)
 		pthread_mutex_unlock(&g_malloc.small.mutex);
 	else
 		pthread_mutex_unlock(&g_malloc.large.mutex);

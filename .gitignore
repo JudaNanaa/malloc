@@ -5,3 +5,5 @@ libftprintf.a
 libft.a
 a.out
 .vscode
+analysis.txt
+gmon.out

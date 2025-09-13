@@ -3,18 +3,20 @@
 
 # include "../libft/libft.h"
 # include "../libft/printf_OK/ft_printf.h"
-#include <bits/pthreadtypes.h>
+# include <bits/pthreadtypes.h>
 # include <stdbool.h>
 # include <stddef.h>
 # include <sys/mman.h>
 # include <pthread.h>
-#include <stdatomic.h>
+# include <stdatomic.h>
 
-# define n 64   // taille en bytes pour etre considerer comme tiny malloc
-# define m 1024 // taille en bytes pour etre considerer comme small malloc
+# define n 65536   // taille en bytes pour etre considerer comme tiny malloc
+# define m 131072 // taille en bytes pour etre considerer comme small malloc
 # define NB_BLOCK 100
 # define MEMORY_ALIGNMENT sizeof(size_t) // alignement de la memoire de 8bytes
 # define BLOCK_HEADER_SIZE sizeof(t_block)
+# define NB_CLASS 4 // Need to be power of 2
+
 // arrondir un nombre au multiple de 8 superieur pour l'alignement
 # define ALIGN(x) (((x) + (MEMORY_ALIGNMENT - 1)) & ~(MEMORY_ALIGNMENT - 1))
 
@@ -37,7 +39,7 @@
 
 # define GET_BLOCK_SIZE(block) (ALIGN((block)->size))
 // avoir la taille du block
-# define SET_BLOCK_SIZE(block, sz) ((block)->size = sz)
+# define SET_BLOCK_SIZE(block, sz) ((block)->size = ALIGN(sz))
 // set la taille du block
 
 # define NEXT_BLOCK(block) \
@@ -46,21 +48,18 @@
 
 # define GET_BLOCK_PTR(block) ((void *)(block) + BLOCK_HEADER_SIZE)
 
-#define SET_BLOCK_NEXT_FREE_PTR(block, next) \
-    (*(void **)GET_BLOCK_PTR(block) = (next))
-
-#define GET_BLOCK_NEXT_FREE_PTR(block) \
-    (*(void **)GET_BLOCK_PTR(block))
-
 typedef struct s_block
 {
-	unsigned int size; // changer ca en size_t
+	size_t size; // changer ca en size_t
 	uint8_t		flags;
+	struct s_block *next_free;
+	struct s_block *prev_free;
 }				t_block;
 
 typedef struct s_free_list {
-    t_block *head;  // pointeur vers premier block libre
-	t_block *last;
+	size_t max_size;
+    t_block *head[NB_CLASS];  // pointeur vers premier block libre
+	// t_block *last;
 } t_free_list;
 
 typedef struct s_page
@@ -112,10 +111,8 @@ void				free_internal(void *ptr);
 void				*realloc_internal(void *ptr, size_t size);
 bool				is_gonna_overflow(size_t nmemb, size_t size);
 char				*strdup_internal(const char *s);
-void				add_block_to_free_list(t_page *page, t_block *block);
-void				remove_block_free_list(t_page *page, t_block *block);
-
-// t_page *next_page(t_page *current_page);
-
+void				add_block_to_free_list(t_free_list *free_lists, t_block *block);
+void				remove_block_free_list(t_free_list *free_lists, t_block *block);
+size_t				get_size_class(size_t size, size_t max_size);
 
 #endif
