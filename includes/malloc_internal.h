@@ -3,12 +3,12 @@
 
 # include "../libft/libft.h"
 # include "../libft/printf_OK/ft_printf.h"
-#include <bits/pthreadtypes.h>
+# include <bits/pthreadtypes.h>
 # include <stdbool.h>
 # include <stddef.h>
 # include <sys/mman.h>
 # include <pthread.h>
-#include <stdatomic.h>
+# include <stdatomic.h>
 
 # define n 65536   // taille en bytes pour etre considerer comme tiny malloc
 # define m 131072 // taille en bytes pour etre considerer comme small malloc

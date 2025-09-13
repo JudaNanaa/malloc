@@ -14,10 +14,11 @@ void invalid_pointer(void)
 	abort();
 }
 
-void	block_free(t_block *block)
+void	block_free(t_free_list *free_lists, t_block *block)
 {
 	if (IS_BLOCK_FREE(block) == true)
 		double_free();
+	add_block_to_free_list(free_lists, block);
 	SET_BLOCK_FREE(block);
 }
 
@@ -72,13 +73,12 @@ int	free_block_from_zone(t_page **pages_list, void *ptr)
 			block = page_find_block_by_ptr(current_page, ptr, &prev_block);
 			if (block)
 			{
-				block_free(block);
+				block_free(&current_page->free_lists, block);
 				merge_block(current_page, block, prev_block);
 				if (is_all_blocks_free(current_page->blocks) == true)
 					remove_page(pages_list, current_page);
 				return (1);
 			}
-			ft_putendl_fd("je suis ici\n", STDERR_FILENO);
 			invalid_pointer();
 		}
 		current_page = current_page->next;

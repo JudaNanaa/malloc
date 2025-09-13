@@ -1,5 +1,5 @@
 # include "../libft/printf_OK/ft_printf.h"
-// #include "../includes/lib_malloc.h"
+#include "../includes/lib_malloc.h"
 #include <stdio.h>
 #include <string.h>
 #include <unistd.h>
@@ -36,12 +36,23 @@ void test_basic_malloc() {
     test_result(p0 != NULL || p0 == NULL, "malloc(0) returns valid result");
     if (p0) free(p0);
     
+	show_alloc_mem_ex();
     // Test 2: petites tailles (TINY)
     char *tiny1 = malloc(1);
+	show_alloc_mem_ex();
+
     char *tiny8 = malloc(8);
+	show_alloc_mem_ex();
+
     char *tiny16 = malloc(16);
+	show_alloc_mem_ex();
+
     char *tiny32 = malloc(32);
+	show_alloc_mem_ex();
+
     char *tiny64 = malloc(64);
+	show_alloc_mem_ex();
+
     char *tiny128 = malloc(128);
     
     test_result(tiny1 != NULL, "malloc(1) succeeds");
@@ -67,8 +78,18 @@ void test_basic_malloc() {
     
     
     
-    free(tiny1); free(tiny8); free(tiny16); 
-    free(tiny32); free(tiny64); free(tiny128);
+    free(tiny1); 
+	show_alloc_mem_ex();
+	free(tiny8); 
+	show_alloc_mem_ex();
+	free(tiny16); 
+	show_alloc_mem_ex();
+    free(tiny32); 
+	show_alloc_mem_ex();
+	free(tiny64); 
+	show_alloc_mem_ex();
+	free(tiny128);
+	show_alloc_mem_ex();
 }
 
 void test_small_malloc() {
@@ -76,11 +97,17 @@ void test_small_malloc() {
     
     // Test tailles SMALL (129 à 1024 bytes)
     char *small200 = malloc(200);
+	show_alloc_mem_ex();
     char *small400 = malloc(400);
+	show_alloc_mem_ex();
     char *small600 = malloc(600);
+	show_alloc_mem_ex();
     char *small800 = malloc(800);
+	show_alloc_mem_ex();
     char *small1000 = malloc(1000);
+	show_alloc_mem_ex();
     char *small1024 = malloc(1024); // limite SMALL
+	show_alloc_mem_ex();
     
     test_result(small200 != NULL, "malloc(200) succeeds");
     test_result(small400 != NULL, "malloc(400) succeeds");
@@ -103,8 +130,17 @@ void test_small_malloc() {
     
     
     
-    free(small200); free(small400); free(small600);
-    free(small800); free(small1000); free(small1024);
+    free(small200);
+	show_alloc_mem_ex();
+	free(small400);
+	show_alloc_mem_ex();
+	free(small600);
+	show_alloc_mem_ex();
+    free(small800);
+	show_alloc_mem_ex();
+	free(small1000); 
+	show_alloc_mem_ex();
+	free(small1024);
 }
 
 void test_large_malloc() {

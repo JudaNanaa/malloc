@@ -14,41 +14,18 @@ void	initialize_blocks(t_block **block, size_t size)
 	SET_BLOCK_LAST(current_block);
 }
 
-void	block_merge_with_next(t_page *page, t_block *current, t_block *next)
+void	block_merge_with_next(t_free_list *free_lists, t_block *current, t_block *next)
 {
 	size_t	total_size;
-	t_block	*prev;
-	int		class;
 
+	remove_block_free_list(free_lists, next);
+	remove_block_free_list(free_lists, current);
 	total_size = GET_BLOCK_SIZE(current) + BLOCK_HEADER_SIZE
 		+ GET_BLOCK_SIZE(next);
-	SET_BLOCK_SIZE(current, total_size);
 	if (IS_BLOCK_LAST(next))
 		SET_BLOCK_LAST(current);
-	prev = next->prev_free;
-	current->prev_free = prev;
-	if (prev)
-		prev->next_free = current;
-	add_block_to_free_list(&page->free_lists, current);
-	// class = get_size_class(GET_BLOCK_SIZE(next), page->free_lists.max_size);
-	// if (page->free_lists.head[class] == next)
-	// 	page->free_lists.head[class] = current;
-}
-
-void	block_merge_with_prev(t_block *first, t_block *second)
-{
-	size_t	total_size;
-	t_block	*next;
-
-	total_size = GET_BLOCK_SIZE(first) + BLOCK_HEADER_SIZE
-		+ GET_BLOCK_SIZE(second);
-	SET_BLOCK_SIZE(first, total_size);
-	if (IS_BLOCK_LAST(second))
-		SET_BLOCK_LAST(first);
-	next = second->next_free;
-	first->next_free = next;
-	if (next)
-		next->prev_free = first;
+	SET_BLOCK_SIZE(current, total_size);
+	add_block_to_free_list(free_lists, current);
 }
 
 void	merge_block(t_page *page, t_block *block, t_block *prev_block)
@@ -59,9 +36,9 @@ void	merge_block(t_page *page, t_block *block, t_block *prev_block)
 		return ;
 	next_block = NEXT_BLOCK(block);
 	if (next_block && IS_BLOCK_FREE(next_block) == true)
-		block_merge_with_next(page, block, next_block);
+		block_merge_with_next(&page->free_lists, block, next_block);
 	if (prev_block && IS_BLOCK_FREE(prev_block) == true)
-		block_merge_with_prev(prev_block, block);
+		block_merge_with_next(&page->free_lists, prev_block, block);
 }
 
 t_block	*page_find_block_by_ptr(t_page *page, void *ptr, t_block **prev_out)
@@ -165,41 +142,26 @@ void	add_block_to_free_list(t_free_list *free_lists, t_block *block)
 	size_t	class;
 
 	class = get_size_class(GET_BLOCK_SIZE(block), free_lists->max_size);
-	if (class == NB_CLASS)
-	{
-		ft_printf_fd(STDERR_FILENO, "PROBLEM\n");
-		abort();
-	}
-	block->prev_free = NULL;
-	block->next_free = NULL;
-	if (free_lists->head[class] != NULL)
-	{
-		free_lists->head[class]->prev_free = block;
-		block->next_free = free_lists->head[class];
-	}
-	free_lists->head[class] = block;
+
+    block->next_free = free_lists->head[class];
+    if (free_lists->head[class])
+        free_lists->head[class]->prev_free = block;
+
+    free_lists->head[class] = block;
+    block->prev_free = NULL;
 }
 
 void	remove_block_free_list(t_free_list *free_lists, t_block *block)
 {
-	t_block *prev;
-	t_block *next;
-	int class = get_size_class(GET_BLOCK_SIZE(block), free_lists->max_size);
-
-	if (class == NB_CLASS)
-	{
-		ft_printf_fd(STDERR_FILENO, "PROBLEM\n");
-		abort();
-	}
-	if (free_lists->head[class] == block)
-		free_lists->head[class] = block->next_free;
+	size_t class;
+	
+	class = get_size_class(GET_BLOCK_SIZE(block), free_lists->max_size);
+	if (block->prev_free)
+	block->prev_free->next_free = block->next_free;
 	else
-	{
-		prev = block->prev_free;
-		next = block->next_free;
-		if (prev)
-			prev->next_free = next;
-		if (next)
-			next->prev_free = prev;
-	}
+        free_lists->head[class] = block->next_free;
+	if (block->next_free)
+        block->next_free->prev_free = block->prev_free;
+	block->next_free = NULL;
+	block->prev_free = NULL;
 }

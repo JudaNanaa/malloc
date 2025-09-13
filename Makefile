@@ -1,9 +1,9 @@
 CC = cc
-CFLAGS = -Wall -Wextra -Werror -fPIC -g3
+CFLAGS = -Wall -Wextra -g3 #-Werror -fPIC
 
 SRCS_DIR = srcs/
 SRCS = malloc.c free.c utils.c realloc.c calloc.c show_alloc_mem.c \
-       show_alloc_mem_ex.c env_var.c reallocarray.c strdup.c
+       show_alloc_mem_ex.c env_var.c reallocarray.c strdup.c main.c
 
 SRCS := $(addprefix $(SRCS_DIR), $(SRCS))
 
@@ -20,7 +20,8 @@ endif
 NAME = libft_malloc_$(HOSTTYPE).so
 LINK = libft_malloc.so
 
-all: $(LIBFT) $(NAME) $(LINK)
+# all: $(LIBFT) $(NAME) $(LINK)
+all : test
 
 # --- Création de la lib malloc ---
 $(NAME): $(OBJS)
@@ -40,6 +41,9 @@ $(OBJS_DIR)%.o: $(SRCS_DIR)%.c
 # --- Compilation de la libft ---
 $(LIBFT):
 	@$(MAKE) -C $(LIBFT_DIR)
+
+test: $(LIBFT) $(OBJS)
+	$(CC) $(OBJS) -o test_malloc -lpthread  -L $(LIBFT_DIR) -lft
 
 # --- Nettoyage ---
 clean:

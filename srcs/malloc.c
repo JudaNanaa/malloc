@@ -201,7 +201,6 @@ void	*malloc(size_t size)
 {
 	void	*ptr;
 
-	ft_putendl("dans mon malloc");
 	pthread_mutex_lock(&g_malloc_lock);
 	if (!g_malloc.set)
 		malloc_init();
