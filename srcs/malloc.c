@@ -2,30 +2,33 @@
 #include <stdbool.h>
 #include <stddef.h>
 #include <stdio.h>
+#include <unistd.h>
 
-t_malloc	g_malloc = {
-	{NULL, NULL, PTHREAD_MUTEX_INITIALIZER},
-	{NULL, NULL, PTHREAD_MUTEX_INITIALIZER},
-	{NULL, NULL, PTHREAD_MUTEX_INITIALIZER},
-	n,
-	m,
-	-1,
-	false,
-	false,
-	false,
-	-1};
+t_malloc g_malloc = {
+    .tiny = { .pages = NULL, .last = NULL, .mutex = PTHREAD_MUTEX_INITIALIZER },
+    .small = { .pages = NULL, .last = NULL, .mutex = PTHREAD_MUTEX_INITIALIZER },
+    .large = { .pages = NULL, .last = NULL, .mutex = PTHREAD_MUTEX_INITIALIZER },
+    .tiny_malloc_size = n,
+    .small_malloc_size = m,
+    .fail_size = -1,
+    .set = ATOMIC_VAR_INIT(false),
+    .verbose = false,
+    .no_defrag = false,
+    .trace_file_fd = -1
+};
+
 
 t_page	*create_page(size_t length, size_t max_size)
 {
 	t_page	*new_page;
 
 	new_page = mmap(0, length, PROT_READ | PROT_WRITE,
-			MAP_ANONYMOUS | MAP_PRIVATE, 0, 0);
+			MAP_ANONYMOUS | MAP_PRIVATE, -1, 0);
 	if (new_page == MAP_FAILED)
 		return (NULL);
 	new_page->length = length;
 	new_page->next = NULL;
-	bzero(&new_page->free_lists, sizeof(new_page->free_lists.head));
+	memset(&new_page->free_lists, 0, sizeof(new_page->free_lists));
 	new_page->free_lists.max_size = max_size;
 	new_page->blocks = (void *)new_page + sizeof(t_page);
 	initialize_blocks(&new_page->blocks, length - sizeof(t_page)
@@ -69,7 +72,8 @@ bool	search_block_in_pages_for_alloc(t_page *pages, size_t size,
 	while (current_page)
 	{
 		block = find_free_block_with_enough_spage(&current_page->free_lists,
-				size, class);
+													size,
+													class);
 		if (block)
 		{
 			out->page = current_page;
@@ -125,7 +129,7 @@ void	*optimized_malloc(t_mutex_zone *zone, size_t block_size, size_t size)
 		return (GET_BLOCK_PTR(res.block));
 	}
 	res.page = create_page(page_allocation_size_for_zone(block_size),
-			block_size);
+							block_size);
 	if (res.page == NULL)
 		return (NULL);
 	split_block(res.page, res.page->blocks, size);
@@ -163,9 +167,9 @@ void	*malloc_internal(size_t size)
 {
 	void	*ptr;
 
-	if (malloc_force_fail(size))
-		return (NULL);
 	if (size == 0)
+		return (NULL);
+	if (malloc_force_fail(size))
 		return (NULL);
 	if (size <= g_malloc.tiny_malloc_size)
 		ptr = optimized_malloc(&g_malloc.tiny, g_malloc.tiny_malloc_size, size);
@@ -177,9 +181,9 @@ void	*malloc_internal(size_t size)
 	return (ptr);
 }
 
-void *lock_malloc(size_t size)
+void	*lock_malloc(size_t size)
 {
-	void *ptr;
+	void	*ptr;
 
 	if (size <= g_malloc.tiny_malloc_size)
 		pthread_mutex_lock(&g_malloc.tiny.mutex);
@@ -194,10 +198,10 @@ void *lock_malloc(size_t size)
 		pthread_mutex_unlock(&g_malloc.small.mutex);
 	else
 		pthread_mutex_unlock(&g_malloc.large.mutex);
-	return ptr;
+	return (ptr);
 }
 
-void	*malloc(size_t size)
+void	*my_malloc(size_t size)
 {
 	void	*ptr;
 
@@ -207,15 +211,11 @@ void	*malloc(size_t size)
 	pthread_mutex_unlock(&g_malloc_lock);
 	ptr = lock_malloc(size);
 	if (g_malloc.verbose)
-	{
-		ft_printf_fd(STDERR_FILENO, "[DEBUG] malloc(%u) -> %p\n", size, ptr);
-	}
+		ft_printf_fd(STDERR_FILENO, "[DEBUG] malloc(%u) -> %p by pid == %d\n", size, ptr, getpid());
 	if (g_malloc.trace_file_fd != -1)
-	{
 		ft_printf_fd(g_malloc.trace_file_fd,
 						"malloc(%u) -> %p\n",
 						size,
 						ptr);
-	}
 	return (ptr);
 }

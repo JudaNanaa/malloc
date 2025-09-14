@@ -59,7 +59,6 @@ typedef struct s_block
 typedef struct s_free_list {
 	size_t max_size;
     t_block *head[NB_CLASS];  // pointeur vers premier block libre
-	// t_block *last;
 } t_free_list;
 
 typedef struct s_page
@@ -114,5 +113,7 @@ char				*strdup_internal(const char *s);
 void				add_block_to_free_list(t_free_list *free_lists, t_block *block);
 void				remove_block_free_list(t_free_list *free_lists, t_block *block);
 size_t				get_size_class(size_t size, size_t max_size);
+void				*lock_malloc(size_t size);
+size_t				print_memory_zone(t_page *page_list, char *zone_name);
 
 #endif

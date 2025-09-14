@@ -1,4 +1,6 @@
 #include "../includes/malloc_internal.h"
+#include "../includes/lib_malloc.h"
+#include <stdbool.h>
 #include <unistd.h>
 
 void double_free(void)
@@ -18,14 +20,14 @@ void	block_free(t_free_list *free_lists, t_block *block)
 {
 	if (IS_BLOCK_FREE(block) == true)
 		double_free();
-	add_block_to_free_list(free_lists, block);
 	SET_BLOCK_FREE(block);
+	add_block_to_free_list(free_lists, block);
 }
 
 void	remove_page(t_page **pages_list, t_page *page)
 {
 	t_page	*current_page;
-
+	
 	if (*pages_list == page)
 		*pages_list = page->next;
 	else
@@ -54,12 +56,14 @@ bool	is_all_blocks_free(t_block *blocks)
 	return (true);
 }
 
-bool ptr_is_in_page(t_page *page, void *ptr)
+static inline bool ptr_is_in_page(t_page *page, void *ptr)
 {
-    return ptr > (void *)page && ptr < (void *)((char *)page + page->length);
+    char *start = (char *)GET_BLOCK_PTR(page->blocks);
+    char *end   = (char *)page + page->length;
+    return (ptr >= (void *)start && ptr < (void *)end);
 }
 
-int	free_block_from_zone(t_page **pages_list, void *ptr)
+bool	free_block_from_zone(t_page **pages_list, void *ptr)
 {
 	t_page	*current_page;
 	t_block	*block;
@@ -75,54 +79,72 @@ int	free_block_from_zone(t_page **pages_list, void *ptr)
 			{
 				block_free(&current_page->free_lists, block);
 				merge_block(current_page, block, prev_block);
-				if (is_all_blocks_free(current_page->blocks) == true)
+				if (is_all_blocks_free(current_page->blocks) == true) {
 					remove_page(pages_list, current_page);
-				return (1);
+				}
+				return (true);
 			}
+			ft_putendl("ok je suis la");
 			invalid_pointer();
 		}
 		current_page = current_page->next;
 	}
-	return (0);
+	return (false);
 }
 
-int	free_large_block(void *ptr)
+bool free_large_block(void *ptr)
 {
 	t_page	*current_page;
 
 	current_page = g_malloc.large.pages;
 	while (current_page)
 	{
-		if (page_find_block_by_ptr(current_page, ptr, NULL) != NULL)
+		if (ptr_is_in_page(current_page, ptr))
 		{
-			remove_page(&g_malloc.large.pages, current_page);
-			return (1);
+			if (page_find_block_by_ptr(current_page, ptr, NULL) != NULL)
+			{
+				remove_page(&g_malloc.large.pages, current_page);
+				return (true);
+			}
+			ft_putendl("ok je suis la");
+			invalid_pointer();
 		}
 		current_page = current_page->next;
 	}
-	return (0);
+	return (false);
 }
 
-void	free_internal(void *ptr)
+void free_internal(void *ptr)
 {
-	if (ptr == NULL)
-		return ;
-	pthread_mutex_lock(&g_malloc.tiny.mutex);
-	if (free_block_from_zone(&g_malloc.tiny.pages, ptr))
-		return (void)pthread_mutex_unlock(&g_malloc.tiny.mutex);
-	pthread_mutex_unlock(&g_malloc.tiny.mutex);
-	pthread_mutex_lock(&g_malloc.small.mutex);
-	if (free_block_from_zone(&g_malloc.small.pages, ptr))
-		return (void)pthread_mutex_unlock(&g_malloc.small.mutex);
-	pthread_mutex_unlock(&g_malloc.small.mutex);
-	pthread_mutex_lock(&g_malloc.large.mutex);
-	if (free_large_block(ptr))
-		return (void)pthread_mutex_unlock(&g_malloc.large.mutex);
-	pthread_mutex_unlock(&g_malloc.large.mutex);
-	invalid_pointer();
+    if (ptr == NULL)
+        return;
+
+    pthread_mutex_lock(&g_malloc.tiny.mutex);
+    if (free_block_from_zone(&g_malloc.tiny.pages, ptr)) {
+        pthread_mutex_unlock(&g_malloc.tiny.mutex);
+        return;
+    }
+    pthread_mutex_unlock(&g_malloc.tiny.mutex);
+
+    pthread_mutex_lock(&g_malloc.small.mutex);
+    if (free_block_from_zone(&g_malloc.small.pages, ptr)) {
+        pthread_mutex_unlock(&g_malloc.small.mutex);
+        return;
+    }
+    pthread_mutex_unlock(&g_malloc.small.mutex);
+
+    pthread_mutex_lock(&g_malloc.large.mutex);
+    if (free_large_block(ptr)) {
+        pthread_mutex_unlock(&g_malloc.large.mutex);
+        return;
+    }
+    pthread_mutex_unlock(&g_malloc.large.mutex);
+
+    invalid_pointer();
 }
 
-void	free(void *ptr)
+
+void	my_free(void *ptr)
 {
 	pthread_mutex_lock(&g_malloc_lock);
 	if (!g_malloc.set)
@@ -132,11 +154,11 @@ void	free(void *ptr)
 	{
 		if (ptr == NULL)
 			ft_printf_fd(STDERR_FILENO,
-							"[DEBUG] free(NULL)\n");
+							"[DEBUG] free(NULL) by pid == %d\n", getpid());
 		else
 			ft_printf_fd(STDERR_FILENO,
-							"[DEBUG] free(%p)\n",
-							ptr);
+							"[DEBUG] free(%p) by pid == %d\n",
+							ptr, getpid());
 	}
 	if (g_malloc.trace_file_fd != -1)
 	{

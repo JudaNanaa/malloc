@@ -47,7 +47,7 @@ size_t	print_memory_zone(t_page *page_list, char *zone_name)
 	{
 		ft_putstr(zone_name);
 		ft_putstr(" : ");
-		print_mem((unsigned long long int)GET_BLOCK_PTR(page->blocks),
+		print_mem((unsigned long long int)page,
 				STDERR_FILENO);
 		ft_putstr("\n");
 		total_size += print_page_blocks(page);

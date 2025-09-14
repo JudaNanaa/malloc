@@ -3,7 +3,7 @@ CFLAGS = -Wall -Wextra -g3 #-Werror -fPIC
 
 SRCS_DIR = srcs/
 SRCS = malloc.c free.c utils.c realloc.c calloc.c show_alloc_mem.c \
-       show_alloc_mem_ex.c env_var.c reallocarray.c strdup.c main.c
+       show_alloc_mem_ex.c env_var.c reallocarray.c strdup.c main2.c # main.c
 
 SRCS := $(addprefix $(SRCS_DIR), $(SRCS))
 

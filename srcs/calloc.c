@@ -4,19 +4,7 @@ void	*calloc_internal(size_t nmemb, size_t size)
 {
 	void	*ptr;
 
-	if (nmemb * size <= g_malloc.tiny_malloc_size)
-		pthread_mutex_lock(&g_malloc.tiny.mutex);
-	else if (nmemb * size <= g_malloc.small_malloc_size)
-		pthread_mutex_lock(&g_malloc.small.mutex);
-	else
-		pthread_mutex_lock(&g_malloc.large.mutex);
-	ptr = malloc_internal(nmemb * size);
-	if (nmemb * size <= g_malloc.tiny_malloc_size)
-		pthread_mutex_unlock(&g_malloc.tiny.mutex);
-	else if (nmemb * size <= g_malloc.small_malloc_size)
-		pthread_mutex_unlock(&g_malloc.small.mutex);
-	else
-		pthread_mutex_unlock(&g_malloc.large.mutex);
+	ptr = lock_malloc(nmemb *size);
 	if (ptr)
 		bzero(ptr, nmemb * size);
 	return (ptr);
@@ -46,7 +34,7 @@ void *calloc(size_t nmemb, size_t size) {
 
     if (g_malloc.verbose) {
         ft_printf_fd(STDERR_FILENO,
-            "[DEBUG] calloc(nmemb: %u, size: %u) -> %p (%zu bytes)\n",
+            "[DEBUG] calloc(nmemb: %u, size: %u) -> %p (%u bytes)\n",
             nmemb, size, ptr, nmemb * size);
 
         ft_printf_fd(STDERR_FILENO, "Stack trace (most recent first):\n");

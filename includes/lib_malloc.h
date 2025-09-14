@@ -6,7 +6,7 @@
 /*   By: madamou <madamou@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/09/12 22:09:42 by madamou           #+#    #+#             */
-/*   Updated: 2025/09/12 22:09:49 by madamou          ###   ########.fr       */
+/*   Updated: 2025/09/14 01:01:29 by madamou          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -17,9 +17,9 @@
 # include <sys/mman.h>
 # include <unistd.h>
 
-void	*malloc(size_t size);
+void	*my_malloc(size_t size);
 
-void	free(void *ptr);
+void	my_free(void *ptr);
 
 void	*realloc(void *ptr, size_t size);
 
