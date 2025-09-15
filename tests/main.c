@@ -1,9 +1,10 @@
-# include "../libft/printf_OK/ft_printf.h"
-#include "../includes/lib_malloc.h"
 #include <stdio.h>
 #include <string.h>
 #include <unistd.h>
+#include <stdint.h>
+#include <stdlib.h>
 
+void show_alloc_mem_ex();
 
 // Couleurs pour les tests
 #define GREEN "\033[32m"
@@ -141,6 +142,7 @@ void test_small_malloc() {
 	free(small1000); 
 	show_alloc_mem_ex();
 	free(small1024);
+	show_alloc_mem_ex();
 }
 
 void test_large_malloc() {
@@ -176,8 +178,23 @@ void test_large_malloc() {
     
     
     
-    free(large1025); free(large2048); free(large4096);
-    free(large8192); free(large16384); free(large_huge);
+    free(large1025);
+	show_alloc_mem_ex();
+	
+	free(large2048);
+	show_alloc_mem_ex();
+	
+	free(large4096);
+	show_alloc_mem_ex();
+    
+	free(large8192);
+	show_alloc_mem_ex();
+	
+	free(large16384);
+	show_alloc_mem_ex();
+	
+	free(large_huge);
+	show_alloc_mem_ex();
 }
 
 void test_fragmentation() {
@@ -2203,15 +2220,27 @@ int main() {
 
 // int main(void)
 // {
-// thread_data_t thread_data;
+// 	void *test[1000];
 
-// 	    thread_data.thread_id = 1;
-//         thread_data.allocations_target = ALLOCATIONS_PER_THREAD;
-//         thread_data.allocations_made = 0;
-//         thread_data.errors = 0;
-//         thread_data.write_errors = 0;
-//         thread_data.read_errors = 0;
-//         thread_data.allocated_ptrs = NULL;
-//         thread_data.allocated_sizes = NULL;
-// 	test_rapid_malloc(&thread_data);
+// 	for (int i = 0; i < 1000; i++) {
+// 		printf("i == %d\n", i);
+// 		test[i] = malloc(10000);
+// 		memset(test[i], i, 10000);
+// 	}
+// 	show_alloc_mem_ex();
+// 	for (int i = 500; i < 1000; i++) {
+// 		dprintf(2, "i == %d\n", i);
+// 		free(test[i]);
+// 	}
+// 	for (int i = 500; i < 1000; i++) {
+// 		printf("i == %d\n", i);
+// 		test[i] = malloc(10000);
+// 		memset(test[i], i, 10000);
+// 	}
+// 	printf("here\n");
+// 	show_alloc_mem_ex();
+// 	for (int i = 0; i < 1000; i++) {
+// 		free(test[i]);
+// 	}
+// 	show_alloc_mem_ex();
 // }

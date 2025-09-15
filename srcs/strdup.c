@@ -26,12 +26,12 @@ char *strdup(const char *s)
     dest = strdup_internal(s);
 
     if (g_malloc.verbose) {
-        ft_printf_fd(STDERR_FILENO,
+        dprintf(STDERR_FILENO,
             "[DEBUG] strdup(\"%s\") -> %p\n", s, dest);
     }
 
     if (g_malloc.trace_file_fd != -1) {
-        ft_printf_fd(g_malloc.trace_file_fd,
+        dprintf(g_malloc.trace_file_fd,
             "strdup(\"%s\") -> %p\n", s, dest);
     }
     return dest;

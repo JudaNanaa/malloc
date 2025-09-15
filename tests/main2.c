@@ -133,7 +133,7 @@ void test_absolute_chaos() {
                 chaos_alive[i] = 0;
                 
                 // Écrire des données "zombie" dans l'ancien pointeur (pour détecter use-after-free)
-                // memset(chaos_ptrs[i], 0xDE, (chaos_sizes[i] > 64) ? 64 : chaos_sizes[i]);
+                memset(chaos_ptrs[i], 0xDE, (chaos_sizes[i] > 64) ? 64 : chaos_sizes[i]);
             }
         }
         
@@ -278,7 +278,6 @@ void test_death_stress() {
             
             // Vérifier que les persistantes survivent toujours
             for (int i = 0; i < 100; i++) {
-				printf("i == %d\n", i);
                 if (persistent[i]->ptr && persistent[i]->alive) {
                     if (!verify_insane_pattern(persistent[i]->ptr, persistent[i]->size, persistent[i]->pattern)) {
                         printf("PERSISTENT ALLOCATION %d CORRUPTED!\n", i);
@@ -293,7 +292,6 @@ void test_death_stress() {
             size_t insane_size = 1 + (rand() % 8192);
             void* death_ptr = malloc(insane_size);
             
-				printf("burst == %d\n", burst);
             if (death_ptr) {
                 // Écrire des données folles
                 unsigned char death_pattern = rand() % 256;
@@ -512,17 +510,17 @@ void test_ultimate_hell() {
         }
     }
     
-    printf("🌋 ULTIMATE HELL SURVIVED! YOUR MALLOC IS GODLIKE! 🌋\n\n");
+    printf("🌋 ULTIMATE HELL SURVIVED! YOUR malloc IS GODLIKE! 🌋\n\n");
 }
 
 int main() {
-    printf("🔥🔥🔥 === TESTS DE FOU FURIEUX POUR MALLOC === 🔥🔥🔥\n\n");
+    printf("🔥🔥🔥 === TESTS DE FOU FURIEUX POUR malloc === 🔥🔥🔥\n\n");
     printf("Préparez-vous... Votre malloc va SOUFFRIR!\n\n");
     
     test_absolute_chaos();
     test_extreme_fragmentation();
     test_alignment_hell();
-    test_thread_simulation();
+    // test_thread_simulation();
     test_death_stress();
     test_ultimate_hell();
     

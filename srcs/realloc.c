@@ -17,7 +17,7 @@ void	*need_to_reallocate(void *ptr, size_t size, size_t previous_size,
 void	*shrink_memory(size_t size, t_page_block *page_block,
 		t_mutex_zone *zone)
 {
-	split_block(page_block->page, page_block->block, size);
+	split_block(page_block, size);
 	pthread_mutex_unlock(&zone->mutex);
 	return (GET_BLOCK_PTR(page_block->block));
 }
@@ -28,19 +28,14 @@ bool	try_expand_block(t_page_block *page_block, size_t size)
 	t_block	*next_block;
 
 	next_block = NEXT_BLOCK(page_block->block);
-	if (next_block == NULL || IS_BLOCK_FREE(next_block) == false)
+	if (next_block == NULL || IS_BLOCK_free(next_block) == false)
 		return (false);
-	total = GET_BLOCK_SIZE(page_block->block) + BLOCK_HEADER_SIZE
-		+ GET_BLOCK_SIZE(next_block);
+	total = GET_BLOCK_TRUE_SIZE(page_block->block) + BLOCK_HEADER_SIZE
+		+ GET_BLOCK_TRUE_SIZE(next_block);
 	if (total < size)
 		return (false);
-	remove_block_free_list(&page_block->page->free_lists, next_block);
-	if (IS_BLOCK_LAST(next_block))
-		SET_BLOCK_LAST(page_block->block);
-	else
-		SET_BLOCK_NOT_LAST(page_block->block);
-	SET_BLOCK_SIZE(page_block->block, total);
-	split_block(page_block->page, page_block->block, size);
+	merge_block_with_next(&page_block->page->free_lists, page_block->block);
+	split_block(page_block, size);
 	return (true);
 }
 
@@ -111,7 +106,7 @@ void	*realloc_internal(void *ptr, size_t size)
 			else
 			{
 				pthread_mutex_unlock(&g_malloc.large.mutex);
-				ft_putendl_fd("realloc(): invalid pointer", STDERR_FILENO);
+				dprintf(STDERR_FILENO, "realloc(): invalid pointer");
 				abort();
 				return (NULL);
 			}
@@ -131,14 +126,14 @@ void	*realloc(void *ptr, size_t size)
 	new_ptr = realloc_internal(ptr, size);
 	if (g_malloc.verbose)
 	{
-		ft_printf_fd(STDERR_FILENO, "[DEBUG] realloc(%p, %u) -> %p\n", ptr,
+		dprintf(STDERR_FILENO, "[DEBUG] realloc(%p, %zu) -> %p\n", ptr,
 				size, new_ptr);
-		ft_printf_fd(STDERR_FILENO, "Stack trace (most recent first):\n");
+		dprintf(STDERR_FILENO, "Stack trace (most recent first):\n");
 	}
 	if (g_malloc.trace_file_fd != -1)
 	{
-		ft_printf_fd(g_malloc.trace_file_fd,
-						"realloc(%p, %u) -> %p\n",
+		dprintf(g_malloc.trace_file_fd,
+						"realloc(%p, %zu) -> %p\n",
 						ptr,
 						size,
 						new_ptr);
