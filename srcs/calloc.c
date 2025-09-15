@@ -4,19 +4,7 @@ void	*calloc_internal(size_t nmemb, size_t size)
 {
 	void	*ptr;
 
-	if (nmemb * size <= n)
-		pthread_mutex_lock(&g_malloc.tiny.mutex);
-	else if (nmemb * size <= m)
-		pthread_mutex_lock(&g_malloc.small.mutex);
-	else
-		pthread_mutex_lock(&g_malloc.large.mutex);
-	ptr = malloc_internal(nmemb * size);
-	if (nmemb * size <= n)
-		pthread_mutex_unlock(&g_malloc.tiny.mutex);
-	else if (nmemb * size <= m)
-		pthread_mutex_unlock(&g_malloc.small.mutex);
-	else
-		pthread_mutex_unlock(&g_malloc.large.mutex);
+	ptr = lock_malloc(nmemb *size);
 	if (ptr)
 		bzero(ptr, nmemb * size);
 	return (ptr);
@@ -31,13 +19,13 @@ void *calloc(size_t nmemb, size_t size) {
 	pthread_mutex_unlock(&g_malloc_lock);	
     if (is_gonna_overflow(nmemb, size)) {
         if (g_malloc.verbose) {
-            ft_printf_fd(STDERR_FILENO,
+            dprintf(STDERR_FILENO,
                 "[ERROR] calloc overflow detected\n"
-                "\t-> nmemb: %u, size: %u (multiplication too large)\n", nmemb, size);
+                "\t-> nmemb: %zu, size: %zu (multiplication too large)\n", nmemb, size);
         }
         if (g_malloc.trace_file_fd != -1) {
-            ft_printf_fd(g_malloc.trace_file_fd,
-                "[ERROR] calloc overflow (nmemb: %u, size: %u)\n", nmemb, size);
+            dprintf(g_malloc.trace_file_fd,
+                "[ERROR] calloc overflow (nmemb: %zu, size: %zu)\n", nmemb, size);
         }
         return NULL;
     }
@@ -45,16 +33,16 @@ void *calloc(size_t nmemb, size_t size) {
     ptr = calloc_internal(nmemb, size);
 
     if (g_malloc.verbose) {
-        ft_printf_fd(STDERR_FILENO,
-            "[DEBUG] calloc(nmemb: %u, size: %u) -> %p (%zu bytes)\n",
+        dprintf(STDERR_FILENO,
+            "[DEBUG] calloc(nmemb: %zu, size: %zu) -> %p (%zu bytes)\n",
             nmemb, size, ptr, nmemb * size);
 
-        ft_printf_fd(STDERR_FILENO, "Stack trace (most recent first):\n");
+        dprintf(STDERR_FILENO, "Stack trace (most recent first):\n");
     }
 
     if (g_malloc.trace_file_fd != -1) {
-        ft_printf_fd(g_malloc.trace_file_fd,
-            "calloc(nmemb: %u, size: %u) -> %p\n",
+        dprintf(g_malloc.trace_file_fd,
+            "calloc(nmemb: %zu, size: %zu) -> %p\n",
             nmemb, size, ptr);
     }
 

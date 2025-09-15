@@ -2,8 +2,6 @@
 # define LIB_MALLOC_H
 
 # include <stddef.h>
-# include <sys/mman.h>
-# include <unistd.h>
 
 void	*malloc(size_t size);
 
