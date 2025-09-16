@@ -19,13 +19,13 @@ void *calloc(size_t nmemb, size_t size) {
 	pthread_mutex_unlock(&g_malloc_lock);	
     if (is_gonna_overflow(nmemb, size)) {
         if (g_malloc.verbose) {
-            dprintf(STDERR_FILENO,
+            ft_printf_fd(STDERR_FILENO,
                 "[ERROR] calloc overflow detected\n"
-                "\t-> nmemb: %zu, size: %zu (multiplication too large)\n", nmemb, size);
+                "\t-> nmemb: %u, size: %u (multiplication too large)\n", nmemb, size);
         }
         if (g_malloc.trace_file_fd != -1) {
-            dprintf(g_malloc.trace_file_fd,
-                "[ERROR] calloc overflow (nmemb: %zu, size: %zu)\n", nmemb, size);
+            ft_printf_fd(g_malloc.trace_file_fd,
+                "[ERROR] calloc overflow (nmemb: %u, size: %u)\n", nmemb, size);
         }
         return NULL;
     }
@@ -33,16 +33,16 @@ void *calloc(size_t nmemb, size_t size) {
     ptr = calloc_internal(nmemb, size);
 
     if (g_malloc.verbose) {
-        dprintf(STDERR_FILENO,
-            "[DEBUG] calloc(nmemb: %zu, size: %zu) -> %p (%zu bytes)\n",
+        ft_printf_fd(STDERR_FILENO,
+            "[DEBUG] calloc(nmemb: %u, size: %u) -> %p (%u bytes)\n",
             nmemb, size, ptr, nmemb * size);
 
-        dprintf(STDERR_FILENO, "Stack trace (most recent first):\n");
+        ft_printf_fd(STDERR_FILENO, "Stack trace (most recent first):\n");
     }
 
     if (g_malloc.trace_file_fd != -1) {
-        dprintf(g_malloc.trace_file_fd,
-            "calloc(nmemb: %zu, size: %zu) -> %p\n",
+        ft_printf_fd(g_malloc.trace_file_fd,
+            "calloc(nmemb: %u, size: %u) -> %p\n",
             nmemb, size, ptr);
     }
 

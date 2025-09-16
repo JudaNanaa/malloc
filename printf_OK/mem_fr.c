@@ -1,0 +1,57 @@
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   mem_fr.c                                           :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: madamou <madamou@student.42.fr>            +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2024/05/25 16:11:38 by itahri            #+#    #+#             */
+/*   Updated: 2025/09/07 17:26:09 by madamou          ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
+
+#include "ft_printf.h"
+
+static void	ft_putnbr_base_ptr(unsigned long long int nbr, char *base, int fd)
+{
+	char				char_nbr;
+	unsigned long long	base_len;
+
+	base_len = ft_strlen(base);
+	if (nbr >= base_len)
+		ft_putnbr_base(nbr / base_len, base, fd);
+	char_nbr = base[nbr % base_len];
+	write(fd, &char_nbr, 1);
+}
+
+void	print_mem(unsigned long long int nbr, int fd)
+{
+	write(fd, "0x", 2);
+	ft_putnbr_base_ptr(nbr, "0123456789abcdef", fd);
+}
+
+static int	addr_len(unsigned long long int nbr)
+{
+	int	i;
+
+	i = 0;
+	while (nbr != 0)
+	{
+		nbr /= 16;
+		i++;
+	}
+	return (i);
+}
+
+int	mem_fr(va_list args, int fd)
+{
+	unsigned long long int	temp;
+	void					*arg;
+
+	arg = va_arg(args, void *);
+	if (arg == (void *)0)
+		return (write(fd, "(nil)", 5), 5);
+	temp = (unsigned long long int)arg;
+	print_mem(temp, fd);
+	return (addr_len(temp) + 2);
+}

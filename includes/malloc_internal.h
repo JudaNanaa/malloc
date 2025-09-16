@@ -1,6 +1,7 @@
 #ifndef MALLOC_INTERNAL_H
 # define MALLOC_INTERNAL_H
 
+#include "../printf_OK/ft_printf.h"
 # include <stdbool.h>
 # include <string.h>
 # include <stdio.h>

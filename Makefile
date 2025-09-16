@@ -10,6 +10,9 @@ SRCS := $(addprefix $(SRCS_DIR), $(SRCS))
 OBJS_DIR = .objs/
 OBJS = $(SRCS:$(SRCS_DIR)%.c=$(OBJS_DIR)%.o)
 
+PRINTF_DIR = printf_OK/
+PRINTF = libftprintf.a
+
 ifeq ($(HOSTTYPE),)
 	HOSTTYPE := $(shell uname -m)_$(shell uname -s)
 endif
@@ -17,11 +20,11 @@ endif
 NAME = libft_malloc_$(HOSTTYPE).so
 LINK = libft_malloc.so
 
-all:$(NAME) $(LINK)
+all: $(PRINTF) $(NAME) $(LINK)
 
 # --- Création de la lib malloc ---
 $(NAME): $(OBJS)
-	$(CC) $(CFLAGS) -shared -o $@ $(OBJS) -L $(LIBFT_DIR) -lft -pthread
+	$(CC) $(CFLAGS) -shared -o $@ $(OBJS) -L $(PRINTF_DIR) -lftprintf -pthread
 	@echo "✅ $@ has been built"
 
 # --- Lien symbolique ---
@@ -34,12 +37,17 @@ $(OBJS_DIR)%.o: $(SRCS_DIR)%.c
 	@mkdir -p $(@D)
 	$(CC) $(CFLAGS) -c $< -o $@
 
+$(PRINTF) :
+	make -C $(PRINTF_DIR)
+
 # --- Nettoyage ---
 clean:
 	rm -rf $(OBJS_DIR)
+	make clean -C $(PRINTF_DIR)
 
 fclean: clean
 	rm -f $(NAME) $(LINK)
+	make fclean -C $(PRINTF_DIR)
 
 re: fclean all
 

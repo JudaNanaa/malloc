@@ -2,13 +2,13 @@
 
 void double_free(void)
 {
-	dprintf(STDERR_FILENO, "free(): double free detected in tcache 2");
+	ft_printf_fd(STDERR_FILENO, "free(): double free detected in tcache 2");
 	abort();
 }
 
 void invalid_pointer(void)
 {
-	dprintf(STDERR_FILENO, "free(): invalid pointer");
+	ft_printf_fd(STDERR_FILENO, "free(): invalid pointer");
 	abort();
 }
 
@@ -140,19 +140,19 @@ void	free(void *ptr)
 	if (g_malloc.verbose)
 	{
 		if (ptr == NULL)
-			dprintf(STDERR_FILENO,
+			ft_printf_fd(STDERR_FILENO,
 							"[DEBUG] free(NULL) by pid == %d\n", getpid());
 		else
-			dprintf(STDERR_FILENO,
+			ft_printf_fd(STDERR_FILENO,
 							"[DEBUG] free(%p) by pid == %d\n",
 							ptr, getpid());
 	}
 	if (g_malloc.trace_file_fd != -1)
 	{
 		if (ptr == NULL)
-			dprintf(g_malloc.trace_file_fd, "free(NULL)\n");
+			ft_printf_fd(g_malloc.trace_file_fd, "free(NULL)\n");
 		else
-			dprintf(g_malloc.trace_file_fd, "free(%p)\n",
+			ft_printf_fd(g_malloc.trace_file_fd, "free(%p)\n",
 					ptr);
 	}
 	free_internal(ptr);

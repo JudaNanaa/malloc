@@ -13,40 +13,40 @@ void	malloc_init(void)
 	char	*end;
 
 	g_malloc.set = true;
-	env = getenv("malloc_VERBOSE");
+	env = getenv("MALLOC_VERBOSE");
 	if (env && env[0] == '1')
 		g_malloc.verbose = true;
-	env = getenv("malloc_FAIL_SIZE");
+	env = getenv("MALLOC_FAIL_SIZE");
 	if (env)
 		g_malloc.fail_size = atoi(env);
-	env = getenv("malloc_NO_DEFRAG");
+	env = getenv("MALLOC_NO_DEFRAG");
 	if (env && env[0] == '1')
 		g_malloc.no_defrag = true;
-	env = getenv("malloc_TRACE_FILE");
+	env = getenv("MALLOC_TRACE_FILE");
 	if (env)
 	{
 		g_malloc.trace_file_fd = open(env, O_WRONLY | O_CREAT | O_TRUNC, 0644);
 		if (g_malloc.trace_file_fd == -1)
-			print_err("Fail to pen trace file");
+			print_err("Fail to pen trace file\n");
 		atexit(close_trace_file_fd);
 	}
-	env = getenv("malloc_TINY_SIZE");
+	env = getenv("MALLOC_TINY_SIZE");
 	if (env)
 	{
 		g_malloc.tiny_malloc_size = strtoul(env, &end, 10);
 		if (g_malloc.tiny_malloc_size <= 0)
 		{
-			print_err("malloc_init() : malloc_TINY_SIZE env var is not good");
+			print_err("malloc_init() : MALLOC_TINY_SIZE env var is not good\n");
 			abort();
 		}
 	}
-	env = getenv("malloc_SMALL_SIZE");
+	env = getenv("MALLOC_SMALL_SIZE");
 	if (env)
 	{
 		g_malloc.small_malloc_size = strtoul(env, &end, 10);
 		if (g_malloc.small_malloc_size <= 0)
 		{
-			print_err("malloc_init() : malloc_SMALL_SIZE env var is not good");
+			print_err("malloc_init() : MALLOC_SMALL_SIZE env var is not good\n");
 			abort();
 		}
 	}

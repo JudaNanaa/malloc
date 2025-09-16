@@ -106,7 +106,7 @@ void	*realloc_internal(void *ptr, size_t size)
 			else
 			{
 				pthread_mutex_unlock(&g_malloc.large.mutex);
-				dprintf(STDERR_FILENO, "realloc(): invalid pointer");
+				ft_printf_fd(STDERR_FILENO, "realloc(): invalid pointer");
 				abort();
 				return (NULL);
 			}
@@ -126,14 +126,14 @@ void	*realloc(void *ptr, size_t size)
 	new_ptr = realloc_internal(ptr, size);
 	if (g_malloc.verbose)
 	{
-		dprintf(STDERR_FILENO, "[DEBUG] realloc(%p, %zu) -> %p\n", ptr,
+		ft_printf_fd(STDERR_FILENO, "[DEBUG] realloc(%p, %u) -> %p\n", ptr,
 				size, new_ptr);
-		dprintf(STDERR_FILENO, "Stack trace (most recent first):\n");
+		ft_printf_fd(STDERR_FILENO, "Stack trace (most recent first):\n");
 	}
 	if (g_malloc.trace_file_fd != -1)
 	{
-		dprintf(g_malloc.trace_file_fd,
-						"realloc(%p, %zu) -> %p\n",
+		ft_printf_fd(g_malloc.trace_file_fd,
+						"realloc(%p, %u) -> %p\n",
 						ptr,
 						size,
 						new_ptr);

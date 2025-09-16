@@ -2198,7 +2198,7 @@ int main() {
 // 	}
 //
 // 	for (int i = 500; i < 1000; i++) {
-// 		dprintf(2, "i == %d\n", i);
+// 		ft_printf_fd(2, "i == %d\n", i);
 // 		free(test[i]);
 // 	}
 // 	for (int i = 500; i < 1000; i++) {

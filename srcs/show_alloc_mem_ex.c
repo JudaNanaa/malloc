@@ -1,6 +1,7 @@
 #include "../includes/malloc_internal.h"
 #include <stdio.h>
 #include <pthread.h>
+#include <unistd.h>
 
 void hex_dump_block(t_block *block)
 {
@@ -9,12 +10,12 @@ void hex_dump_block(t_block *block)
 
     ptr = (unsigned char *)GET_BLOCK_PTR(block);
     size = block->size;
-    printf("  Hex dump: ");
+    ft_printf_fd(STDERR_FILENO, "  Hex dump: ");
     for (size_t i = 0; i < size && i < 16; i++)
-        printf("%02X ", ptr[i]);
+        ft_printf_fd(STDERR_FILENO, "%02X ", ptr[i]);
     if (size > 16)
-        printf("...");
-    printf("\n");
+        ft_printf_fd(STDERR_FILENO, "...");
+    ft_printf_fd(STDERR_FILENO, "\n");
 }
 
 size_t print_block_info_ex(t_block *block, void *page_start)
@@ -27,14 +28,14 @@ size_t print_block_info_ex(t_block *block, void *page_start)
     size = block->size;
     offset = (size_t)((char *)start - (char *)page_start);
 
-    printf("%p - %p : %zu bytes", start, (char *)start + size, size);
+    ft_printf_fd(STDERR_FILENO, "%p - %p : %u bytes", start, (char *)start + size, size);
 
     if (IS_BLOCK_free(block))
-        printf(" [free]");
+        ft_printf_fd(STDERR_FILENO, " [free]");
     else
-        printf(" [USED]");
+        ft_printf_fd(STDERR_FILENO, " [USED]");
 
-    printf(" | offset=%zu\n", offset);
+    ft_printf_fd(STDERR_FILENO, " | offset=%u\n", offset);
 
     if (!IS_BLOCK_free(block))
         hex_dump_block(block);
@@ -62,7 +63,7 @@ size_t print_page_blocks_ex(t_page *page)
             used_blocks++;
         block = NEXT_BLOCK(block);
     }
-    printf("   -> Page stats: %zu used, %zu free\n", used_blocks, free_blocks);
+    ft_printf_fd(STDERR_FILENO, "   -> Page stats: %u used, %u free\n", used_blocks, free_blocks);
     return total_size;
 }
 
@@ -77,7 +78,7 @@ size_t print_memory_zone_ex(t_page *page_list, char *zone_name)
     total_size = 0;
     while (page)
     {
-        printf("%s (page %d) : %p to %p\n", zone_name, page_id++, (void *)page, (void *)page + page->length);
+        ft_printf_fd(STDERR_FILENO, "%s (page %d) : %p to %p\n", zone_name, page_id++, (void *)page, (void *)page + page->length);
         total_size += print_page_blocks_ex(page);
         page = page->next;
     }
@@ -89,7 +90,7 @@ void show_alloc_mem_ex(void)
     size_t total_size;
 
     total_size = 0;
-    printf("\n================= Extended Memory Report =================\n");
+    ft_printf_fd(STDERR_FILENO, "\n================= Extended Memory Report =================\n");
     pthread_mutex_lock(&g_malloc.tiny.mutex);
     total_size += print_memory_zone_ex(g_malloc.tiny.pages, "TINY");
     pthread_mutex_unlock(&g_malloc.tiny.mutex);
@@ -99,6 +100,6 @@ void show_alloc_mem_ex(void)
     pthread_mutex_lock(&g_malloc.large.mutex);
     total_size += print_memory_zone_ex(g_malloc.large.pages, "LARGE");
     pthread_mutex_unlock(&g_malloc.large.mutex);
-    printf("Total allocated (used only): %zu bytes\n", total_size);
-    printf("==========================================================\n\n");
+    ft_printf_fd(STDERR_FILENO, "Total allocated (used only): %u bytes\n", total_size);
+    ft_printf_fd(STDERR_FILENO, "==========================================================\n\n");
 }

@@ -1,4 +1,5 @@
 #include "../includes/malloc_internal.h"
+#include <unistd.h>
 
 size_t	print_block_info(t_block *block)
 {
@@ -7,13 +8,13 @@ size_t	print_block_info(t_block *block)
 
 	start = GET_BLOCK_PTR(block);
 	size = block->size;
-	printf("%p - %p : %zu", start, (char *)start + size, size);
+	ft_printf_fd(STDERR_FILENO, "%p - %p : %u", start, (char *)start + size, size);
 	if (IS_BLOCK_free(block))
 	{
-		printf(" free");
+		ft_printf_fd(STDERR_FILENO, " free");
 		size = 0;
 	}
-	printf(" bytes\n");
+	ft_printf_fd(STDERR_FILENO, " bytes\n");
 	return (size);
 }
 
@@ -41,7 +42,7 @@ size_t	print_memory_zone(t_page *page_list, char *zone_name)
 	total_size = 0;
 	while (page)
 	{
-		printf("%s : %p\n", zone_name, (void *)page);
+		ft_printf_fd(STDERR_FILENO, "%s : %p\n", zone_name, (void *)page);
 		total_size += print_page_blocks(page);
 		page = page->next;
 	}
@@ -53,7 +54,7 @@ void	show_alloc_mem(void)
 	size_t	total_size;
 
 	total_size = 0;
-	printf("\n----------------- Memory Allocation Report -----------------\n");
+	ft_printf_fd(STDERR_FILENO, "\n----------------- Memory Allocation Report -----------------\n");
 	pthread_mutex_lock(&g_malloc.tiny.mutex);
 	total_size += print_memory_zone(g_malloc.tiny.pages, "TINY");
 	pthread_mutex_unlock(&g_malloc.tiny.mutex);
@@ -63,6 +64,6 @@ void	show_alloc_mem(void)
 	pthread_mutex_lock(&g_malloc.large.mutex);
 	total_size += print_memory_zone(g_malloc.large.pages, "LARGE");
 	pthread_mutex_unlock(&g_malloc.large.mutex);
-	printf("Total : %zu bytes\n", total_size);
-	printf("------------------------------------------------------------\n\n");
+	ft_printf_fd(STDERR_FILENO, "Total : %u bytes\n", total_size);
+	ft_printf_fd(STDERR_FILENO, "------------------------------------------------------------\n\n");
 }

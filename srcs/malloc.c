@@ -221,10 +221,10 @@ void *malloc(size_t size)
 	pthread_mutex_unlock(&g_malloc_lock);
 	ptr = lock_malloc(size);
 	if (g_malloc.verbose)
-		dprintf(STDERR_FILENO, "[DEBUG] malloc(%zu) -> %p by pid == %d\n", size, ptr, getpid());
+		ft_printf_fd(STDERR_FILENO, "[DEBUG] malloc(%u) -> %p by pid == %d\n", size, ptr, getpid());
 	if (g_malloc.trace_file_fd != -1)
-		dprintf(g_malloc.trace_file_fd,
-						"malloc(%zu) -> %p\n",
+		ft_printf_fd(g_malloc.trace_file_fd,
+						"malloc(%u) -> %p\n",
 						size,
 						ptr);
 	return ptr;
