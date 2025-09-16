@@ -1,6 +1,7 @@
 #include "../includes/malloc_internal.h"
 #include <asm-generic/errno-base.h>
 #include <errno.h>
+#include <stdbool.h>
 
 t_malloc g_malloc = {
     .tiny = { .pages = NULL, .last = NULL, .mutex = PTHREAD_MUTEX_INITIALIZER },
@@ -141,7 +142,8 @@ void split_block(t_page_block *res, size_t size)
 	else
 		SET_BLOCK_NOT_LAST(new_block);
 	SET_BLOCK_NOT_LAST(res->block);
-	merge_block_with_next(&res->page->free_lists, new_block);
+	if (g_malloc.no_defrag == false)
+		merge_block_with_next(&res->page->free_lists, new_block);
 	add_block_to_free_list(&res->page->free_lists, new_block);
 }
 

@@ -802,7 +802,7 @@ void test_reallocarray_overflow() {
     void *ptr = calloc(100, 1);
     if (ptr) {
         strcpy((char*)ptr, "Test data");
-        
+        printf("je susi la\n");
         // Tentative d'overflow
         void *overflow1 = reallocarray(ptr, SIZE_MAX/2, SIZE_MAX/2);
         test_result(overflow1 == NULL, "reallocarray overflow detection (huge*huge)");

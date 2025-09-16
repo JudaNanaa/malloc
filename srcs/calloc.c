@@ -1,4 +1,7 @@
 #include "../includes/malloc_internal.h"
+#include <unistd.h>
+
+void show_alloc_mem();
 
 void	*calloc_internal(size_t nmemb, size_t size)
 {
@@ -30,6 +33,7 @@ void *calloc(size_t nmemb, size_t size) {
         return NULL;
     }
 
+	print_err("okokok\n");
     ptr = calloc_internal(nmemb, size);
 
     if (g_malloc.verbose) {

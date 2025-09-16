@@ -34,8 +34,6 @@ void merge_block_with_next(t_free_list *free_list, t_block *block)
 {
 	t_block *next_block;
 
-	if (g_malloc.no_defrag == true)
-		return;
 	next_block = NEXT_BLOCK(block);
 	if (next_block && IS_BLOCK_free(next_block))
 	{
@@ -46,8 +44,6 @@ void merge_block_with_next(t_free_list *free_list, t_block *block)
 
 void merge_block_with_prev(t_free_list *free_list, t_block **block, t_block *prev_block)
 {
-	if (g_malloc.no_defrag == true)
-		return;
 	if (prev_block && IS_BLOCK_free(prev_block))
 	{
 		remove_block_free_list(free_list, prev_block);
@@ -142,26 +138,12 @@ void	remove_block_free_list(t_free_list *free_lists, t_block *block)
 
 	class = get_size_class(GET_BLOCK_TRUE_SIZE(block), free_lists->max_size);
 
-	if (free_lists->head[class] == block)
-	{
-		free_lists->head[class] = block->next_free;
-		if (block->next_free)
-			block->next_free->prev_free = block->prev_free;
-	}
+	if (block->prev_free)
+		block->prev_free->next_free = block->next_free;
 	else
-	{
-		if (block->next_free)
-			block->next_free->prev_free = block->prev_free;
-		if (block->prev_free)
-			block->prev_free->next_free = block->next_free;
-	}
-
-	// if (block->prev_free)
-	// 	block->prev_free->next_free = block->next_free;
-	// else
-    //     free_lists->head[class] = block->next_free;
-	// if (block->next_free)
-    //     block->next_free->prev_free = block->prev_free;
+        free_lists->head[class] = block->next_free;
+	if (block->next_free)
+        block->next_free->prev_free = block->prev_free;
 	SET_BLOCK_SIZE(block, GET_BLOCK_TRUE_SIZE(block));
 	block->next_free = NULL;
 	block->prev_free = NULL;
