@@ -1,4 +1,6 @@
 #include "../includes/malloc_internal.h"
+#include <asm-generic/errno-base.h>
+#include <errno.h>
 
 t_malloc g_malloc = {
     .tiny = { .pages = NULL, .last = NULL, .mutex = PTHREAD_MUTEX_INITIALIZER },
@@ -19,7 +21,10 @@ t_page *create_page(size_t length, size_t max_size)
 
 	new_page = mmap(NULL, length, PROT_READ | PROT_WRITE, MAP_ANONYMOUS | MAP_PRIVATE, -1, 0);
 	if (new_page == MAP_FAILED)
+	{
+		errno = ENOMEM;
 		return NULL;
+	}
 	new_page->length = length;
 	memset(&new_page->free_lists, 0, sizeof(t_free_list));
 	new_page->free_lists.max_size = max_size;

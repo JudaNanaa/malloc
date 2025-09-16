@@ -1,5 +1,5 @@
 CC = cc
-CFLAGS = -Wall -Wextra -g3 -pg -Werror -fPIC
+CFLAGS = -Wall -Wextra -Werror -fPIC
 
 SRCS_DIR = srcs/
 SRCS = malloc.c free.c utils.c realloc.c calloc.c show_alloc_mem.c \
@@ -21,7 +21,7 @@ all:$(NAME) $(LINK)
 
 # --- Création de la lib malloc ---
 $(NAME): $(OBJS)
-	$(CC) -shared -o $@ $(OBJS) -L $(LIBFT_DIR) -lft -pthread
+	$(CC) $(CFLAGS) -shared -o $@ $(OBJS) -L $(LIBFT_DIR) -lft -pthread
 	@echo "✅ $@ has been built"
 
 # --- Lien symbolique ---
