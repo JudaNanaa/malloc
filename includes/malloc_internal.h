@@ -15,8 +15,8 @@
 #include <stdint.h>
 #include <fcntl.h>
 
-# define n 65536   // taille en bytes pour etre considerer comme tiny malloc
-# define m 131072 // taille en bytes pour etre considerer comme small malloc
+# define n 256   // taille en bytes pour etre considerer comme tiny malloc
+# define m 4096 // taille en bytes pour etre considerer comme small malloc
 # define NB_BLOCK 100
 # define MEMORY_ALIGNMENT sizeof(size_t) // alignement de la memoire de 8bytes
 # define BLOCK_HEADER_SIZE sizeof(t_block)
@@ -26,14 +26,14 @@
 // arrondir un nombre au multiple de 8 superieur pour l'alignement
 # define ALIGN(x) (((x) + (MEMORY_ALIGNMENT - 1)) & ~(MEMORY_ALIGNMENT - 1))
 
-# define BLOCK_FLAG_free (1 << 0) // flag pour le free
+# define BLOCK_FLAG_FREE (1 << 0) // flag pour le free
 # define BLOCK_FLAG_LAST (1 << 1) // flag pour le dernier block
 
-# define SET_BLOCK_free(block) ((block)->flags |= BLOCK_FLAG_free)
+# define SET_BLOCK_FREE(block) ((block)->flags |= BLOCK_FLAG_FREE)
 // mettre le block comme free
-# define SET_BLOCK_USE(block) ((block)->flags &= ~BLOCK_FLAG_free)
+# define SET_BLOCK_USE(block) ((block)->flags &= ~BLOCK_FLAG_FREE)
 // mettre le block comme utilise
-# define IS_BLOCK_free(block) (((block)->flags & BLOCK_FLAG_free) != 0)
+# define IS_BLOCK_FREE(block) (((block)->flags & BLOCK_FLAG_FREE) != 0)
 // savoir si le block est free
 
 # define SET_BLOCK_LAST(block) ((block)->flags |= BLOCK_FLAG_LAST)

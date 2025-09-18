@@ -19,9 +19,9 @@ bool is_ptr_in_page(t_page *page, void *ptr)
 
 void free_the_block(t_block *block)
 {
-	if (IS_BLOCK_free(block) == true)
+	if (IS_BLOCK_FREE(block) == true)
 		double_free();
-	SET_BLOCK_free(block);
+	SET_BLOCK_FREE(block);
 }
 
 bool is_all_block_free(t_page *page)
@@ -30,7 +30,7 @@ bool is_all_block_free(t_page *page)
 
 	current_block = page->blocks;
 	while (current_block) {
-		if (IS_BLOCK_free(current_block) == false)
+		if (IS_BLOCK_FREE(current_block) == false)
 			return false;
 		current_block = NEXT_BLOCK(current_block);
 	}
@@ -47,6 +47,7 @@ void remove_page(t_mutex_zone *zone, t_page *page)
 		page->next->prev = page->prev;
 	if (page->prev)
 		page->prev->next = page->next;
+	munmap(page, page->length);
 }
 
 bool	free_block_from_zone(t_mutex_zone *zone, void *ptr)

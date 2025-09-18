@@ -30,17 +30,17 @@ size_t print_block_info_ex(t_block *block, void *page_start)
 
     ft_printf_fd(STDERR_FILENO, "%p - %p : %u bytes", start, (char *)start + size, size);
 
-    if (IS_BLOCK_free(block))
+    if (IS_BLOCK_FREE(block))
         ft_printf_fd(STDERR_FILENO, " [free]");
     else
         ft_printf_fd(STDERR_FILENO, " [USED]");
 
     ft_printf_fd(STDERR_FILENO, " | offset=%u\n", offset);
 
-    if (!IS_BLOCK_free(block))
+    if (!IS_BLOCK_FREE(block))
         hex_dump_block(block);
 
-    return (IS_BLOCK_free(block) ? 0 : size);
+    return (IS_BLOCK_FREE(block) ? 0 : size);
 }
 
 size_t print_page_blocks_ex(t_page *page)
@@ -57,7 +57,7 @@ size_t print_page_blocks_ex(t_page *page)
     while (block)
     {
         total_size += print_block_info_ex(block, page);
-        if (IS_BLOCK_free(block))
+        if (IS_BLOCK_FREE(block))
             free_blocks++;
         else
             used_blocks++;

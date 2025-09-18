@@ -1,8 +1,4 @@
 #include "../includes/malloc_internal.h"
-#include <stddef.h>
-#include <stdlib.h>
-#include <string.h>
-#include <unistd.h>
 
 void print_err(const char *msg)
 {
@@ -14,7 +10,7 @@ void	initialize_blocks(t_block *block, size_t size_of_block)
 	memset(block, 0, sizeof(t_block));
 	SET_BLOCK_SIZE(block, size_of_block);
 	SET_BLOCK_TRUE_SIZE(block, ALIGN(size_of_block));
-	SET_BLOCK_free(block);
+	SET_BLOCK_FREE(block);
 	SET_BLOCK_LAST(block);
 }
 
@@ -35,7 +31,7 @@ void merge_block_with_next(t_free_list *free_list, t_block *block)
 	t_block *next_block;
 
 	next_block = NEXT_BLOCK(block);
-	if (next_block && IS_BLOCK_free(next_block))
+	if (next_block && IS_BLOCK_FREE(next_block))
 	{
 		remove_block_free_list(free_list, next_block);
 		merge_two_blocks(block, next_block);
@@ -44,7 +40,7 @@ void merge_block_with_next(t_free_list *free_list, t_block *block)
 
 void merge_block_with_prev(t_free_list *free_list, t_block **block, t_block *prev_block)
 {
-	if (prev_block && IS_BLOCK_free(prev_block))
+	if (prev_block && IS_BLOCK_FREE(prev_block))
 	{
 		remove_block_free_list(free_list, prev_block);
 		merge_two_blocks(prev_block, *block);
@@ -73,7 +69,6 @@ t_block	*page_find_block_by_ptr(t_page *page, void *ptr, t_block **prev_out)
 	return (NULL);
 }
 
-
 bool	find_block(t_page *pages, void *ptr, t_page_block *out)
 {
 	t_page	*current_page;
@@ -95,6 +90,7 @@ bool	find_block(t_page *pages, void *ptr, t_page_block *out)
 	out->page = NULL;
 	return (false);
 }
+
 bool	is_gonna_overflow(size_t nmemb, size_t size)
 {
 	size_t	check_overflow;
@@ -111,7 +107,7 @@ size_t	get_size_class(size_t size, size_t max_size)
 	size_t	class;
 
 	increment = max_size / NB_CLASS;
-	class = (size + increment - 1) >> __builtin_ctz(increment);
+	class = size / increment;
 	if (class >= NB_CLASS)
 		return (NB_CLASS - 1);
 	return (class);

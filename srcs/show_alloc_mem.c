@@ -9,7 +9,7 @@ size_t	print_block_info(t_block *block)
 	start = GET_BLOCK_PTR(block);
 	size = block->size;
 	ft_printf_fd(STDERR_FILENO, "%p - %p : %u", start, (char *)start + size, size);
-	if (IS_BLOCK_free(block))
+	if (IS_BLOCK_FREE(block))
 	{
 		ft_printf_fd(STDERR_FILENO, " free");
 		size = 0;

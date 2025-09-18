@@ -33,7 +33,6 @@ void *calloc(size_t nmemb, size_t size) {
         return NULL;
     }
 
-	print_err("okokok\n");
     ptr = calloc_internal(nmemb, size);
 
     if (g_malloc.verbose) {

@@ -28,7 +28,7 @@ bool	try_expand_block(t_page_block *page_block, size_t size)
 	t_block	*next_block;
 
 	next_block = NEXT_BLOCK(page_block->block);
-	if (next_block == NULL || IS_BLOCK_free(next_block) == false)
+	if (next_block == NULL || IS_BLOCK_FREE(next_block) == false)
 		return (false);
 	total = GET_BLOCK_TRUE_SIZE(page_block->block) + BLOCK_HEADER_SIZE
 		+ GET_BLOCK_TRUE_SIZE(next_block);

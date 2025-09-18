@@ -126,14 +126,13 @@ void test_absolute_chaos() {
         
         // Phase 3: Libération chaotique
         for (int i = 0; i < 1000; i++) {
-			// printf("i == %d\n", i);
             if (chaos_alive[i] && (rand() % 100) < 40) {
                 verify_insane_pattern(chaos_ptrs[i], chaos_sizes[i], chaos_patterns[i]);
                 free(chaos_ptrs[i]);
                 chaos_alive[i] = 0;
                 
                 // Écrire des données "zombie" dans l'ancien pointeur (pour détecter use-after-free)
-                memset(chaos_ptrs[i], 0xDE, (chaos_sizes[i] > 64) ? 64 : chaos_sizes[i]);
+                // memset(chaos_ptrs[i], 0xDE, (chaos_sizes[i] > 64) ? 64 : chaos_sizes[i]);
             }
         }
         

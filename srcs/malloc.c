@@ -2,6 +2,7 @@
 #include <asm-generic/errno-base.h>
 #include <errno.h>
 #include <stdbool.h>
+#include <stdlib.h>
 
 t_malloc g_malloc = {
     .tiny = { .pages = NULL, .last = NULL, .mutex = PTHREAD_MUTEX_INITIALIZER },
@@ -129,7 +130,7 @@ void split_block(t_page_block *res, size_t size)
 	if (size > GET_BLOCK_TRUE_SIZE(res->block) - MEMORY_ALIGNMENT)
 		return;
 	aligned_size = ALIGN(size);
-	if (GET_BLOCK_TRUE_SIZE(res->block) < aligned_size + BLOCK_HEADER_SIZE)
+	if (GET_BLOCK_TRUE_SIZE(res->block) <= aligned_size + BLOCK_HEADER_SIZE)
 		return;
 	new_size = GET_BLOCK_TRUE_SIZE(res->block) - aligned_size - BLOCK_HEADER_SIZE;
 	SET_BLOCK_TRUE_SIZE(res->block, aligned_size);
