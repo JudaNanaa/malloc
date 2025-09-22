@@ -20,34 +20,43 @@ endif
 NAME = libft_malloc_$(HOSTTYPE).so
 LINK = libft_malloc.so
 
+# --- Colors ---
+YELLOW=	$(shell tput -Txterm setaf 3)
+GREEN= 	$(shell tput -Txterm setaf 2)
+BLUE=	$(shell tput -Txterm setaf 6)
+END= 	$(shell tput -Txterm sgr0)
+
 all: $(PRINTF) $(NAME) $(LINK)
 
 # --- Création de la lib malloc ---
 $(NAME): $(OBJS)
-	$(CC) $(CFLAGS) -shared -o $@ $(OBJS) -L $(PRINTF_DIR) -lftprintf -pthread
-	@echo "✅ $@ has been built"
+	@$(CC) $(CFLAGS) -shared -o $@ $(OBJS) -L $(PRINTF_DIR) -lftprintf -pthread
+	@echo "$(BLUE)✅ $@ has been built$(END)"
 
 # --- Lien symbolique ---
 $(LINK): $(NAME)
-	ln -sf $(NAME) $(LINK)
-	@echo "🔗 Created symlink $(LINK) -> $(NAME)"
+	@ln -sf $(NAME) $(LINK)
+	@echo "$(GREEN)🔗 Created symlink $(LINK) -> $(NAME)$(END)"
 
 # --- Compilation des objets ---
 $(OBJS_DIR)%.o: $(SRCS_DIR)%.c
 	@mkdir -p $(@D)
-	$(CC) $(CFLAGS) -c $< -o $@
+	@echo "$(YELLOW)Compiling $(notdir $<) ...$(END)"
+	@$(CC) $(CFLAGS) -c $< -o $@
 
 $(PRINTF) :
-	make -C $(PRINTF_DIR)
+	@make -sC $(PRINTF_DIR)
 
 # --- Nettoyage ---
 clean:
-	rm -rf $(OBJS_DIR)
-	make clean -C $(PRINTF_DIR)
+	@rm -rf $(OBJS_DIR)
+	@make clean -sC $(PRINTF_DIR)
+	@echo "$(BLUE)🧹 Objects removed (libft_malloc + printf)$(END)"
 
 fclean: clean
-	rm -f $(NAME) $(LINK)
-	make fclean -C $(PRINTF_DIR)
+	@rm -f $(NAME) $(LINK)
+	@make fclean -sC $(PRINTF_DIR)
+	@echo "$(BLUE)🗑️  $(NAME) and symlink removed$(END)"
 
 re: fclean all
 

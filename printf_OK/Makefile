@@ -1,17 +1,5 @@
-# **************************************************************************** #
-#                                                                              #
-#                                                         :::      ::::::::    #
-#    Makefile                                           :+:      :+:    :+:    #
-#                                                     +:+ +:+         +:+      #
-#    By: madamou <madamou@student.42.fr>            +#+  +:+       +#+         #
-#                                                 +#+#+#+#+#+   +#+            #
-#    Created: 2024/05/25 17:05:20 by itahri            #+#    #+#              #
-#    Updated: 2025/09/16 17:36:08 by madamou          ###   ########.fr        #
-#                                                                              #
-# **************************************************************************** #
-
 CC      = cc
-CFLAGS  = -Wall -Wextra -Werror  -fPIC
+CFLAGS  = -Wall -Wextra -Werror -fPIC
 
 SRCS    = car_fr.c ft_printf.c hex_fr.c int_fr.c mem_fr.c monitoring.c \
           putnbr.c str_fr.c uns_fr.c len_functions.c
@@ -21,20 +9,30 @@ OBJS     = $(SRCS:%.c=$(OBJS_DIR)/%.o)
 
 NAME    = libftprintf.a
 
+# --- Colors ---
+YELLOW=	$(shell tput -Txterm setaf 3)
+GREEN= 	$(shell tput -Txterm setaf 2)
+BLUE=	$(shell tput -Txterm setaf 6)
+END= 	$(shell tput -Txterm sgr0)
+
 all: $(NAME)
 
 $(NAME): $(OBJS)
 	ar crs $(NAME) $(OBJS)
+	@echo "$(GREEN)✅ $(NAME) has been built$(END)"
 
 $(OBJS_DIR)/%.o: %.c
 	@mkdir -p $(OBJS_DIR)
+	@echo "$(YELLOW)Compiling $(notdir $<) ...$(END)"
 	$(CC) $(CFLAGS) -c $< -o $@
 
 clean:
-	rm -rf $(OBJS_DIR)
+	@rm -rf $(OBJS_DIR)
+	@echo "$(BLUE)🧹 Objects removed$(END)"
 
 fclean: clean
-	rm -f $(NAME)
+	@rm -f $(NAME)
+	@echo "$(BLUE)🗑️  $(NAME) removed$(END)"
 
 re: fclean all
 
