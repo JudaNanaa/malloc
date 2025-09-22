@@ -1,5 +1,5 @@
 CC = cc
-CFLAGS = -Wall -Wextra -Werror -fPIC
+CFLAGS = -Wall -Wextra -Werror -fPIC -fvisibility=hidden #-DTEST_MALLOC
 
 SRCS_DIR = srcs/
 SRCS = malloc.c free.c utils.c realloc.c calloc.c show_alloc_mem.c \

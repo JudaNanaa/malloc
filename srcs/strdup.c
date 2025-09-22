@@ -15,7 +15,8 @@ char	*strdup_internal(const char *s)
 	return (memmove(dest, s, len + 1));
 }
 
-char *strdup(const char *s)
+__attribute__((visibility("default")))
+char *STRDUP_NAME(const char *s)
 {
     char *dest;
 

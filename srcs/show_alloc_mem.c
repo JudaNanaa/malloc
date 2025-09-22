@@ -49,6 +49,7 @@ size_t	print_memory_zone(t_page *page_list, char *zone_name)
 	return (total_size);
 }
 
+__attribute__((visibility("default")))
 void	show_alloc_mem(void)
 {
 	size_t	total_size;

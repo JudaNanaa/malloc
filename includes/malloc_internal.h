@@ -1,7 +1,7 @@
 #ifndef MALLOC_INTERNAL_H
 # define MALLOC_INTERNAL_H
 
-#include "../printf_OK/ft_printf.h"
+# include "../printf_OK/ft_printf.h"
 # include <stdbool.h>
 # include <string.h>
 # include <stdio.h>
@@ -12,8 +12,24 @@
 # include <stdatomic.h>
 # include <unistd.h>
 # include <stdlib.h>
-#include <stdint.h>
-#include <fcntl.h>
+# include <stdint.h>
+# include <fcntl.h>
+
+# ifndef TEST_MALLOC
+#  define MALLOC_NAME malloc
+#  define FREE_NAME free
+#  define REALLOC_NAME realloc
+#  define REALLOCARRAY_NAME reallocarray
+#  define CALLOC_NAME calloc
+#  define STRDUP_NAME strdup
+#else
+#  define MALLOC_NAME ft_malloc
+#  define FREE_NAME ft_free
+#  define REALLOC_NAME ft_realloc
+#  define REALLOCARRAY_NAME ft_reallocarray
+#  define CALLOC_NAME ft_calloc
+#  define STRDUP_NAME ft_strdup
+#endif
 
 # define n 256   // taille en bytes pour etre considerer comme tiny malloc
 # define m 4096 // taille en bytes pour etre considerer comme small malloc

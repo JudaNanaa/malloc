@@ -214,7 +214,8 @@ void *lock_malloc(size_t size)
     return ptr;
 }
 
-void *malloc(size_t size)
+__attribute__((visibility("default")))
+void *MALLOC_NAME(size_t size)
 {
 	void *ptr;
 

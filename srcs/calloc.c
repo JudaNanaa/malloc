@@ -13,7 +13,8 @@ void	*calloc_internal(size_t nmemb, size_t size)
 	return (ptr);
 }
 
-void *calloc(size_t nmemb, size_t size) {
+__attribute__((visibility("default")))
+void *CALLOC_NAME(size_t nmemb, size_t size) {
     void *ptr;
 
 	pthread_mutex_lock(&g_malloc_lock);

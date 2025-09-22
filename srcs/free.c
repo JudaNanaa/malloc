@@ -134,8 +134,8 @@ void free_internal(void *ptr)
     // invalid_pointer();
 }
 
-
-void	free(void *ptr)
+__attribute__((visibility("default")))
+void	FREE_NAME(void *ptr)
 {
 	pthread_mutex_lock(&g_malloc_lock);
 	if (!g_malloc.set)

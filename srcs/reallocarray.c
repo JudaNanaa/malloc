@@ -1,6 +1,7 @@
 #include "../includes/malloc_internal.h"
 
-void *reallocarray(void *ptr, size_t nmemb, size_t size) {
+__attribute__((visibility("default")))
+void *REALLOCARRAY_NAME(void *ptr, size_t nmemb, size_t size) {
     void *new_ptr;
 
 	pthread_mutex_lock(&g_malloc_lock);

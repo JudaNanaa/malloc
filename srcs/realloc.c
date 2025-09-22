@@ -115,7 +115,8 @@ void	*realloc_internal(void *ptr, size_t size)
 	return (new_ptr);
 }
 
-void	*realloc(void *ptr, size_t size)
+__attribute__((visibility("default")))
+void	*REALLOC_NAME(void *ptr, size_t size)
 {
 	void	*new_ptr;
 
