@@ -70,7 +70,7 @@ bool	free_block_from_zone(t_mutex_zone *zone, void *ptr)
 					merge_block_with_prev(&current_page->free_lists, &block, prev_block);
 				}
 				add_block_to_free_list(&current_page->free_lists, block);
-				if (is_all_block_free(current_page) == true)
+				if (current_page != zone->pages && is_all_block_free(current_page) == true)
 					remove_page(zone, current_page);
 				return true;
 			}
