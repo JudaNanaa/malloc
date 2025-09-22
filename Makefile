@@ -1,5 +1,5 @@
 CC = cc
-CFLAGS = -Wall -Wextra -Werror -fPIC -fvisibility=hidden #-DTEST_MALLOC
+CFLAGS = -Wall -Wextra -Werror -fPIC
 
 SRCS_DIR = srcs/
 SRCS = malloc.c free.c utils.c realloc.c calloc.c show_alloc_mem.c \
@@ -58,6 +58,8 @@ fclean: clean
 	@make fclean -sC $(PRINTF_DIR)
 	@echo "$(BLUE)🗑️  $(NAME) and symlink removed$(END)"
 
-re: fclean all
+re: fclean
+	@echo "$(BLUE)♻️  Rebuilding project...$(END)"
+	@$(MAKE) -s all
 
 .PHONY: all clean fclean re
