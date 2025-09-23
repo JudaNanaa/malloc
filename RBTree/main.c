@@ -3,6 +3,16 @@
 #include <stddef.h>
 #include <stdlib.h>
 
+t_rbtree sentinel = {
+	0,
+	BLACK,
+	NULL,
+	NULL,
+	NULL,
+};
+
+t_rbtree *NIL = &sentinel;
+
 t_rbtree *create_note(size_t size)
 {
 	t_rbtree *new;
@@ -12,9 +22,9 @@ t_rbtree *create_note(size_t size)
 		return NULL;
 	new->size = size;
 	new->color = RED;
-	new->left = NULL;
-	new->right = NULL;
-	new->parent = NULL;
+	new->left = NIL;
+	new->right = NIL;
+	new->parent = NIL;
 	return new;
 }
 
