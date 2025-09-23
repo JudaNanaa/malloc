@@ -20,22 +20,26 @@ t_rbtree *create_note(size_t size)
 
 int main(void)
 {
-	t_rbtree *test[7];
+	t_rbtree *test[8];
 	
 	test[0] = create_note(10);
-	test[1] = create_note(20);
+	test[1] = create_note(5);
 	test[2] = create_note(15);
-	test[3] = create_note(30);
-	test[4] = create_note(5);
-	test[5] = create_note(50);
-	test[6] = create_note(1);
+	test[3] = create_note(3);
+	test[4] = create_note(2);
+	test[5] = create_note(4);
+	test[6] = create_note(20);
+	test[7] = create_note(16);
 
 
 	t_rbtree *root = NULL;
 
-	for (int i = 0; i < 7; i++) {
+	for (int i = 0; i < 8; i++) {
 		insert_node_tree(&root, test[i]);
 	}
 
+
 	print_rbtree_root(root);
+
+	delete_node_tree(&root, test[4]);
 }

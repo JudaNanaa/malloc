@@ -20,6 +20,7 @@ typedef struct s_rbtree
 
 void insert_node_tree(t_rbtree **root, t_rbtree *to_add);
 void print_rbtree_root(const t_rbtree *root);
+void delete_node_tree(t_rbtree **root, t_rbtree *to_del);
 
 
 #endif
