@@ -37,6 +37,18 @@ bool is_all_block_free(t_page *page)
 	return true;
 }
 
+void remove_all_free_block(t_mutex_zone *zone, t_page *page)
+{
+	t_block *block;
+
+	block = page->blocks;
+	while (block)
+	{
+		delete_node_tree(&zone->root_free, block);
+		block = NEXT_BLOCK(block);
+	}
+}
+
 void remove_page(t_mutex_zone *zone, t_page *page)
 {
 	if (zone->pages == page)
@@ -47,6 +59,8 @@ void remove_page(t_mutex_zone *zone, t_page *page)
 		page->next->prev = page->prev;
 	if (page->prev)
 		page->prev->next = page->next;
+	if (zone != &g_malloc.large)
+		remove_all_free_block(zone, page);
 	munmap(page, page->length);
 }
 
@@ -66,10 +80,10 @@ bool	free_block_from_zone(t_mutex_zone *zone, void *ptr)
 				free_the_block(block);
 				if (g_malloc.no_defrag == false)
 				{
-					merge_block_with_next(&current_page->free_lists, block);
-					merge_block_with_prev(&current_page->free_lists, &block, prev_block);
+					merge_block_with_next(zone, block);
+					merge_block_with_prev(zone, &block, prev_block);
 				}
-				add_block_to_free_list(&current_page->free_lists, block);
+				insert_node_tree(&zone->root_free, block);
 				if (current_page != zone->pages && is_all_block_free(current_page) == true)
 					remove_page(zone, current_page);
 				return true;

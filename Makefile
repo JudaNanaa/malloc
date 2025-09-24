@@ -1,9 +1,9 @@
 CC = cc
-CFLAGS = -Wall -Wextra -Werror -fPIC
+CFLAGS = -Wall -Wextra -Werror -fPIC -fvisibility=hidden -g3 #-DTEST_MALLOC
 
 SRCS_DIR = srcs/
 SRCS = malloc.c free.c utils.c realloc.c calloc.c show_alloc_mem.c \
-       show_alloc_mem_ex.c env_var.c reallocarray.c strdup.c
+       show_alloc_mem_ex.c env_var.c reallocarray.c strdup.c RBTree.c 
 
 SRCS := $(addprefix $(SRCS_DIR), $(SRCS))
 
@@ -26,7 +26,10 @@ GREEN= 	$(shell tput -Txterm setaf 2)
 BLUE=	$(shell tput -Txterm setaf 6)
 END= 	$(shell tput -Txterm sgr0)
 
-all: $(PRINTF) $(NAME) $(LINK)
+all: $(PRINTF) $(NAME) $(LINK) test
+
+test: $(OBJS)
+	$(CC) -pg $(OBJS) tests/main.c -o test_malloc -L $(PRINTF_DIR) -lftprintf -lpthread -g3
 
 # --- Création de la lib malloc ---
 $(NAME): $(OBJS)

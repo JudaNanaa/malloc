@@ -1,8 +1,8 @@
 #include "../includes/malloc_internal.h"
 
-void print_err(const char *msg)
+int print_err(const char *msg)
 {
-	write(STDERR_FILENO, msg, strlen(msg));
+	return write(STDERR_FILENO, msg, strlen(msg));
 }
 
 void	initialize_blocks(t_block *block, size_t size_of_block)
@@ -26,23 +26,24 @@ void merge_two_blocks(t_block *current, t_block *next)
 	SET_BLOCK_TRUE_SIZE(current, total);
 }
 
-void merge_block_with_next(t_free_list *free_list, t_block *block)
+void merge_block_with_next(t_mutex_zone *zone, t_block *block)
 {
 	t_block *next_block;
 
 	next_block = NEXT_BLOCK(block);
 	if (next_block && IS_BLOCK_FREE(next_block))
 	{
-		remove_block_free_list(free_list, next_block);
+		if (zone != &g_malloc.large)
+			delete_node_tree(&zone->root_free, next_block);
 		merge_two_blocks(block, next_block);
 	}
 }
 
-void merge_block_with_prev(t_free_list *free_list, t_block **block, t_block *prev_block)
+void merge_block_with_prev(t_mutex_zone *zone, t_block **block, t_block *prev_block)
 {
 	if (prev_block && IS_BLOCK_FREE(prev_block))
 	{
-		remove_block_free_list(free_list, prev_block);
+		delete_node_tree(&zone->root_free, prev_block);
 		merge_two_blocks(prev_block, *block);
 		*block = prev_block;
 	}
@@ -69,7 +70,7 @@ t_block	*page_find_block_by_ptr(t_page *page, void *ptr, t_block **prev_out)
 	return (NULL);
 }
 
-bool	find_block(t_page *pages, void *ptr, t_page_block *out)
+bool	find_block(t_page *pages, void *ptr, t_block **out)
 {
 	t_page	*current_page;
 	t_block	*block;
@@ -80,14 +81,12 @@ bool	find_block(t_page *pages, void *ptr, t_page_block *out)
 		block = page_find_block_by_ptr(current_page, ptr, NULL);
 		if (block)
 		{
-			out->block = block;
-			out->page = current_page;
+			*out = block;
 			return (true);
 		}
 		current_page = current_page->next;
 	}
-	out->block = NULL;
-	out->page = NULL;
+	out = NULL;
 	return (false);
 }
 
@@ -99,48 +98,4 @@ bool	is_gonna_overflow(size_t nmemb, size_t size)
 	if (nmemb != 0 && check_overflow / nmemb != size)
 		return (true);
 	return (false);
-}
-
-size_t	get_size_class(size_t size, size_t max_size)
-{
-	size_t	increment;
-	size_t	class;
-
-	increment = max_size / NB_CLASS;
-	class = size / increment;
-	if (class >= NB_CLASS)
-		return (NB_CLASS - 1);
-	return (class);
-}
-
-void	add_block_to_free_list(t_free_list *free_lists, t_block *block)
-{
-	size_t	class;
-
-	class = get_size_class(GET_BLOCK_TRUE_SIZE(block), free_lists->max_size);
-
-    block->next_free = free_lists->head[class];
-    if (free_lists->head[class])
-        free_lists->head[class]->prev_free = block;
-
-    free_lists->head[class] = block;
-    block->prev_free = NULL;
-	SET_BLOCK_SIZE(block, GET_BLOCK_TRUE_SIZE(block));
-}
-
-void	remove_block_free_list(t_free_list *free_lists, t_block *block)
-{
-	size_t class;
-
-	class = get_size_class(GET_BLOCK_TRUE_SIZE(block), free_lists->max_size);
-
-	if (block->prev_free)
-		block->prev_free->next_free = block->next_free;
-	else
-        free_lists->head[class] = block->next_free;
-	if (block->next_free)
-        block->next_free->prev_free = block->prev_free;
-	SET_BLOCK_SIZE(block, GET_BLOCK_TRUE_SIZE(block));
-	block->next_free = NULL;
-	block->prev_free = NULL;
 }

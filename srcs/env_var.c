@@ -33,8 +33,8 @@ void	malloc_init(void)
 	env = getenv("MALLOC_TINY_SIZE");
 	if (env)
 	{
-		g_malloc.tiny_malloc_size = strtoul(env, &end, 10);
-		if (g_malloc.tiny_malloc_size <= 0)
+		g_malloc.tiny.max_size_malloc = strtoul(env, &end, 10);
+		if (g_malloc.tiny.max_size_malloc <= 0)
 		{
 			print_err("malloc_init() : MALLOC_TINY_SIZE env var is not good\n");
 			abort();
@@ -43,13 +43,16 @@ void	malloc_init(void)
 	env = getenv("MALLOC_SMALL_SIZE");
 	if (env)
 	{
-		g_malloc.small_malloc_size = strtoul(env, &end, 10);
-		if (g_malloc.small_malloc_size <= 0)
+		g_malloc.small.max_size_malloc = strtoul(env, &end, 10);
+		if (g_malloc.small.max_size_malloc <= 0)
 		{
 			print_err("malloc_init() : MALLOC_SMALL_SIZE env var is not good\n");
 			abort();
 		}
 	}
-	g_malloc.tiny_malloc_size = ALIGN(g_malloc.tiny_malloc_size);
-	g_malloc.small_malloc_size = ALIGN(g_malloc.small_malloc_size);
+	g_malloc.tiny.max_size_malloc = ALIGN(g_malloc.tiny.max_size_malloc);
+	g_malloc.small.max_size_malloc = ALIGN(g_malloc.small.max_size_malloc);
+	g_malloc.tiny.root_free = g_malloc.NIL;
+	g_malloc.small.root_free = g_malloc.NIL;
+	g_malloc.large.root_free = g_malloc.NIL;
 }
