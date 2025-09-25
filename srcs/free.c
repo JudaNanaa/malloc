@@ -2,13 +2,13 @@
 
 void double_free(void)
 {
-	ft_printf_fd(STDERR_FILENO, "free(): double free detected in tcache 2");
+	print_err("free(): double free detected in tcache 2\n");
 	abort();
 }
 
 void invalid_pointer(void)
 {
-	ft_printf_fd(STDERR_FILENO, "free(): invalid pointer");
+	print_err("free(): invalid pointer\n");
 	abort();
 }
 
@@ -83,6 +83,7 @@ bool	free_block_from_zone(t_mutex_zone *zone, void *ptr)
 					merge_block_with_next(zone, block);
 					merge_block_with_prev(zone, &block, prev_block);
 				}
+				block->size = block->true_size;
 				insert_node_tree(&zone->root_free, block);
 				if (current_page != zone->pages && is_all_block_free(current_page) == true)
 					remove_page(zone, current_page);

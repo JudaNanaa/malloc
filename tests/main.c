@@ -355,7 +355,6 @@ void test_multiple_allocations() {
     printf("Allocated %d/%d blocks successfully\n", success_count, num_allocs);
     
     
-    
     // Vérifier l'intégrité des données
     int integrity_ok = 1;
     for (int i = 0; i < num_allocs; i++) {
@@ -1628,12 +1627,15 @@ void test_STRDUP_NAME_stress() {
         test_result(frags[i] != NULL, "STRDUP_NAME fragmentation REALLOC_NAMEation");
     }
     
+	printf("je suis ici\n");
     // Nettoyer la fragmentation
     for (int i = 0; i < 50; i++) {
         if (frags[i]) {
+			printf("i == %d\n", i);
             FREE_NAME(frags[i]);
         }
     }
+	printf("je sors ici\n");
     
     
 }

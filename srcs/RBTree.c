@@ -2,6 +2,7 @@
 #include <stddef.h>
 #include <stdint.h>
 #include <stdio.h>
+#include <unistd.h>
 
 void	left_rotation(t_block **root, t_block *node)
 {
@@ -95,13 +96,16 @@ void	fix_insert(t_block **root, t_block *node)
 	SET_BLOCK_BLACK(*root);
 }
 
-void add_to_same_size(t_block **first, t_block *new)
+void add_to_same_size(t_block *first, t_block *new)
 {
-	new->same_next = *first;
-	new->same_prev = NULL;
-	COPY_BLOCK_COLOR(new, (*first));
-	*first = new;
+    new->same_next = first->same_next;
+    if (first->same_next)
+        first->same_next->same_prev = new;
+    new->same_prev = first;
+    COPY_BLOCK_COLOR(new, first);
+    first->same_next = new;
 }
+
 
 void	insert_node_tree(t_block **root, t_block *to_add)
 {
@@ -111,15 +115,15 @@ void	insert_node_tree(t_block **root, t_block *to_add)
 	current = *root;
 	parent = NULL;
 	to_add->left = to_add->right = g_malloc.NIL;
-	while (current && current != g_malloc.NIL)
+	while (current != g_malloc.NIL)
 	{
 		parent = current;
-		if (current->size == to_add->size)
+		if (current->true_size == to_add->true_size)
 		{
-			add_to_same_size(&current, to_add);
+			add_to_same_size(current, to_add);
 			return ;
 		}
-		else if (to_add->size < current->size)
+		else if (to_add->true_size < current->true_size)
 			current = current->left;
 		else
 			current = current->right;
@@ -127,12 +131,11 @@ void	insert_node_tree(t_block **root, t_block *to_add)
 	to_add->parent = parent;
 	if (parent == NULL)
 		*root = to_add;
-	else if (to_add->size < parent->size)
+	else if (to_add->true_size < parent->true_size)
 		parent->left = to_add;
 	else
 		parent->right = to_add;
 	SET_BLOCK_RED(to_add);
-	// to_add->color = RED;
 	fix_insert(root, to_add);
 }
 
@@ -154,79 +157,94 @@ t_block	*minimum_in_tree(t_block *node)
 	return (node);
 }
 
-void	fix_delete(t_block **root, t_block *node)
+void fix_delete(t_block **root, t_block *node)
 {
-	t_block	*sibling;
+    t_block *sibling;
 
-	while (node != *root && IS_BLOCK_BLACK(node))
-	{
-		if (node == node->parent->left)
-		{
-			sibling = node->parent->right;
-			if (IS_BLOCK_RED(sibling))
-			{
-				SET_BLOCK_BLACK(sibling);
-				SET_BLOCK_RED(node->parent);
-				left_rotation(root, node->parent);
-				sibling = node->parent->right;
-			}
-			if (IS_BLOCK_BLACK(sibling->left) && IS_BLOCK_BLACK(sibling->left))
-			{
-				SET_BLOCK_RED(sibling);
-				node = node->parent;
-			}
-			else
-			{
-				if (IS_BLOCK_BLACK(sibling->right))
+    while (node != *root && IS_BLOCK_BLACK(node))
+    {
+        if (node == node->parent->left)
+        {
+            sibling = node->parent->right;
+
+            if (IS_BLOCK_RED(sibling))
+            {
+                SET_BLOCK_BLACK(sibling);
+                SET_BLOCK_RED(node->parent);
+                left_rotation(root, node->parent);
+                sibling = node->parent->right;
+            }
+
+            if (IS_BLOCK_BLACK(sibling->left) && IS_BLOCK_BLACK(sibling->right))
+            {
+                SET_BLOCK_RED(sibling);
+				if (IS_BLOCK_RED(node->parent)) // TODO : changer ca
 				{
-					SET_BLOCK_BLACK(sibling->left);
-					SET_BLOCK_RED(sibling);
-					right_rotation(root, sibling);
-					sibling = node->parent->right;
+                	SET_BLOCK_BLACK(node->parent);
+					break;
 				}
-				COPY_BLOCK_COLOR(sibling, node->parent);
-				SET_BLOCK_BLACK(node->parent);
-				SET_BLOCK_BLACK(sibling->right);
-				left_rotation(root, node->parent);
-				node = *root;
-			}
-		}
-		else
-		{
-			sibling = node->parent->left;
-			if (IS_BLOCK_RED(sibling))
-			{
-				SET_BLOCK_BLACK(sibling);
-				SET_BLOCK_RED(node->parent);
-				right_rotation(root, node->parent);
-				sibling = node->parent->left;
-			}
-			if (IS_BLOCK_BLACK(sibling->right) && IS_BLOCK_BLACK(sibling->right))
-			{
-				SET_BLOCK_RED(sibling);
-				node = node->parent;
-			}
-			else
-			{
-				if (IS_BLOCK_BLACK(sibling->left))
+                node = node->parent;
+            }
+            else
+            {
+                if (IS_BLOCK_BLACK(sibling->right))
+                {
+                    SET_BLOCK_BLACK(sibling->left);
+                    SET_BLOCK_RED(sibling);
+                    right_rotation(root, sibling);
+                    sibling = node->parent->right;
+                }
+                COPY_BLOCK_COLOR(sibling, node->parent);
+                SET_BLOCK_BLACK(node->parent);
+                SET_BLOCK_BLACK(sibling->right);
+                left_rotation(root, node->parent);
+                node = *root;
+            }
+        }
+        else
+        {
+            sibling = node->parent->left;
+
+            if (IS_BLOCK_RED(sibling))
+            {
+                SET_BLOCK_BLACK(sibling);
+                SET_BLOCK_RED(node->parent);
+                right_rotation(root, node->parent);
+                sibling = node->parent->left;
+            }
+
+            if (IS_BLOCK_BLACK(sibling->right) && IS_BLOCK_BLACK(sibling->left))
+            {
+                SET_BLOCK_RED(sibling);
+				if (IS_BLOCK_RED(node->parent)) // TODO : changer ca
 				{
-					SET_BLOCK_BLACK(sibling->right);
-					SET_BLOCK_RED(sibling);
-					left_rotation(root, sibling);
-					sibling = node->parent->left;
+                	SET_BLOCK_BLACK(node->parent);
+					break;
 				}
-				COPY_BLOCK_COLOR(sibling, node->parent);
-				SET_BLOCK_BLACK(node->parent);
-				SET_BLOCK_BLACK(sibling->left);
-				right_rotation(root, node->parent);
-				node = *root;
-			}
-		}
-	}
-	SET_BLOCK_BLACK(node);
+                node = node->parent;
+            }
+            else
+            {
+                if (IS_BLOCK_BLACK(sibling->left))
+                {
+                    SET_BLOCK_BLACK(sibling->right);
+                    SET_BLOCK_RED(sibling);
+                    left_rotation(root, sibling);
+                    sibling = node->parent->left;
+                }
+                COPY_BLOCK_COLOR(sibling, node->parent);
+                SET_BLOCK_BLACK(node->parent);
+                SET_BLOCK_BLACK(sibling->left);
+                right_rotation(root, node->parent);
+                node = *root;
+            }
+        }
+    }
+    SET_BLOCK_BLACK(node);
 }
 
-void remove_front_same(t_block *to_del)
+
+void remove_front_same(t_block **root, t_block *to_del)
 {
 	t_block *next;
 
@@ -235,9 +253,22 @@ void remove_front_same(t_block *to_del)
 	next->left = to_del->left;
 	next->right = to_del->right;
 	next->parent = to_del->parent;
-	next->same_prev = to_del->same_next;
-	if (to_del->same_prev)
-		to_del->same_prev->same_next = next;
+	next->same_prev = NULL;
+	if (next->left && next->left != g_malloc.NIL)
+		next->left->parent = next;
+	if (next->right && next->right != g_malloc.NIL)
+		next->right->parent = next;
+	if (next->parent)
+	{
+		if (to_del == next->parent->left)
+			next->parent->left = next;
+		else
+			next->parent->right = next;
+	}
+	else
+		*root = next;
+	to_del->same_next = NULL;
+	to_del->same_prev = NULL;
 }
 
 void remove_in_list(t_block *to_del)
@@ -251,58 +282,62 @@ void remove_in_list(t_block *to_del)
 		prev->same_next = next;
 	if (next)
 		next->same_prev = prev;
+	to_del->same_next = NULL;
+	to_del->same_prev = NULL;
 }
 
-void	delete_node_tree(t_block **root, t_block *to_del)
+void	delete_node_tree(t_block **root, t_block *z)
 {
-	t_block	*target_node;
-	t_block	*child;
+	t_block	*y;
+	t_block	*x;
 	bool original_color;
 
-	t_block *x = search_best_node(*root, to_del->size);
+	t_block *yes = search_best_node(*root, z->true_size);
 	
-	if (x != to_del)
+	if (yes != z)
 	{
-		remove_in_list(to_del);
+		remove_in_list(z);
 		return;
 	}
-	if (x == to_del && to_del->same_next)
+	if (yes == z && z->same_next)
 	{
-		remove_front_same(to_del);
+		remove_front_same(root, z);
 		return;
 	}
-	target_node = to_del;
-	original_color = IS_BLOCK_BLACK(target_node);
-	if (to_del->left == g_malloc.NIL)
+	y = z;
+	original_color = IS_BLOCK_BLACK(y);
+	if (z->left == g_malloc.NIL)
 	{
-		child = to_del->right;
-		transplant(root, to_del, to_del->right);
+		x = z->right;
+		transplant(root, z, z->right);
 	}
-	else if (to_del->right == g_malloc.NIL)
+	else if (z->right == g_malloc.NIL)
 	{
-		child = to_del->left;
-		transplant(root, to_del, to_del->left);
+		x = z->left;
+		transplant(root, z, z->left);
 	}
 	else
 	{
-		target_node = minimum_in_tree(to_del->right);
-		original_color = IS_BLOCK_BLACK(target_node);
-		child = target_node->right;
-		if (target_node->parent == to_del)
-			child->parent = target_node;
+		y = minimum_in_tree(z->right);
+		original_color = IS_BLOCK_BLACK(y);
+		x = y->right;
+		if (y->parent == z)
+			x->parent = y;
 		else
 		{
-			transplant(root, target_node, target_node->right);
-			target_node->right = to_del->right;
-			target_node->right->parent = target_node;
+			transplant(root, y, y->right);
+			y->right = z->right;
+			y->right->parent = y;
 		}
-		transplant(root, to_del, target_node);
-		target_node->left = to_del->left;
-		target_node->left->parent = target_node;
-		COPY_BLOCK_COLOR(target_node, to_del);
+		transplant(root, z, y);
+		y->left = z->left;
+		y->left->parent = y;
+		COPY_BLOCK_COLOR(y, z);
 	}
 	if (original_color)
-		fix_delete(root, child);
+		fix_delete(root, x);
+	z->same_next = NULL;
+	z->same_prev = NULL;
 }
 
 t_block	*search_best_node(t_block *root, size_t size)
@@ -314,9 +349,9 @@ t_block	*search_best_node(t_block *root, size_t size)
 	best_fit = NULL;
 	while (current && current != g_malloc.NIL)
 	{
-		if (size == current->size)
+		if (size == current->true_size)
 			return (current);
-		else if (size < current->size)
+		else if (size < current->true_size)
 		{
 			best_fit = current;
 			current = current->left;

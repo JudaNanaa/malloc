@@ -6,7 +6,8 @@
 #include <stdlib.h>
 
 t_malloc	g_malloc = {
-	.sentinel = {.size = 0, .left = NULL, .right = NULL, .parent = NULL, .flags = 0},
+	.sentinel = {.size = 0, .left = &g_malloc.sentinel, .right = &g_malloc.sentinel, .parent = NULL,
+		.flags = 0},
 	.tiny = {.max_size_malloc = n, .pages = NULL, .last = NULL,
 		.root_free = NULL, .mutex = PTHREAD_MUTEX_INITIALIZER},
 	.small = {.max_size_malloc = m, .pages = NULL, .last = NULL,
@@ -18,8 +19,7 @@ t_malloc	g_malloc = {
 	.verbose = false,
 	.no_defrag = false,
 	.trace_file_fd = -1,
-	.NIL = &g_malloc.sentinel
-};
+	.NIL = &g_malloc.sentinel};
 
 t_page	*create_page(size_t length)
 {
@@ -65,7 +65,7 @@ size_t	page_allocation_size_for_large(size_t size)
 	return (total);
 }
 
-bool	find_free_block(t_mutex_zone *zone, size_t size, t_page_block *out)
+bool	find_free_block(t_mutex_zone *zone, size_t size, t_block **block_out)
 {
 	t_block	*block;
 
@@ -73,10 +73,9 @@ bool	find_free_block(t_mutex_zone *zone, size_t size, t_page_block *out)
 	if (block)
 	{
 		delete_node_tree(&zone->root_free, block);
-		out->block = block;
+		*block_out = block;
 		return (true);
 	}
-	memset(out, 0, sizeof(*out));
 	return (false);
 }
 
@@ -124,36 +123,38 @@ void	split_block(t_block *block, size_t size, t_mutex_zone *zone)
 
 void	*optimize_malloc(t_mutex_zone *zone, size_t size)
 {
-	t_page_block	res;
+	t_page	*page;
+	t_block	*block;
 
-	if (find_free_block(zone, size, &res))
+	if (find_free_block(zone, size, &block))
 	{
-		split_block(res.block, size, zone);
-		SET_BLOCK_USE(res.block);
-		return (GET_BLOCK_PTR(res.block));
+		split_block(block, size, zone);
+		SET_BLOCK_USE(block);
+		return (GET_BLOCK_PTR(block));
 	}
-	res.page = create_page(page_allocation_size_for_zone(zone->max_size_malloc));
-	if (res.page == NULL)
+	page = create_page(page_allocation_size_for_zone(zone->max_size_malloc));
+	if (page == NULL)
 		return (NULL);
-	res.block = res.page->blocks;
-	split_block(res.block, size, zone);
-	SET_BLOCK_USE(res.block);
-	add_to_page_list(zone, res.page);
-	return (GET_BLOCK_PTR(res.block));
+	block = page->blocks;
+	split_block(block, size, zone);
+	SET_BLOCK_USE(block);
+	add_to_page_list(zone, page);
+	return (GET_BLOCK_PTR(block));
 }
 
 void	*large_malloc(size_t size)
 {
-	t_page_block	res;
+	t_page	*page;
+	t_block	*block;
 
-	res.page = create_page(page_allocation_size_for_large(size));
-	if (res.page == NULL)
+	page = create_page(page_allocation_size_for_large(size));
+	if (page == NULL)
 		return (NULL);
-	res.block = res.page->blocks;
-	split_block(res.block, size, &g_malloc.large);
-	SET_BLOCK_USE(res.block);
-	add_to_page_list(&g_malloc.large, res.page);
-	return (GET_BLOCK_PTR(res.block));
+	block = page->blocks;
+	split_block(block, size, &g_malloc.large);
+	SET_BLOCK_USE(block);
+	add_to_page_list(&g_malloc.large, page);
+	return (GET_BLOCK_PTR(block));
 }
 
 void	*malloc_internal(size_t size)
@@ -186,7 +187,7 @@ void	*lock_malloc(size_t size)
 
 __attribute__((visibility("default"))) void *MALLOC_NAME(size_t size)
 {
-	void *ptr;
+	void	*ptr;
 
 	pthread_mutex_lock(&g_malloc_lock);
 	if (!g_malloc.set)
