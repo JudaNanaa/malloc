@@ -88,7 +88,7 @@ void fix_delete(t_block **root, t_block *node, t_block *NIL)
         }
         else // node est enfant droit (symétrique)
         {
-            sibling = node->parent->right;
+            sibling = node->parent->left;
             
             // Cas 1: Sibling rouge
             // if (sibling->color == RED)
