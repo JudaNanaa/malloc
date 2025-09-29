@@ -3,7 +3,6 @@
 #include <unistd.h>
 #include <stdint.h>
 #include <stdlib.h>
-#include "../includes/malloc_internal.h"
 #include "../includes/lib_malloc.h"
 
 // Couleurs pour les tests
@@ -29,142 +28,144 @@ void test_result(int condition, const char *test_name) {
     }
 }
 
-void test_basic_MALLOC_NAME() {
-    TEST_SECTION("BASIC MALLOC_NAME TESTS");
+void test_basic_my_malloc() {
+    TEST_SECTION("BASIC my_malloc TESTS");
     
-    // Test 1: MALLOC_NAME(0) - comportement défini par l'implémentation
-    void *p0 = MALLOC_NAME(0);
-    test_result(p0 != NULL || p0 == NULL, "MALLOC_NAME(0) returns valid result");
-    if (p0) FREE_NAME(p0);
+    // Test 1: my_malloc(0) - comportement défini par l'implémentation
+    void *p0 = my_malloc(0);
+    test_result(p0 != NULL || p0 == NULL, "my_malloc(0) returns valid result");
+    if (p0) my_free(p0);
     
     // Test 2: petites tailles (TINY)
-    char *tiny1 = MALLOC_NAME(1);
+    char *tiny1 = my_malloc(1);
 
-    char *tiny8 = MALLOC_NAME(8);
+    char *tiny8 = my_malloc(8);
 
-    char *tiny16 = MALLOC_NAME(16);
+    char *tiny16 = my_malloc(16);
 
-    char *tiny32 = MALLOC_NAME(32);
+    char *tiny32 = my_malloc(32);
 
-    char *tiny64 = MALLOC_NAME(64);
+    char *tiny64 = my_malloc(64);
 
-    char *tiny128 = MALLOC_NAME(128);
+    char *tiny128 = my_malloc(128);
     
-    test_result(tiny1 != NULL, "MALLOC_NAME(1) succeeds");
-    test_result(tiny8 != NULL, "MALLOC_NAME(8) succeeds");
-    test_result(tiny16 != NULL, "MALLOC_NAME(16) succeeds");
-    test_result(tiny32 != NULL, "MALLOC_NAME(32) succeeds");
-    test_result(tiny64 != NULL, "MALLOC_NAME(64) succeeds");
-    test_result(tiny128 != NULL, "MALLOC_NAME(128) succeeds");
+    test_result(tiny1 != NULL, "my_malloc(1) succeeds");
+    test_result(tiny8 != NULL, "my_malloc(8) succeeds");
+    test_result(tiny16 != NULL, "my_malloc(16) succeeds");
+    test_result(tiny32 != NULL, "my_malloc(32) succeeds");
+    test_result(tiny64 != NULL, "my_malloc(64) succeeds");
+    test_result(tiny128 != NULL, "my_malloc(128) succeeds");
     
     // Test d'alignement (8 bytes)
-    test_result(((uintptr_t)tiny1 % 8) == 0, "MALLOC_NAME(1) is 8-byte aligned");
-    test_result(((uintptr_t)tiny8 % 8) == 0, "MALLOC_NAME(8) is 8-byte aligned");
-    test_result(((uintptr_t)tiny16 % 8) == 0, "MALLOC_NAME(16) is 8-byte aligned");
-    test_result(((uintptr_t)tiny32 % 8) == 0, "MALLOC_NAME(32) is 8-byte aligned");
-    test_result(((uintptr_t)tiny64 % 8) == 0, "MALLOC_NAME(64) is 8-byte aligned");
-    test_result(((uintptr_t)tiny128 % 8) == 0, "MALLOC_NAME(128) is 8-byte aligned");
+    test_result(((uintptr_t)tiny1 % 8) == 0, "my_malloc(1) is 8-byte aligned");
+    test_result(((uintptr_t)tiny8 % 8) == 0, "my_malloc(8) is 8-byte aligned");
+    test_result(((uintptr_t)tiny16 % 8) == 0, "my_malloc(16) is 8-byte aligned");
+    test_result(((uintptr_t)tiny32 % 8) == 0, "my_malloc(32) is 8-byte aligned");
+    test_result(((uintptr_t)tiny64 % 8) == 0, "my_malloc(64) is 8-byte aligned");
+    test_result(((uintptr_t)tiny128 % 8) == 0, "my_malloc(128) is 8-byte aligned");
     
     // Test d'écriture/lecture
     if (tiny32) {
         strcpy(tiny32, "Hello");
-        test_result(strcmp(tiny32, "Hello") == 0, "Write/read in tiny MALLOC_NAME");
+        test_result(strcmp(tiny32, "Hello") == 0, "Write/read in tiny my_malloc");
     }
     
     
     
-    FREE_NAME(tiny1); 
-	FREE_NAME(tiny8); 
-	FREE_NAME(tiny16); 
-    FREE_NAME(tiny32); 
-	FREE_NAME(tiny64); 
-	FREE_NAME(tiny128);
+    my_free(tiny1); 
+	my_free(tiny8); 
+	my_free(tiny16); 
+    my_free(tiny32); 
+	my_free(tiny64); 
+	my_free(tiny128);
 }
 
-void test_small_MALLOC_NAME() {
-    TEST_SECTION("SMALL MALLOC_NAME TESTS");
+void test_small_my_malloc() {
+    TEST_SECTION("SMALL my_malloc TESTS");
     
     // Test tailles SMALL (129 à 1024 bytes)
-    char *small200 = MALLOC_NAME(200);
-    char *small400 = MALLOC_NAME(400);
-    char *small600 = MALLOC_NAME(600);
-    char *small800 = MALLOC_NAME(800);
-    char *small1000 = MALLOC_NAME(1000);
-    char *small1024 = MALLOC_NAME(1024); // limite SMALL
+    char *small200 = my_malloc(200);
+    char *small400 = my_malloc(400);
+    char *small600 = my_malloc(600);
+    char *small800 = my_malloc(800);
+    char *small1000 = my_malloc(1000);
+    char *small1024 = my_malloc(1024); // limite SMALL
     
-    test_result(small200 != NULL, "MALLOC_NAME(200) succeeds");
-    test_result(small400 != NULL, "MALLOC_NAME(400) succeeds");
-    test_result(small600 != NULL, "MALLOC_NAME(600) succeeds");
-    test_result(small800 != NULL, "MALLOC_NAME(800) succeeds");
-    test_result(small1000 != NULL, "MALLOC_NAME(1000) succeeds");
-    test_result(small1024 != NULL, "MALLOC_NAME(1024) succeeds");
+    test_result(small200 != NULL, "my_malloc(200) succeeds");
+    test_result(small400 != NULL, "my_malloc(400) succeeds");
+    test_result(small600 != NULL, "my_malloc(600) succeeds");
+    test_result(small800 != NULL, "my_malloc(800) succeeds");
+    test_result(small1000 != NULL, "my_malloc(1000) succeeds");
+    test_result(small1024 != NULL, "my_malloc(1024) succeeds");
     
     // Test d'alignement
-    test_result(((uintptr_t)small200 % 8) == 0, "MALLOC_NAME(200) is 8-byte aligned");
-    test_result(((uintptr_t)small400 % 8) == 0, "MALLOC_NAME(400) is 8-byte aligned");
-    test_result(((uintptr_t)small1024 % 8) == 0, "MALLOC_NAME(1024) is 8-byte aligned");
+    test_result(((uintptr_t)small200 % 8) == 0, "my_malloc(200) is 8-byte aligned");
+    test_result(((uintptr_t)small400 % 8) == 0, "my_malloc(400) is 8-byte aligned");
+    test_result(((uintptr_t)small1024 % 8) == 0, "my_malloc(1024) is 8-byte aligned");
     
     // Test d'écriture dans les blocs
     if (small400) {
         memset(small400, 'A', 399);
         small400[399] = '\0';
-        test_result(small400[0] == 'A' && small400[398] == 'A', "Write/read in small MALLOC_NAME");
+        test_result(small400[0] == 'A' && small400[398] == 'A', "Write/read in small my_malloc");
     }
     
     
     
-    FREE_NAME(small200);
-	FREE_NAME(small400);
-	FREE_NAME(small600);
-    FREE_NAME(small800);
-	FREE_NAME(small1000); 
-	FREE_NAME(small1024);
+	show_alloc_mem_ex();
+
+    my_free(small200);
+	my_free(small400);
+	my_free(small600);
+    my_free(small800);
+	my_free(small1000); 
+	my_free(small1024);
 }
 
-void test_large_MALLOC_NAME() {
-    TEST_SECTION("LARGE MALLOC_NAME TESTS");
+void test_large_my_malloc() {
+    TEST_SECTION("LARGE my_malloc TESTS");
     
     // Test tailles LARGE (> 1024 bytes)
-    char *large1025 = MALLOC_NAME(1025); // première taille LARGE
-    char *large2048 = MALLOC_NAME(2048);
-    char *large4096 = MALLOC_NAME(4096);
-    char *large8192 = MALLOC_NAME(8192);
-    char *large16384 = MALLOC_NAME(16384);
-    char *large_huge = MALLOC_NAME(1024 * 1024); // 1MB
+    char *large1025 = my_malloc(1025); // première taille LARGE
+    char *large2048 = my_malloc(2048);
+    char *large4096 = my_malloc(4096);
+    char *large8192 = my_malloc(8192);
+    char *large16384 = my_malloc(16384);
+    char *large_huge = my_malloc(1024 * 1024); // 1MB
     
-    test_result(large1025 != NULL, "MALLOC_NAME(1025) succeeds");
-    test_result(large2048 != NULL, "MALLOC_NAME(2048) succeeds");
-    test_result(large4096 != NULL, "MALLOC_NAME(4096) succeeds");
-    test_result(large8192 != NULL, "MALLOC_NAME(8192) succeeds");
-    test_result(large16384 != NULL, "MALLOC_NAME(16384) succeeds");
-    test_result(large_huge != NULL, "MALLOC_NAME(1MB) succeeds");
+    test_result(large1025 != NULL, "my_malloc(1025) succeeds");
+    test_result(large2048 != NULL, "my_malloc(2048) succeeds");
+    test_result(large4096 != NULL, "my_malloc(4096) succeeds");
+    test_result(large8192 != NULL, "my_malloc(8192) succeeds");
+    test_result(large16384 != NULL, "my_malloc(16384) succeeds");
+    test_result(large_huge != NULL, "my_malloc(1MB) succeeds");
     
     // Test d'alignement
-    test_result(((uintptr_t)large1025 % 8) == 0, "MALLOC_NAME(1025) is 8-byte aligned");
-    test_result(((uintptr_t)large2048 % 8) == 0, "MALLOC_NAME(2048) is 8-byte aligned");
-    test_result(((uintptr_t)large_huge % 8) == 0, "MALLOC_NAME(1MB) is 8-byte aligned");
+    test_result(((uintptr_t)large1025 % 8) == 0, "my_malloc(1025) is 8-byte aligned");
+    test_result(((uintptr_t)large2048 % 8) == 0, "my_malloc(2048) is 8-byte aligned");
+    test_result(((uintptr_t)large_huge % 8) == 0, "my_malloc(1MB) is 8-byte aligned");
     
     // Test d'écriture dans un gros bloc
     if (large_huge) {
         large_huge[0] = 'X';
         large_huge[1024 * 1024 - 1] = 'Y';
         test_result(large_huge[0] == 'X' && large_huge[1024 * 1024 - 1] == 'Y', 
-                   "Write/read in 1MB MALLOC_NAME");
+                   "Write/read in 1MB my_malloc");
     }
     
     
     
-    FREE_NAME(large1025);
+    my_free(large1025);
 	
-	FREE_NAME(large2048);
+	my_free(large2048);
 	
-	FREE_NAME(large4096);
+	my_free(large4096);
     
-	FREE_NAME(large8192);
+	my_free(large8192);
 	
-	FREE_NAME(large16384);
+	my_free(large16384);
 	
-	FREE_NAME(large_huge);
+	my_free(large_huge);
 }
 
 void test_fragmentation() {
@@ -175,161 +176,161 @@ void test_fragmentation() {
     
     // Allouer 10 blocs
     for (int i = 0; i < 10; i++) {
-        ptrs[i] = MALLOC_NAME(64);
-        test_result(ptrs[i] != NULL, "Fragmentation MALLOC_NAME succeeds");
+        ptrs[i] = my_malloc(64);
+        test_result(ptrs[i] != NULL, "Fragmentation my_malloc succeeds");
     }
     
     
     
     // Libérer les blocs impairs (créer des trous)
     for (int i = 1; i < 10; i += 2) {
-        FREE_NAME(ptrs[i]);
+        my_free(ptrs[i]);
         ptrs[i] = NULL;
     }
     
-    printf("After FREE_NAMEing odd blocks:\n");
+    printf("After my_freeing odd blocks:\n");
     
     
     // Essayer de réallouer dans les trous
-    void *new_ptr = MALLOC_NAME(32); // devrait réutiliser un trou
-    test_result(new_ptr != NULL, "MALLOC_NAME after fragmentation succeeds");
+    void *new_ptr = my_malloc(32); // devrait réutiliser un trou
+    test_result(new_ptr != NULL, "my_malloc after fragmentation succeeds");
     
     // Nettoyer
     for (int i = 0; i < 10; i += 2) {
-        FREE_NAME(ptrs[i]);
+        my_free(ptrs[i]);
     }
-    FREE_NAME(new_ptr);
+    my_free(new_ptr);
 }
 
-void test_REALLOC_NAME_tiny_to_tiny() {
-    TEST_SECTION("REALLOC_NAME TINY->TINY TESTS");
+void test_my_realloc_tiny_to_tiny() {
+    TEST_SECTION("my_realloc TINY->TINY TESTS");
     
-    char *ptr = MALLOC_NAME(16);
-    test_result(ptr != NULL, "Initial MALLOC_NAME(16) for REALLOC_NAME");
+    char *ptr = my_malloc(16);
+    test_result(ptr != NULL, "Initial my_malloc(16) for my_realloc");
     
     if (ptr) {
         strcpy(ptr, "Hello");
         
         // Agrandir dans TINY
-        ptr = REALLOC_NAME(ptr, 32);
-        test_result(ptr != NULL, "REALLOC_NAME(16->32) succeeds");
-        test_result(strcmp(ptr, "Hello") == 0, "Data preserved in REALLOC_NAME(16->32)");
+        ptr = my_realloc(ptr, 32);
+        test_result(ptr != NULL, "my_realloc(16->32) succeeds");
+        test_result(strcmp(ptr, "Hello") == 0, "Data preserved in my_realloc(16->32)");
         
         // Réduire dans TINY
-        ptr = REALLOC_NAME(ptr, 8);
-        test_result(ptr != NULL, "REALLOC_NAME(32->8) succeeds");
-        test_result(strncmp(ptr, "Hello", 5) == 0, "Data preserved in REALLOC_NAME(32->8)");
+        ptr = my_realloc(ptr, 8);
+        test_result(ptr != NULL, "my_realloc(32->8) succeeds");
+        test_result(strncmp(ptr, "Hello", 5) == 0, "Data preserved in my_realloc(32->8)");
         
-        FREE_NAME(ptr);
+        my_free(ptr);
 
     }
 }
 
-void test_REALLOC_NAME_small_to_small() {
-    TEST_SECTION("REALLOC_NAME SMALL->SMALL TESTS");
+void test_my_realloc_small_to_small() {
+    TEST_SECTION("my_realloc SMALL->SMALL TESTS");
     
-    char *ptr = MALLOC_NAME(200);
-    test_result(ptr != NULL, "Initial MALLOC_NAME(200) for REALLOC_NAME");
+    char *ptr = my_malloc(200);
+    test_result(ptr != NULL, "Initial my_malloc(200) for my_realloc");
     
     if (ptr) {
         memset(ptr, 'A', 199);
         ptr[199] = '\0';
         
         // Agrandir dans SMALL
-        ptr = REALLOC_NAME(ptr, 500);
-        test_result(ptr != NULL, "REALLOC_NAME(200->500) succeeds");
-        test_result(ptr[0] == 'A' && ptr[198] == 'A', "Data preserved in REALLOC_NAME(200->500)");
+        ptr = my_realloc(ptr, 500);
+        test_result(ptr != NULL, "my_realloc(200->500) succeeds");
+        test_result(ptr[0] == 'A' && ptr[198] == 'A', "Data preserved in my_realloc(200->500)");
         
         // Réduire dans SMALL
-        ptr = REALLOC_NAME(ptr, 150);
-        test_result(ptr != NULL, "REALLOC_NAME(500->150) succeeds");
-        test_result(ptr[0] == 'A' && ptr[149] == 'A', "Data preserved in REALLOC_NAME(500->150)");
+        ptr = my_realloc(ptr, 150);
+        test_result(ptr != NULL, "my_realloc(500->150) succeeds");
+        test_result(ptr[0] == 'A' && ptr[149] == 'A', "Data preserved in my_realloc(500->150)");
         
-        FREE_NAME(ptr);
+        my_free(ptr);
     }
 }
 
-void test_REALLOC_NAME_large_to_large() {
-    TEST_SECTION("REALLOC_NAME LARGE->LARGE TESTS");
+void test_my_realloc_large_to_large() {
+    TEST_SECTION("my_realloc LARGE->LARGE TESTS");
     
-    char *ptr = MALLOC_NAME(2048);
-    test_result(ptr != NULL, "Initial MALLOC_NAME(2048) for REALLOC_NAME");
+    char *ptr = my_malloc(2048);
+    test_result(ptr != NULL, "Initial my_malloc(2048) for my_realloc");
     
     if (ptr) {
         memset(ptr, 'B', 2047);
         ptr[2047] = '\0';
         
         // Agrandir dans LARGE
-        ptr = REALLOC_NAME(ptr, 4096);
-        test_result(ptr != NULL, "REALLOC_NAME(2048->4096) succeeds");
-        test_result(ptr[0] == 'B' && ptr[2046] == 'B', "Data preserved in REALLOC_NAME(2048->4096)");
+        ptr = my_realloc(ptr, 4096);
+        test_result(ptr != NULL, "my_realloc(2048->4096) succeeds");
+        test_result(ptr[0] == 'B' && ptr[2046] == 'B', "Data preserved in my_realloc(2048->4096)");
         
         // Réduire dans LARGE
-        ptr = REALLOC_NAME(ptr, 1500);
-        test_result(ptr != NULL, "REALLOC_NAME(4096->1500) succeeds");
-        test_result(ptr[0] == 'B' && ptr[1499] == 'B', "Data preserved in REALLOC_NAME(4096->1500)");
+        ptr = my_realloc(ptr, 1500);
+        test_result(ptr != NULL, "my_realloc(4096->1500) succeeds");
+        test_result(ptr[0] == 'B' && ptr[1499] == 'B', "Data preserved in my_realloc(4096->1500)");
         
-        FREE_NAME(ptr);
+        my_free(ptr);
     }
 }
 
-void test_REALLOC_NAME_category_changes() {
-    TEST_SECTION("REALLOC_NAME CATEGORY CHANGE TESTS");
+void test_my_realloc_category_changes() {
+    TEST_SECTION("my_realloc CATEGORY CHANGE TESTS");
     
     // TINY -> SMALL
-    char *ptr = MALLOC_NAME(64);
+    char *ptr = my_malloc(64);
     if (ptr) {
         strcpy(ptr, "TinyToSmall");
-        ptr = REALLOC_NAME(ptr, 256);
-        test_result(ptr != NULL, "REALLOC_NAME TINY->SMALL succeeds");
+        ptr = my_realloc(ptr, 256);
+        test_result(ptr != NULL, "my_realloc TINY->SMALL succeeds");
         test_result(strcmp(ptr, "TinyToSmall") == 0, "Data preserved TINY->SMALL");
         
         // SMALL -> LARGE
         strcat(ptr, " and SmallToLarge");
-        ptr = REALLOC_NAME(ptr, 2048);
-        test_result(ptr != NULL, "REALLOC_NAME SMALL->LARGE succeeds");
+        ptr = my_realloc(ptr, 2048);
+        test_result(ptr != NULL, "my_realloc SMALL->LARGE succeeds");
         test_result(strstr(ptr, "TinyToSmall") != NULL, "Data preserved SMALL->LARGE");
         
         // LARGE -> SMALL
-        ptr = REALLOC_NAME(ptr, 512);
-        test_result(ptr != NULL, "REALLOC_NAME LARGE->SMALL succeeds");
+        ptr = my_realloc(ptr, 512);
+        test_result(ptr != NULL, "my_realloc LARGE->SMALL succeeds");
         test_result(strstr(ptr, "TinyToSmall") != NULL, "Data preserved LARGE->SMALL");
         
         // SMALL -> TINY
-        ptr = REALLOC_NAME(ptr, 32);
-        test_result(ptr != NULL, "REALLOC_NAME SMALL->TINY succeeds");
+        ptr = my_realloc(ptr, 32);
+        test_result(ptr != NULL, "my_realloc SMALL->TINY succeeds");
         test_result(strncmp(ptr, "TinyToSmall", 11) == 0, "Data preserved SMALL->TINY");
         
-        FREE_NAME(ptr);
+        my_free(ptr);
     }
 }
 
-void test_REALLOC_NAME_edge_cases() {
-    TEST_SECTION("REALLOC_NAME EDGE CASES");
+void test_my_realloc_edge_cases() {
+    TEST_SECTION("my_realloc EDGE CASES");
     
-    // REALLOC_NAME(NULL, size) = MALLOC_NAME(size)
-    char *ptr = REALLOC_NAME(NULL, 100);
-    test_result(ptr != NULL, "REALLOC_NAME(NULL, 100) works like MALLOC_NAME");
+    // my_realloc(NULL, size) = my_malloc(size)
+    char *ptr = my_realloc(NULL, 100);
+    test_result(ptr != NULL, "my_realloc(NULL, 100) works like my_malloc");
     if (ptr) {
-        strcpy(ptr, "REALLOC_NAME NULL test");
-        test_result(strcmp(ptr, "REALLOC_NAME NULL test") == 0, "Write after REALLOC_NAME(NULL)");
+        strcpy(ptr, "my_realloc NULL test");
+        test_result(strcmp(ptr, "my_realloc NULL test") == 0, "Write after my_realloc(NULL)");
     }
     
-    // REALLOC_NAME(ptr, 0) = FREE_NAME(ptr) + return implementation-defined
-    void *result = REALLOC_NAME(ptr, 0);
-    test_result(1, "REALLOC_NAME(ptr, 0) completes without crash");
-    if (result) FREE_NAME(result);
+    // my_realloc(ptr, 0) = my_free(ptr) + return implementation-defined
+    void *result = my_realloc(ptr, 0);
+    test_result(1, "my_realloc(ptr, 0) completes without crash");
+    if (result) my_free(result);
     
-    // REALLOC_NAME même taille
-    ptr = MALLOC_NAME(100);
+    // my_realloc même taille
+    ptr = my_malloc(100);
     if (ptr) {
         strcpy(ptr, "Same size test");
         char *old_ptr = ptr;
-        ptr = REALLOC_NAME(ptr, 100);
-        test_result(ptr != NULL, "REALLOC_NAME same size succeeds");
-        test_result(strcmp(ptr, "Same size test") == 0, "Data preserved same size REALLOC_NAME");
-        test_result(old_ptr == ptr, "Pointer preserved same size REALLOC_NAME");
-        FREE_NAME(ptr);
+        ptr = my_realloc(ptr, 100);
+        test_result(ptr != NULL, "my_realloc same size succeeds");
+        test_result(strcmp(ptr, "Same size test") == 0, "Data preserved same size my_realloc");
+        test_result(old_ptr == ptr, "Pointer preserved same size my_realloc");
+        my_free(ptr);
     }
 }
 
@@ -343,7 +344,7 @@ void test_multiple_allocations() {
     // Allouer beaucoup de blocs de tailles variées
     for (int i = 0; i < num_allocs; i++) {
         size_t size = (i % 3 == 0) ? 32 : (i % 3 == 1) ? 512 : 2048;
-        ptrs[i] = MALLOC_NAME(size);
+        ptrs[i] = my_malloc(size);
         if (ptrs[i]) {
             success_count++;
             // Écrire des données pour tester
@@ -371,27 +372,27 @@ void test_multiple_allocations() {
     // Libérer tous les blocs
     for (int i = 0; i < num_allocs; i++) {
         if (ptrs[i]) {
-            FREE_NAME(ptrs[i]);
+            my_free(ptrs[i]);
         }
     }
 }
 
-void test_stress_REALLOC_NAME() {
-    TEST_SECTION("STRESS REALLOC_NAME TEST");
+void test_stress_my_realloc() {
+    TEST_SECTION("STRESS my_realloc TEST");
     
-    char *ptr = MALLOC_NAME(16);
+    char *ptr = my_malloc(16);
     test_result(ptr != NULL, "Initial allocation for stress test");
     
     if (ptr) {
         strcpy(ptr, "Start");
         
-        // Série de REALLOC_NAME avec des tailles croissantes et décroissantes
+        // Série de my_realloc avec des tailles croissantes et décroissantes
         size_t sizes[] = {32, 64, 128, 256, 512, 1024, 2048, 4096, 2048, 1024, 512, 256, 128, 64, 32, 16};
         int num_sizes = sizeof(sizes) / sizeof(sizes[0]);
         int all_success = 1;
         
         for (int i = 0; i < num_sizes; i++) {
-            ptr = REALLOC_NAME(ptr, sizes[i]);
+            ptr = my_realloc(ptr, sizes[i]);
             if (!ptr) {
                 all_success = 0;
                 break;
@@ -404,9 +405,9 @@ void test_stress_REALLOC_NAME() {
             }
         }
         
-        test_result(all_success, "Stress REALLOC_NAME sequence succeeds");
+        test_result(all_success, "Stress my_realloc sequence succeeds");
         
-        if (ptr) FREE_NAME(ptr);
+        if (ptr) my_free(ptr);
     }
 }
 
@@ -414,15 +415,15 @@ void test_boundary_values() {
     TEST_SECTION("BOUNDARY VALUES TEST");
     
     // Tester les limites exactes entre catégories
-    void *tiny_max = MALLOC_NAME(128);      // Max TINY
-    void *small_min = MALLOC_NAME(129);     // Min SMALL
-    void *small_max = MALLOC_NAME(1024);    // Max SMALL
-    void *large_min = MALLOC_NAME(1025);    // Min LARGE
+    void *tiny_max = my_malloc(128);      // Max TINY
+    void *small_min = my_malloc(129);     // Min SMALL
+    void *small_max = my_malloc(1024);    // Max SMALL
+    void *large_min = my_malloc(1025);    // Min LARGE
     
-    test_result(tiny_max != NULL, "MALLOC_NAME(128) - TINY max boundary");
-    test_result(small_min != NULL, "MALLOC_NAME(129) - SMALL min boundary");
-    test_result(small_max != NULL, "MALLOC_NAME(1024) - SMALL max boundary");
-    test_result(large_min != NULL, "MALLOC_NAME(1025) - LARGE min boundary");
+    test_result(tiny_max != NULL, "my_malloc(128) - TINY max boundary");
+    test_result(small_min != NULL, "my_malloc(129) - SMALL min boundary");
+    test_result(small_max != NULL, "my_malloc(1024) - SMALL max boundary");
+    test_result(large_min != NULL, "my_malloc(1025) - LARGE min boundary");
     
     // Vérifier les alignements aux limites
     test_result(((uintptr_t)tiny_max % 8) == 0, "TINY max boundary aligned");
@@ -432,24 +433,24 @@ void test_boundary_values() {
     
     
     
-    FREE_NAME(tiny_max); FREE_NAME(small_min); 
-    FREE_NAME(small_max); FREE_NAME(large_min);
+    my_free(tiny_max); my_free(small_min); 
+    my_free(small_max); my_free(large_min);
 }
 
-void test_FREE_NAME_edge_cases() {
-    TEST_SECTION("FREE_NAME EDGE CASES");
+void test_my_free_edge_cases() {
+    TEST_SECTION("my_free EDGE CASES");
     
-    // FREE_NAME(NULL) doit être sans effet
-    FREE_NAME(NULL);
-    test_result(1, "FREE_NAME(NULL) doesn't crash");
+    // my_free(NULL) doit être sans effet
+    my_free(NULL);
+    test_result(1, "my_free(NULL) doesn't crash");
     
-    // Double FREE_NAME - devrait être détecté si implémenté
-    void *ptr = MALLOC_NAME(100);
+    // Double my_free - devrait être détecté si implémenté
+    void *ptr = my_malloc(100);
     if (ptr) {
-        strcpy((char*)ptr, "Double FREE_NAME test");
-        FREE_NAME(ptr);
-        printf("Note: Uncomment next line to test double-FREE_NAME detection\n");
-        // FREE_NAME(ptr); // Décommenter pour tester la détection de double FREE_NAME
+        strcpy((char*)ptr, "Double my_free test");
+        my_free(ptr);
+        printf("Note: Uncomment next line to test double-my_free detection\n");
+        // my_free(ptr); // Décommenter pour tester la détection de double my_free
     }
 }
 
@@ -461,7 +462,7 @@ void test_memory_patterns() {
     char patterns[] = {0x00, 0xFF, 0xAA, 0x55, 0xCC};
     
     for (int i = 0; i < 5; i++) {
-        ptrs[i] = MALLOC_NAME(256);
+        ptrs[i] = my_malloc(256);
         if (ptrs[i]) {
             memset(ptrs[i], patterns[i], 256);
         }
@@ -485,27 +486,27 @@ void test_memory_patterns() {
     
     // Nettoyer
     for (int i = 0; i < 5; i++) {
-        if (ptrs[i]) FREE_NAME(ptrs[i]);
+        if (ptrs[i]) my_free(ptrs[i]);
     }
 }
 
-void test_CALLOC_NAME_basic() {
-    TEST_SECTION("CALLOC_NAME BASIC TESTS");
+void test_my_calloc_basic() {
+    TEST_SECTION("my_calloc BASIC TESTS");
     
-    // Test 1: CALLOC_NAME(0, size) et CALLOC_NAME(nmemb, 0)
-    void *p1 = CALLOC_NAME(0, 10);
-    void *p2 = CALLOC_NAME(10, 0);
-    void *p3 = CALLOC_NAME(0, 0);
-    test_result(p1 != NULL || p1 == NULL, "CALLOC_NAME(0, 10) returns valid result");
-    test_result(p2 != NULL || p2 == NULL, "CALLOC_NAME(10, 0) returns valid result");
-    test_result(p3 != NULL || p3 == NULL, "CALLOC_NAME(0, 0) returns valid result");
-    if (p1) FREE_NAME(p1);
-    if (p2) FREE_NAME(p2);
-    if (p3) FREE_NAME(p3);
+    // Test 1: my_calloc(0, size) et my_calloc(nmemb, 0)
+    void *p1 = my_calloc(0, 10);
+    void *p2 = my_calloc(10, 0);
+    void *p3 = my_calloc(0, 0);
+    test_result(p1 != NULL || p1 == NULL, "my_calloc(0, 10) returns valid result");
+    test_result(p2 != NULL || p2 == NULL, "my_calloc(10, 0) returns valid result");
+    test_result(p3 != NULL || p3 == NULL, "my_calloc(0, 0) returns valid result");
+    if (p1) my_free(p1);
+    if (p2) my_free(p2);
+    if (p3) my_free(p3);
     
-    // Test 2: CALLOC_NAME simple avec vérification de zéro
-    char *ptr = CALLOC_NAME(10, sizeof(char));
-    test_result(ptr != NULL, "CALLOC_NAME(10, sizeof(char)) succeeds");
+    // Test 2: my_calloc simple avec vérification de zéro
+    char *ptr = my_calloc(10, sizeof(char));
+    test_result(ptr != NULL, "my_calloc(10, sizeof(char)) succeeds");
     
     if (ptr) {
         int all_zero = 1;
@@ -515,14 +516,14 @@ void test_CALLOC_NAME_basic() {
                 break;
             }
         }
-        test_result(all_zero, "CALLOC_NAME initializes memory to zero");
-        test_result(((uintptr_t)ptr % 8) == 0, "CALLOC_NAME result is 8-byte aligned");
-        FREE_NAME(ptr);
+        test_result(all_zero, "my_calloc initializes memory to zero");
+        test_result(((uintptr_t)ptr % 8) == 0, "my_calloc result is 8-byte aligned");
+        my_free(ptr);
     }
     
-    // Test 3: CALLOC_NAME avec différentes tailles
-    int *int_arr = CALLOC_NAME(100, sizeof(int));
-    test_result(int_arr != NULL, "CALLOC_NAME(100, sizeof(int)) succeeds");
+    // Test 3: my_calloc avec différentes tailles
+    int *int_arr = my_calloc(100, sizeof(int));
+    test_result(int_arr != NULL, "my_calloc(100, sizeof(int)) succeeds");
     if (int_arr) {
         int all_zero = 1;
         for (int i = 0; i < 100; i++) {
@@ -531,13 +532,13 @@ void test_CALLOC_NAME_basic() {
                 break;
             }
         }
-        test_result(all_zero, "CALLOC_NAME int array initialized to zero");
-        FREE_NAME(int_arr);
+        test_result(all_zero, "my_calloc int array initialized to zero");
+        my_free(int_arr);
     }
     
-    // Test 4: CALLOC_NAME TINY
-    char *tiny = CALLOC_NAME(64, 1);
-    test_result(tiny != NULL, "CALLOC_NAME TINY (64 bytes) succeeds");
+    // Test 4: my_calloc TINY
+    char *tiny = my_calloc(64, 1);
+    test_result(tiny != NULL, "my_calloc TINY (64 bytes) succeeds");
     if (tiny) {
         int all_zero = 1;
         for (int i = 0; i < 64; i++) {
@@ -546,19 +547,19 @@ void test_CALLOC_NAME_basic() {
                 break;
             }
         }
-        test_result(all_zero, "CALLOC_NAME TINY initialized to zero");
-        FREE_NAME(tiny);
+        test_result(all_zero, "my_calloc TINY initialized to zero");
+        my_free(tiny);
     }
     
     
 }
 
-void test_CALLOC_NAME_sizes() {
-    TEST_SECTION("CALLOC_NAME SIZE CATEGORIES");
+void test_my_calloc_sizes() {
+    TEST_SECTION("my_calloc SIZE CATEGORIES");
     
     // Test TINY (≤ 128 bytes)
-    char *tiny = CALLOC_NAME(32, 4); // 128 bytes exactly
-    test_result(tiny != NULL, "CALLOC_NAME TINY boundary (32*4=128) succeeds");
+    char *tiny = my_calloc(32, 4); // 128 bytes exactly
+    test_result(tiny != NULL, "my_calloc TINY boundary (32*4=128) succeeds");
     if (tiny) {
         int all_zero = 1;
         for (int i = 0; i < 128; i++) {
@@ -567,13 +568,13 @@ void test_CALLOC_NAME_sizes() {
                 break;
             }
         }
-        test_result(all_zero, "CALLOC_NAME TINY boundary zeroed");
-        FREE_NAME(tiny);
+        test_result(all_zero, "my_calloc TINY boundary zeroed");
+        my_free(tiny);
     }
     
     // Test SMALL (129-1024 bytes)
-    short *small = CALLOC_NAME(200, sizeof(short)); // 400 bytes
-    test_result(small != NULL, "CALLOC_NAME SMALL (200*2=400) succeeds");
+    short *small = my_calloc(200, sizeof(short)); // 400 bytes
+    test_result(small != NULL, "my_calloc SMALL (200*2=400) succeeds");
     if (small) {
         int all_zero = 1;
         for (int i = 0; i < 200; i++) {
@@ -582,13 +583,13 @@ void test_CALLOC_NAME_sizes() {
                 break;
             }
         }
-        test_result(all_zero, "CALLOC_NAME SMALL zeroed");
-        FREE_NAME(small);
+        test_result(all_zero, "my_calloc SMALL zeroed");
+        my_free(small);
     }
     
     // Test LARGE (> 1024 bytes)
-    long *large = CALLOC_NAME(300, sizeof(long)); // 2400 bytes sur 64-bit
-    test_result(large != NULL, "CALLOC_NAME LARGE (300*8=2400) succeeds");
+    long *large = my_calloc(300, sizeof(long)); // 2400 bytes sur 64-bit
+    test_result(large != NULL, "my_calloc LARGE (300*8=2400) succeeds");
     if (large) {
         int all_zero = 1;
         for (int i = 0; i < 300; i++) {
@@ -597,41 +598,41 @@ void test_CALLOC_NAME_sizes() {
                 break;
             }
         }
-        test_result(all_zero, "CALLOC_NAME LARGE zeroed");
-        FREE_NAME(large);
+        test_result(all_zero, "my_calloc LARGE zeroed");
+        my_free(large);
     }
     
     
 }
 
-void test_CALLOC_NAME_overflow() {
-    TEST_SECTION("CALLOC_NAME OVERFLOW TESTS");
+void test_my_calloc_overflow() {
+    TEST_SECTION("my_calloc OVERFLOW TESTS");
     
     // Test overflow detection
     size_t huge = SIZE_MAX / 2;
-    void *overflow1 = CALLOC_NAME(huge, huge);
-    test_result(overflow1 == NULL, "CALLOC_NAME overflow detection (huge * huge)");
-    if (overflow1) FREE_NAME(overflow1);
+    void *overflow1 = my_calloc(huge, huge);
+    test_result(overflow1 == NULL, "my_calloc overflow detection (huge * huge)");
+    if (overflow1) my_free(overflow1);
     
     // Test autre cas d'overflow
-    void *overflow2 = CALLOC_NAME(SIZE_MAX, 2);
-    test_result(overflow2 == NULL, "CALLOC_NAME overflow detection (SIZE_MAX * 2)");
-    if (overflow2) FREE_NAME(overflow2);
+    void *overflow2 = my_calloc(SIZE_MAX, 2);
+    test_result(overflow2 == NULL, "my_calloc overflow detection (SIZE_MAX * 2)");
+    if (overflow2) my_free(overflow2);
     
     // Test cas limite mais valide
-    void *valid = CALLOC_NAME(1000, 1000); // 1MB
-    test_result(valid != NULL, "CALLOC_NAME large but valid allocation");
+    void *valid = my_calloc(1000, 1000); // 1MB
+    test_result(valid != NULL, "my_calloc large but valid allocation");
     if (valid) {
         // Vérifier quelques positions aléatoirement
         char *ptr = (char*)valid;
         int sample_zero = (ptr[0] == 0 && ptr[500000] == 0 && ptr[999999] == 0);
-        test_result(sample_zero, "CALLOC_NAME large allocation properly zeroed");
-        FREE_NAME(valid);
+        test_result(sample_zero, "my_calloc large allocation properly zeroed");
+        my_free(valid);
     }
 }
 
-void test_CALLOC_NAME_patterns() {
-    TEST_SECTION("CALLOC_NAME PATTERN TESTS");
+void test_my_calloc_patterns() {
+    TEST_SECTION("my_calloc PATTERN TESTS");
     
     // Test avec structures complexes
     struct test_struct {
@@ -641,8 +642,8 @@ void test_CALLOC_NAME_patterns() {
         void *ptr;
     };
     
-    struct test_struct *structs = CALLOC_NAME(10, sizeof(struct test_struct));
-    test_result(structs != NULL, "CALLOC_NAME struct array succeeds");
+    struct test_struct *structs = my_calloc(10, sizeof(struct test_struct));
+    test_result(structs != NULL, "my_calloc struct array succeeds");
     
     if (structs) {
         int all_zero = 1;
@@ -658,14 +659,14 @@ void test_CALLOC_NAME_patterns() {
                 }
             }
         }
-        test_result(all_zero, "CALLOC_NAME struct array properly zeroed");
-        FREE_NAME(structs);
+        test_result(all_zero, "my_calloc struct array properly zeroed");
+        my_free(structs);
     }
     
-    // Test CALLOC_NAME avec différents patterns de taille
+    // Test my_calloc avec différents patterns de taille
     for (int size = 1; size <= 10; size++) {
-        void *ptr = CALLOC_NAME(size, 100);
-        test_result(ptr != NULL, "CALLOC_NAME variable sizes succeeds");
+        void *ptr = my_calloc(size, 100);
+        test_result(ptr != NULL, "my_calloc variable sizes succeeds");
         if (ptr) {
             char *cptr = (char*)ptr;
             int is_zero = 1;
@@ -675,38 +676,38 @@ void test_CALLOC_NAME_patterns() {
                     break;
                 }
             }
-            test_result(is_zero, "CALLOC_NAME variable sizes properly zeroed");
-            FREE_NAME(ptr);
+            test_result(is_zero, "my_calloc variable sizes properly zeroed");
+            my_free(ptr);
         }
     }
 }
 
-void test_CALLOC_NAME_extreme() {
-    TEST_SECTION("CALLOC_NAME EXTREME TESTS");
+void test_my_calloc_extreme() {
+    TEST_SECTION("my_calloc EXTREME TESTS");
     
-    // Test CALLOC_NAME(1, very_large)
-    void *big1 = CALLOC_NAME(1, 1024 * 1024); // 1MB
-    test_result(big1 != NULL, "CALLOC_NAME(1, 1MB) succeeds");
+    // Test my_calloc(1, very_large)
+    void *big1 = my_calloc(1, 1024 * 1024); // 1MB
+    test_result(big1 != NULL, "my_calloc(1, 1MB) succeeds");
     if (big1) {
         char *ptr = (char*)big1;
         int samples_zero = (ptr[0] == 0 && ptr[512*1024] == 0 && ptr[1024*1024-1] == 0);
-        test_result(samples_zero, "CALLOC_NAME(1, 1MB) properly zeroed");
-        FREE_NAME(big1);
+        test_result(samples_zero, "my_calloc(1, 1MB) properly zeroed");
+        my_free(big1);
     }
     
-    // Test CALLOC_NAME(very_large, 1)
-    void *big2 = CALLOC_NAME(1024 * 1024, 1); // 1MB
-    test_result(big2 != NULL, "CALLOC_NAME(1MB, 1) succeeds");
+    // Test my_calloc(very_large, 1)
+    void *big2 = my_calloc(1024 * 1024, 1); // 1MB
+    test_result(big2 != NULL, "my_calloc(1MB, 1) succeeds");
     if (big2) {
         char *ptr = (char*)big2;
         int samples_zero = (ptr[0] == 0 && ptr[512*1024] == 0 && ptr[1024*1024-1] == 0);
-        test_result(samples_zero, "CALLOC_NAME(1MB, 1) properly zeroed");
-        FREE_NAME(big2);
+        test_result(samples_zero, "my_calloc(1MB, 1) properly zeroed");
+        my_free(big2);
     }
     
-    // Test CALLOC_NAME avec des tailles premières
-    void *prime = CALLOC_NAME(97, 101); // 9797 bytes
-    test_result(prime != NULL, "CALLOC_NAME(97, 101) prime numbers succeeds");
+    // Test my_calloc avec des tailles premières
+    void *prime = my_calloc(97, 101); // 9797 bytes
+    test_result(prime != NULL, "my_calloc(97, 101) prime numbers succeeds");
     if (prime) {
         char *ptr = (char*)prime;
         int all_zero = 1;
@@ -716,19 +717,19 @@ void test_CALLOC_NAME_extreme() {
                 break;
             }
         }
-        test_result(all_zero, "CALLOC_NAME prime numbers properly zeroed");
-        FREE_NAME(prime);
+        test_result(all_zero, "my_calloc prime numbers properly zeroed");
+        my_free(prime);
     }
     
     
 }
 
-void test_REALLOCARRAY_NAME_basic() {
-    TEST_SECTION("REALLOCARRAY_NAME BASIC TESTS");
+void test_my_reallocarray_basic() {
+    TEST_SECTION("my_reallocarray BASIC TESTS");
     
-    // Test 1: REALLOCARRAY_NAME(NULL, nmemb, size) = CALLOC_NAME(nmemb, size)
-    int *arr = REALLOCARRAY_NAME(NULL, 10, sizeof(int));
-    test_result(arr != NULL, "REALLOCARRAY_NAME(NULL, 10, sizeof(int)) succeeds");
+    // Test 1: my_reallocarray(NULL, nmemb, size) = my_calloc(nmemb, size)
+    int *arr = my_reallocarray(NULL, 10, sizeof(int));
+    test_result(arr != NULL, "my_reallocarray(NULL, 10, sizeof(int)) succeeds");
     
     if (arr) {
         // Initialiser avec des valeurs
@@ -744,11 +745,11 @@ void test_REALLOCARRAY_NAME_basic() {
                 break;
             }
         }
-        test_result(values_ok, "REALLOCARRAY_NAME initial data integrity");
+        test_result(values_ok, "my_reallocarray initial data integrity");
         
         // Test 2: agrandir le tableau
-        arr = REALLOCARRAY_NAME(arr, 20, sizeof(int));
-        test_result(arr != NULL, "REALLOCARRAY_NAME expand (10->20) succeeds");
+        arr = my_reallocarray(arr, 20, sizeof(int));
+        test_result(arr != NULL, "my_reallocarray expand (10->20) succeeds");
         
         if (arr) {
             // Vérifier que les anciennes données sont préservées
@@ -759,7 +760,7 @@ void test_REALLOCARRAY_NAME_basic() {
                     break;
                 }
             }
-            test_result(old_data_ok, "REALLOCARRAY_NAME preserves old data on expand");
+            test_result(old_data_ok, "my_reallocarray preserves old data on expand");
             
             // Initialiser les nouveaux éléments
             for (int i = 10; i < 20; i++) {
@@ -767,8 +768,8 @@ void test_REALLOCARRAY_NAME_basic() {
             }
             
             // Test 3: réduire le tableau
-            arr = REALLOCARRAY_NAME(arr, 15, sizeof(int));
-            test_result(arr != NULL, "REALLOCARRAY_NAME shrink (20->15) succeeds");
+            arr = my_reallocarray(arr, 15, sizeof(int));
+            test_result(arr != NULL, "my_reallocarray shrink (20->15) succeeds");
             
             if (arr) {
                 // Vérifier les données restantes
@@ -785,9 +786,9 @@ void test_REALLOCARRAY_NAME_basic() {
                         break;
                     }
                 }
-                test_result(remaining_data_ok, "REALLOCARRAY_NAME preserves data on shrink");
+                test_result(remaining_data_ok, "my_reallocarray preserves data on shrink");
                 
-                FREE_NAME(arr);
+                my_free(arr);
             }
         }
     }
@@ -795,57 +796,57 @@ void test_REALLOCARRAY_NAME_basic() {
     
 }
 
-void test_REALLOCARRAY_NAME_overflow() {
-    TEST_SECTION("REALLOCARRAY_NAME OVERFLOW TESTS");
+void test_my_reallocarray_overflow() {
+    TEST_SECTION("my_reallocarray OVERFLOW TESTS");
     
     // Test overflow detection avec un pointeur existant
-    void *ptr = CALLOC_NAME(100, 1);
+    void *ptr = my_calloc(100, 1);
     if (ptr) {
         strcpy((char*)ptr, "Test data");
         printf("je susi la\n");
         // Tentative d'overflow
-        void *overflow1 = REALLOCARRAY_NAME(ptr, SIZE_MAX/2, SIZE_MAX/2);
-        test_result(overflow1 == NULL, "REALLOCARRAY_NAME overflow detection (huge*huge)");
+        void *overflow1 = my_reallocarray(ptr, SIZE_MAX/2, SIZE_MAX/2);
+        test_result(overflow1 == NULL, "my_reallocarray overflow detection (huge*huge)");
         
-        // Le pointeur original doit rester valide si REALLOCARRAY_NAME échoue
+        // Le pointeur original doit rester valide si my_reallocarray échoue
         if (overflow1 == NULL) {
             test_result(strcmp((char*)ptr, "Test data") == 0, "Original pointer valid after overflow");
         }
         
         // Test autre cas d'overflow
-        void *overflow2 = REALLOCARRAY_NAME(ptr, SIZE_MAX, 2);
-        test_result(overflow2 == NULL, "REALLOCARRAY_NAME overflow detection (SIZE_MAX*2)");
+        void *overflow2 = my_reallocarray(ptr, SIZE_MAX, 2);
+        test_result(overflow2 == NULL, "my_reallocarray overflow detection (SIZE_MAX*2)");
         if (overflow2 == NULL) {
             test_result(strcmp((char*)ptr, "Test data") == 0, "Original pointer still valid");
         }
         
-        FREE_NAME(ptr);
+        my_free(ptr);
     }
     
-    // Test REALLOCARRAY_NAME(NULL, overflow_values)
-    void *overflow3 = REALLOCARRAY_NAME(NULL, SIZE_MAX, SIZE_MAX);
-    test_result(overflow3 == NULL, "REALLOCARRAY_NAME(NULL, overflow) fails safely");
-    if (overflow3) FREE_NAME(overflow3);
+    // Test my_reallocarray(NULL, overflow_values)
+    void *overflow3 = my_reallocarray(NULL, SIZE_MAX, SIZE_MAX);
+    test_result(overflow3 == NULL, "my_reallocarray(NULL, overflow) fails safely");
+    if (overflow3) my_free(overflow3);
     
     // Test cas limite valide
-    void *valid = REALLOCARRAY_NAME(NULL, 1000, 1000); // 1MB
-    test_result(valid != NULL, "REALLOCARRAY_NAME large but valid allocation");
-    if (valid) FREE_NAME(valid);
+    void *valid = my_reallocarray(NULL, 1000, 1000); // 1MB
+    test_result(valid != NULL, "my_reallocarray large but valid allocation");
+    if (valid) my_free(valid);
 }
 
-void test_REALLOCARRAY_NAME_categories() {
-    TEST_SECTION("REALLOCARRAY_NAME SIZE CATEGORIES");
+void test_my_reallocarray_categories() {
+    TEST_SECTION("my_reallocarray SIZE CATEGORIES");
     
     // TINY -> SMALL
-    char *ptr = REALLOCARRAY_NAME(NULL, 64, 1); // 64 bytes TINY
-    test_result(ptr != NULL, "REALLOCARRAY_NAME TINY (64*1) succeeds");
+    char *ptr = my_reallocarray(NULL, 64, 1); // 64 bytes TINY
+    test_result(ptr != NULL, "my_reallocarray TINY (64*1) succeeds");
     
     if (ptr) {
         memset(ptr, 'T', 64);
         
         // Passer à SMALL
-        ptr = REALLOCARRAY_NAME(ptr, 200, 1); // 200 bytes SMALL
-        test_result(ptr != NULL, "REALLOCARRAY_NAME TINY->SMALL succeeds");
+        ptr = my_reallocarray(ptr, 200, 1); // 200 bytes SMALL
+        test_result(ptr != NULL, "my_reallocarray TINY->SMALL succeeds");
         
         if (ptr) {
             int data_ok = 1;
@@ -855,14 +856,14 @@ void test_REALLOCARRAY_NAME_categories() {
                     break;
                 }
             }
-            test_result(data_ok, "REALLOCARRAY_NAME TINY->SMALL preserves data");
+            test_result(data_ok, "my_reallocarray TINY->SMALL preserves data");
             
             // Remplir le reste
             memset(ptr + 64, 'S', 136);
             
             // Passer à LARGE
-            ptr = REALLOCARRAY_NAME(ptr, 2048, 1); // 2048 bytes LARGE
-            test_result(ptr != NULL, "REALLOCARRAY_NAME SMALL->LARGE succeeds");
+            ptr = my_reallocarray(ptr, 2048, 1); // 2048 bytes LARGE
+            test_result(ptr != NULL, "my_reallocarray SMALL->LARGE succeeds");
             
             if (ptr) {
                 int data_ok = 1;
@@ -878,11 +879,11 @@ void test_REALLOCARRAY_NAME_categories() {
                         break;
                     }
                 }
-                test_result(data_ok, "REALLOCARRAY_NAME SMALL->LARGE preserves data");
+                test_result(data_ok, "my_reallocarray SMALL->LARGE preserves data");
                 
                 // Test retour LARGE -> SMALL
-                ptr = REALLOCARRAY_NAME(ptr, 512, 1); // 512 bytes SMALL
-                test_result(ptr != NULL, "REALLOCARRAY_NAME LARGE->SMALL succeeds");
+                ptr = my_reallocarray(ptr, 512, 1); // 512 bytes SMALL
+                test_result(ptr != NULL, "my_reallocarray LARGE->SMALL succeeds");
                 
                 if (ptr) {
                     int data_ok = 1;
@@ -898,11 +899,11 @@ void test_REALLOCARRAY_NAME_categories() {
                             break;
                         }
                     }
-                    test_result(data_ok, "REALLOCARRAY_NAME LARGE->SMALL preserves data");
+                    test_result(data_ok, "my_reallocarray LARGE->SMALL preserves data");
                     
                     // Test retour SMALL -> TINY
-                    ptr = REALLOCARRAY_NAME(ptr, 100, 1); // 100 bytes TINY
-                    test_result(ptr != NULL, "REALLOCARRAY_NAME SMALL->TINY succeeds");
+                    ptr = my_reallocarray(ptr, 100, 1); // 100 bytes TINY
+                    test_result(ptr != NULL, "my_reallocarray SMALL->TINY succeeds");
                     
                     if (ptr) {
                         int data_ok = 1;
@@ -918,9 +919,9 @@ void test_REALLOCARRAY_NAME_categories() {
                                 break;
                             }
                         }
-                        test_result(data_ok, "REALLOCARRAY_NAME SMALL->TINY preserves data");
+                        test_result(data_ok, "my_reallocarray SMALL->TINY preserves data");
                         
-                        FREE_NAME(ptr);
+                        my_free(ptr);
                     }
                 }
             }
@@ -928,46 +929,46 @@ void test_REALLOCARRAY_NAME_categories() {
     }
 }
 
-void test_REALLOCARRAY_NAME_edge_cases() {
-    TEST_SECTION("REALLOCARRAY_NAME EDGE CASES");
+void test_my_reallocarray_edge_cases() {
+    TEST_SECTION("my_reallocarray EDGE CASES");
     
-    // Test REALLOCARRAY_NAME(ptr, 0, size) 
-    void *ptr = CALLOC_NAME(100, 1);
+    // Test my_reallocarray(ptr, 0, size) 
+    void *ptr = my_calloc(100, 1);
     if (ptr) {
         strcpy((char*)ptr, "Edge test");
         
-        void *result1 = REALLOCARRAY_NAME(ptr, 0, 10);
-        test_result(result1 != NULL || result1 == NULL, "REALLOCARRAY_NAME(ptr, 0, 10) returns valid result");
+        void *result1 = my_reallocarray(ptr, 0, 10);
+        test_result(result1 != NULL || result1 == NULL, "my_reallocarray(ptr, 0, 10) returns valid result");
         
-            FREE_NAME(result1);
+            my_free(result1);
             ptr = NULL; // ptr a été libéré
     }
     
-    // Test REALLOCARRAY_NAME(ptr, nmemb, 0)
+    // Test my_reallocarray(ptr, nmemb, 0)
     if (!ptr) {
-        ptr = CALLOC_NAME(100, 1);
+        ptr = my_calloc(100, 1);
         strcpy((char*)ptr, "Edge test 2");
     }
     
     if (ptr) {
-        void *result2 = REALLOCARRAY_NAME(ptr, 10, 0);
-        test_result(result2 != NULL || result2 == NULL, "REALLOCARRAY_NAME(ptr, 10, 0) returns valid result");
+        void *result2 = my_reallocarray(ptr, 10, 0);
+        test_result(result2 != NULL || result2 == NULL, "my_reallocarray(ptr, 10, 0) returns valid result");
         
         if (result2) {
-            FREE_NAME(result2);
+            my_free(result2);
         }
 		ptr = NULL;
     }
     
-    // Test REALLOCARRAY_NAME same size
-    double *darr = REALLOCARRAY_NAME(NULL, 50, sizeof(double));
+    // Test my_reallocarray same size
+    double *darr = my_reallocarray(NULL, 50, sizeof(double));
     if (darr) {
         for (int i = 0; i < 50; i++) {
             darr[i] = i * 3.14;
         }
         
-        double *same = REALLOCARRAY_NAME(darr, 50, sizeof(double));
-        test_result(same != NULL, "REALLOCARRAY_NAME same size succeeds");
+        double *same = my_reallocarray(darr, 50, sizeof(double));
+        test_result(same != NULL, "my_reallocarray same size succeeds");
         
         if (same) {
             int data_ok = 1;
@@ -977,23 +978,23 @@ void test_REALLOCARRAY_NAME_edge_cases() {
                     break;
                 }
             }
-            test_result(data_ok, "REALLOCARRAY_NAME same size preserves data");
-            FREE_NAME(same);
+            test_result(data_ok, "my_reallocarray same size preserves data");
+            my_free(same);
         }
     }
     
-    // Test REALLOCARRAY_NAME(NULL, 1, 1)
-    void *minimal = REALLOCARRAY_NAME(NULL, 1, 1);
-    test_result(minimal != NULL, "REALLOCARRAY_NAME(NULL, 1, 1) succeeds");
+    // Test my_reallocarray(NULL, 1, 1)
+    void *minimal = my_reallocarray(NULL, 1, 1);
+    test_result(minimal != NULL, "my_reallocarray(NULL, 1, 1) succeeds");
     if (minimal) {
         *(char*)minimal = 'X';
-        test_result(*(char*)minimal == 'X', "REALLOCARRAY_NAME minimal allocation works");
-        FREE_NAME(minimal);
+        test_result(*(char*)minimal == 'X', "my_reallocarray minimal allocation works");
+        my_free(minimal);
     }
 }
 
-void test_REALLOCARRAY_NAME_stress() {
-    TEST_SECTION("REALLOCARRAY_NAME STRESS TEST");
+void test_my_reallocarray_stress() {
+    TEST_SECTION("my_reallocarray STRESS TEST");
     
     // Tableau qui grandit et rétrécit de façon dynamique
     int *dynamic_arr = NULL;
@@ -1007,7 +1008,7 @@ void test_REALLOCARRAY_NAME_stress() {
     for (int round = 0; round < num_sizes; round++) {
         size_t new_size = sizes[round];
         
-        dynamic_arr = REALLOCARRAY_NAME(dynamic_arr, new_size, sizeof(int));
+        dynamic_arr = my_reallocarray(dynamic_arr, new_size, sizeof(int));
         if (!dynamic_arr) {
             stress_ok = 0;
             break;
@@ -1034,15 +1035,15 @@ void test_REALLOCARRAY_NAME_stress() {
         current_size = new_size;
     }
     
-    test_result(stress_ok, "REALLOCARRAY_NAME stress test completes");
+    test_result(stress_ok, "my_reallocarray stress test completes");
     
     if (dynamic_arr) {
-        FREE_NAME(dynamic_arr);
+        my_free(dynamic_arr);
     }
 }
 
-void test_REALLOCARRAY_NAME_data_integrity() {
-    TEST_SECTION("REALLOCARRAY_NAME DATA INTEGRITY");
+void test_my_reallocarray_data_integrity() {
+    TEST_SECTION("my_reallocarray DATA INTEGRITY");
     
     // Test avec un pattern spécifique
     struct data_block {
@@ -1051,8 +1052,8 @@ void test_REALLOCARRAY_NAME_data_integrity() {
         int checksum;
     };
     
-    struct data_block *blocks = REALLOCARRAY_NAME(NULL, 10, sizeof(struct data_block));
-    test_result(blocks != NULL, "REALLOCARRAY_NAME data blocks allocation");
+    struct data_block *blocks = my_reallocarray(NULL, 10, sizeof(struct data_block));
+    test_result(blocks != NULL, "my_reallocarray data blocks allocation");
     
     if (blocks) {
         // Initialiser avec un pattern reconnaissable
@@ -1063,8 +1064,8 @@ void test_REALLOCARRAY_NAME_data_integrity() {
         }
         
         // Agrandir le tableau
-        blocks = REALLOCARRAY_NAME(blocks, 20, sizeof(struct data_block));
-        test_result(blocks != NULL, "REALLOCARRAY_NAME data blocks expansion");
+        blocks = my_reallocarray(blocks, 20, sizeof(struct data_block));
+        test_result(blocks != NULL, "my_reallocarray data blocks expansion");
         
         if (blocks) {
             // Vérifier l'intégrité des données originales
@@ -1082,19 +1083,19 @@ void test_REALLOCARRAY_NAME_data_integrity() {
                 }
                 if (!integrity_ok) break;
             }
-            test_result(integrity_ok, "REALLOCARRAY_NAME preserves complex data structures");
+            test_result(integrity_ok, "my_reallocarray preserves complex data structures");
             
-            FREE_NAME(blocks);
+            my_free(blocks);
         }
     }
 }
 
-void test_CALLOC_NAME_REALLOCARRAY_NAME_interaction() {
-    TEST_SECTION("CALLOC_NAME + REALLOCARRAY_NAME INTERACTION");
+void test_my_calloc_my_reallocarray_interaction() {
+    TEST_SECTION("my_calloc + my_reallocarray INTERACTION");
     
-    // Créer un tableau avec CALLOC_NAME
-    long *arr = CALLOC_NAME(20, sizeof(long));
-    test_result(arr != NULL, "CALLOC_NAME(20, sizeof(long)) for interaction test");
+    // Créer un tableau avec my_calloc
+    long *arr = my_calloc(20, sizeof(long));
+    test_result(arr != NULL, "my_calloc(20, sizeof(long)) for interaction test");
     
     if (arr) {
         // Vérifier qu'il est à zéro
@@ -1105,16 +1106,16 @@ void test_CALLOC_NAME_REALLOCARRAY_NAME_interaction() {
                 break;
             }
         }
-        test_result(all_zero, "CALLOC_NAME result is zeroed before REALLOCARRAY_NAME");
+        test_result(all_zero, "my_calloc result is zeroed before my_reallocarray");
         
         // Modifier quelques valeurs
         for (int i = 0; i < 20; i++) {
             arr[i] = i * 100;
         }
         
-        // Utiliser REALLOCARRAY_NAME pour agrandir
-        arr = REALLOCARRAY_NAME(arr, 40, sizeof(long));
-        test_result(arr != NULL, "REALLOCARRAY_NAME after CALLOC_NAME succeeds");
+        // Utiliser my_reallocarray pour agrandir
+        arr = my_reallocarray(arr, 40, sizeof(long));
+        test_result(arr != NULL, "my_reallocarray after my_calloc succeeds");
         
         if (arr) {
             // Vérifier que les données originales sont préservées
@@ -1125,15 +1126,15 @@ void test_CALLOC_NAME_REALLOCARRAY_NAME_interaction() {
                     break;
                 }
             }
-            test_result(data_preserved, "REALLOCARRAY_NAME preserves CALLOC_NAME'd data");
+            test_result(data_preserved, "my_reallocarray preserves my_calloc'd data");
             
-            FREE_NAME(arr);
+            my_free(arr);
         }
     }
     
-    // Test inverse: REALLOCARRAY_NAME puis comparaison avec CALLOC_NAME
-    char *buf1 = REALLOCARRAY_NAME(NULL, 100, sizeof(char));
-    char *buf2 = CALLOC_NAME(100, sizeof(char));
+    // Test inverse: my_reallocarray puis comparaison avec my_calloc
+    char *buf1 = my_reallocarray(NULL, 100, sizeof(char));
+    char *buf2 = my_calloc(100, sizeof(char));
     
     if (buf1 && buf2) {
         // buf2 devrait être à zéro, buf1 pas nécessairement
@@ -1144,102 +1145,102 @@ void test_CALLOC_NAME_REALLOCARRAY_NAME_interaction() {
                 break;
             }
         }
-        test_result(buf2_zero, "CALLOC_NAME vs REALLOCARRAY_NAME: CALLOC_NAME is zeroed");
+        test_result(buf2_zero, "my_calloc vs my_reallocarray: my_calloc is zeroed");
         
-        FREE_NAME(buf1);
-        FREE_NAME(buf2);
+        my_free(buf1);
+        my_free(buf2);
     }
 }
 
-void test_REALLOCARRAY_NAME_boundary() {
-    TEST_SECTION("REALLOCARRAY_NAME BOUNDARY TESTS");
+void test_my_reallocarray_boundary() {
+    TEST_SECTION("my_reallocarray BOUNDARY TESTS");
     
     // Tests aux limites exactes des catégories
-    void *tiny_max = REALLOCARRAY_NAME(NULL, 128, 1); // Max TINY
-    void *small_min = REALLOCARRAY_NAME(NULL, 129, 1); // Min SMALL  
-    void *small_max = REALLOCARRAY_NAME(NULL, 1024, 1); // Max SMALL
-    void *large_min = REALLOCARRAY_NAME(NULL, 1025, 1); // Min LARGE
+    void *tiny_max = my_reallocarray(NULL, 128, 1); // Max TINY
+    void *small_min = my_reallocarray(NULL, 129, 1); // Min SMALL  
+    void *small_max = my_reallocarray(NULL, 1024, 1); // Max SMALL
+    void *large_min = my_reallocarray(NULL, 1025, 1); // Min LARGE
     
-    test_result(tiny_max != NULL, "REALLOCARRAY_NAME TINY max boundary (128)");
-    test_result(small_min != NULL, "REALLOCARRAY_NAME SMALL min boundary (129)");
-    test_result(small_max != NULL, "REALLOCARRAY_NAME SMALL max boundary (1024)");
-    test_result(large_min != NULL, "REALLOCARRAY_NAME LARGE min boundary (1025)");
+    test_result(tiny_max != NULL, "my_reallocarray TINY max boundary (128)");
+    test_result(small_min != NULL, "my_reallocarray SMALL min boundary (129)");
+    test_result(small_max != NULL, "my_reallocarray SMALL max boundary (1024)");
+    test_result(large_min != NULL, "my_reallocarray LARGE min boundary (1025)");
     
     // Test d'écriture dans chaque bloc
     if (tiny_max) {
         memset(tiny_max, 'T', 128);
         test_result(((char*)tiny_max)[127] == 'T', "TINY boundary block writable");
-        FREE_NAME(tiny_max);
+        my_free(tiny_max);
     }
     
     if (small_min) {
         memset(small_min, 'S', 129);
         test_result(((char*)small_min)[128] == 'S', "SMALL min boundary block writable");
-        FREE_NAME(small_min);
+        my_free(small_min);
     }
     
     if (small_max) {
         memset(small_max, 'M', 1024);
         test_result(((char*)small_max)[1023] == 'M', "SMALL max boundary block writable");
-        FREE_NAME(small_max);
+        my_free(small_max);
     }
     
     if (large_min) {
         memset(large_min, 'L', 1025);
         test_result(((char*)large_min)[1024] == 'L', "LARGE min boundary block writable");
-        FREE_NAME(large_min);
+        my_free(large_min);
     }
     
     
 }
 
-void test_STRDUP_NAME_basic() {
-    TEST_SECTION("STRDUP_NAME BASIC TESTS");
+void test_my_strdup_basic() {
+    TEST_SECTION("my_strdup BASIC TESTS");
     
     // Test 1: chaîne vide
-    char *empty = STRDUP_NAME("");
-    test_result(empty != NULL, "STRDUP_NAME(\"\") succeeds");
+    char *empty = my_strdup("");
+    test_result(empty != NULL, "my_strdup(\"\") succeeds");
     if (empty) {
-        test_result(strlen(empty) == 0, "STRDUP_NAME(\"\") returns empty string");
-        test_result(strcmp(empty, "") == 0, "STRDUP_NAME(\"\") content is correct");
-        test_result(((uintptr_t)empty % 8) == 0, "STRDUP_NAME(\"\") result is 8-byte aligned");
-        FREE_NAME(empty);
+        test_result(strlen(empty) == 0, "my_strdup(\"\") returns empty string");
+        test_result(strcmp(empty, "") == 0, "my_strdup(\"\") content is correct");
+        test_result(((uintptr_t)empty % 8) == 0, "my_strdup(\"\") result is 8-byte aligned");
+        my_free(empty);
     }
     
     // Test 2: chaîne simple
-    char *simple = STRDUP_NAME("Hello");
-    test_result(simple != NULL, "STRDUP_NAME(\"Hello\") succeeds");
+    char *simple = my_strdup("Hello");
+    test_result(simple != NULL, "my_strdup(\"Hello\") succeeds");
     if (simple) {
-        test_result(strlen(simple) == 5, "STRDUP_NAME(\"Hello\") length is correct");
-        test_result(strcmp(simple, "Hello") == 0, "STRDUP_NAME(\"Hello\") content is correct");
-        test_result(((uintptr_t)simple % 8) == 0, "STRDUP_NAME(\"Hello\") result is 8-byte aligned");
-        FREE_NAME(simple);
+        test_result(strlen(simple) == 5, "my_strdup(\"Hello\") length is correct");
+        test_result(strcmp(simple, "Hello") == 0, "my_strdup(\"Hello\") content is correct");
+        test_result(((uintptr_t)simple % 8) == 0, "my_strdup(\"Hello\") result is 8-byte aligned");
+        my_free(simple);
     }
     
     // Test 3: chaîne longue
-    char *long_str = STRDUP_NAME("This is a longer string for testing purposes");
-    test_result(long_str != NULL, "STRDUP_NAME(long string) succeeds");
+    char *long_str = my_strdup("This is a longer string for testing purposes");
+    test_result(long_str != NULL, "my_strdup(long string) succeeds");
     if (long_str) {
-        test_result(strlen(long_str) == 44, "STRDUP_NAME(long string) length is correct");
+        test_result(strlen(long_str) == 44, "my_strdup(long string) length is correct");
         test_result(strcmp(long_str, "This is a longer string for testing purposes") == 0, 
-                   "STRDUP_NAME(long string) content is correct");
-        FREE_NAME(long_str);
+                   "my_strdup(long string) content is correct");
+        my_free(long_str);
     }
     
     // Test 4: chaîne avec caractères spéciaux
-    char *special = STRDUP_NAME("Hello\tWorld\n\r\\\"");
-    test_result(special != NULL, "STRDUP_NAME(special chars) succeeds");
+    char *special = my_strdup("Hello\tWorld\n\r\\\"");
+    test_result(special != NULL, "my_strdup(special chars) succeeds");
     if (special) {
         test_result(strcmp(special, "Hello\tWorld\n\r\\\"") == 0, 
-                   "STRDUP_NAME(special chars) content is correct");
-        FREE_NAME(special);
+                   "my_strdup(special chars) content is correct");
+        my_free(special);
     }
     
     
 }
 
-void test_STRDUP_NAME_sizes() {
-    TEST_SECTION("STRDUP_NAME SIZE CATEGORIES");
+void test_my_strdup_sizes() {
+    TEST_SECTION("my_strdup SIZE CATEGORIES");
     
     // Test TINY (≤ 128 bytes)
     // Chaîne de 64 caractères (65 avec \0)
@@ -1247,13 +1248,13 @@ void test_STRDUP_NAME_sizes() {
     memset(tiny_source, 'A', 64);
     tiny_source[64] = '\0';
     
-    char *tiny = STRDUP_NAME(tiny_source);
-    test_result(tiny != NULL, "STRDUP_NAME TINY (64 chars) succeeds");
+    char *tiny = my_strdup(tiny_source);
+    test_result(tiny != NULL, "my_strdup TINY (64 chars) succeeds");
     if (tiny) {
-        test_result(strlen(tiny) == 64, "STRDUP_NAME TINY length correct");
-        test_result(strcmp(tiny, tiny_source) == 0, "STRDUP_NAME TINY content correct");
-        test_result(tiny[63] == 'A' && tiny[64] == '\0', "STRDUP_NAME TINY null termination");
-        FREE_NAME(tiny);
+        test_result(strlen(tiny) == 64, "my_strdup TINY length correct");
+        test_result(strcmp(tiny, tiny_source) == 0, "my_strdup TINY content correct");
+        test_result(tiny[63] == 'A' && tiny[64] == '\0', "my_strdup TINY null termination");
+        my_free(tiny);
     }
     
     // Chaîne exactement à la limite TINY (127 chars + \0 = 128 bytes)
@@ -1261,12 +1262,12 @@ void test_STRDUP_NAME_sizes() {
     memset(tiny_max_source, 'T', 127);
     tiny_max_source[127] = '\0';
     
-    char *tiny_max = STRDUP_NAME(tiny_max_source);
-    test_result(tiny_max != NULL, "STRDUP_NAME TINY max boundary (127 chars) succeeds");
+    char *tiny_max = my_strdup(tiny_max_source);
+    test_result(tiny_max != NULL, "my_strdup TINY max boundary (127 chars) succeeds");
     if (tiny_max) {
-        test_result(strlen(tiny_max) == 127, "STRDUP_NAME TINY max length correct");
-        test_result(strcmp(tiny_max, tiny_max_source) == 0, "STRDUP_NAME TINY max content correct");
-        FREE_NAME(tiny_max);
+        test_result(strlen(tiny_max) == 127, "my_strdup TINY max length correct");
+        test_result(strcmp(tiny_max, tiny_max_source) == 0, "my_strdup TINY max content correct");
+        my_free(tiny_max);
     }
     
     // Test SMALL (129-1024 bytes) - 200 caractères
@@ -1274,12 +1275,12 @@ void test_STRDUP_NAME_sizes() {
     memset(small_source, 'S', 200);
     small_source[200] = '\0';
     
-    char *small = STRDUP_NAME(small_source);
-    test_result(small != NULL, "STRDUP_NAME SMALL (200 chars) succeeds");
+    char *small = my_strdup(small_source);
+    test_result(small != NULL, "my_strdup SMALL (200 chars) succeeds");
     if (small) {
-        test_result(strlen(small) == 200, "STRDUP_NAME SMALL length correct");
-        test_result(strcmp(small, small_source) == 0, "STRDUP_NAME SMALL content correct");
-        FREE_NAME(small);
+        test_result(strlen(small) == 200, "my_strdup SMALL length correct");
+        test_result(strcmp(small, small_source) == 0, "my_strdup SMALL content correct");
+        my_free(small);
     }
     
     // Chaîne à la limite SMALL (1023 chars + \0 = 1024 bytes)
@@ -1287,13 +1288,13 @@ void test_STRDUP_NAME_sizes() {
     memset(small_max_source, 'M', 1023);
     small_max_source[1023] = '\0';
     
-    char *small_max = STRDUP_NAME(small_max_source);
-    test_result(small_max != NULL, "STRDUP_NAME SMALL max boundary (1023 chars) succeeds");
+    char *small_max = my_strdup(small_max_source);
+    test_result(small_max != NULL, "my_strdup SMALL max boundary (1023 chars) succeeds");
     if (small_max) {
-        test_result(strlen(small_max) == 1023, "STRDUP_NAME SMALL max length correct");
+        test_result(strlen(small_max) == 1023, "my_strdup SMALL max length correct");
         test_result(small_max[1022] == 'M' && small_max[1023] == '\0', 
-                   "STRDUP_NAME SMALL max termination correct");
-        FREE_NAME(small_max);
+                   "my_strdup SMALL max termination correct");
+        my_free(small_max);
     }
     
     // Test LARGE (> 1024 bytes) - 2000 caractères
@@ -1301,20 +1302,20 @@ void test_STRDUP_NAME_sizes() {
     memset(large_source, 'L', 2000);
     large_source[2000] = '\0';
     
-    char *large = STRDUP_NAME(large_source);
-    test_result(large != NULL, "STRDUP_NAME LARGE (2000 chars) succeeds");
+    char *large = my_strdup(large_source);
+    test_result(large != NULL, "my_strdup LARGE (2000 chars) succeeds");
     if (large) {
-        test_result(strlen(large) == 2000, "STRDUP_NAME LARGE length correct");
+        test_result(strlen(large) == 2000, "my_strdup LARGE length correct");
         test_result(large[1999] == 'L' && large[2000] == '\0', 
-                   "STRDUP_NAME LARGE content and termination correct");
-        FREE_NAME(large);
+                   "my_strdup LARGE content and termination correct");
+        my_free(large);
     }
     
     
 }
 
-void test_STRDUP_NAME_content_integrity() {
-    TEST_SECTION("STRDUP_NAME CONTENT INTEGRITY");
+void test_my_strdup_content_integrity() {
+    TEST_SECTION("my_strdup CONTENT INTEGRITY");
     
     // Test avec tous les caractères ASCII imprimables
     char ascii_source[96]; // 32-126 + \0
@@ -1323,11 +1324,11 @@ void test_STRDUP_NAME_content_integrity() {
     }
     ascii_source[95] = '\0';
     
-    char *ascii_copy = STRDUP_NAME(ascii_source);
-    test_result(ascii_copy != NULL, "STRDUP_NAME ASCII printable chars succeeds");
+    char *ascii_copy = my_strdup(ascii_source);
+    test_result(ascii_copy != NULL, "my_strdup ASCII printable chars succeeds");
     if (ascii_copy) {
-        test_result(strlen(ascii_copy) == 95, "STRDUP_NAME ASCII length correct");
-        test_result(strcmp(ascii_copy, ascii_source) == 0, "STRDUP_NAME ASCII content correct");
+        test_result(strlen(ascii_copy) == 95, "my_strdup ASCII length correct");
+        test_result(strcmp(ascii_copy, ascii_source) == 0, "my_strdup ASCII content correct");
         
         // Vérifier caractère par caractère
         int char_by_char_ok = 1;
@@ -1337,19 +1338,19 @@ void test_STRDUP_NAME_content_integrity() {
                 break;
             }
         }
-        test_result(char_by_char_ok, "STRDUP_NAME ASCII char-by-char integrity");
-        FREE_NAME(ascii_copy);
+        test_result(char_by_char_ok, "my_strdup ASCII char-by-char integrity");
+        my_free(ascii_copy);
     }
     
     // Test avec des octets binaires (incluant des 0 dans la chaîne source jusqu'au premier \0)
     char binary_source[] = "Binary\x01\x02\x03\xFF\xFE test";
-    char *binary_copy = STRDUP_NAME(binary_source);
-    test_result(binary_copy != NULL, "STRDUP_NAME binary chars succeeds");
+    char *binary_copy = my_strdup(binary_source);
+    test_result(binary_copy != NULL, "my_strdup binary chars succeeds");
     if (binary_copy) {
-        test_result(strcmp(binary_copy, binary_source) == 0, "STRDUP_NAME binary content correct");
+        test_result(strcmp(binary_copy, binary_source) == 0, "my_strdup binary content correct");
         test_result(binary_copy[6] == '\x01' && binary_copy[7] == '\x02', 
-                   "STRDUP_NAME preserves binary values");
-        FREE_NAME(binary_copy);
+                   "my_strdup preserves binary values");
+        my_free(binary_copy);
     }
     
     // Test avec répétition de patterns
@@ -1359,10 +1360,10 @@ void test_STRDUP_NAME_content_integrity() {
     }
     pattern_source[100] = '\0';
     
-    char *pattern_copy = STRDUP_NAME(pattern_source);
-    test_result(pattern_copy != NULL, "STRDUP_NAME pattern string succeeds");
+    char *pattern_copy = my_strdup(pattern_source);
+    test_result(pattern_copy != NULL, "my_strdup pattern string succeeds");
     if (pattern_copy) {
-        test_result(strlen(pattern_copy) == 100, "STRDUP_NAME pattern length correct");
+        test_result(strlen(pattern_copy) == 100, "my_strdup pattern length correct");
         int pattern_ok = 1;
         for (int i = 0; i < 100; i++) {
             if (pattern_copy[i] != (char)('A' + (i % 26))) {
@@ -1370,36 +1371,36 @@ void test_STRDUP_NAME_content_integrity() {
                 break;
             }
         }
-        test_result(pattern_ok, "STRDUP_NAME pattern content integrity");
-        FREE_NAME(pattern_copy);
+        test_result(pattern_ok, "my_strdup pattern content integrity");
+        my_free(pattern_copy);
     }
 }
 
-void test_STRDUP_NAME_independence() {
-    TEST_SECTION("STRDUP_NAME MEMORY INDEPENDENCE");
+void test_my_strdup_independence() {
+    TEST_SECTION("my_strdup MEMORY INDEPENDENCE");
     
     // Test que la copie est indépendante de l'original
     char original[] = "Original string";
-    char *copy = STRDUP_NAME(original);
+    char *copy = my_strdup(original);
     
-    test_result(copy != NULL, "STRDUP_NAME creates copy");
+    test_result(copy != NULL, "my_strdup creates copy");
     if (copy) {
-        test_result(copy != original, "STRDUP_NAME copy has different address");
-        test_result(strcmp(copy, original) == 0, "STRDUP_NAME copy has same content initially");
+        test_result(copy != original, "my_strdup copy has different address");
+        test_result(strcmp(copy, original) == 0, "my_strdup copy has same content initially");
         
         // Modifier l'original
         strcpy(original, "Modified orig");
         test_result(strcmp(copy, "Original string") == 0, 
-                   "STRDUP_NAME copy unchanged when original modified");
+                   "my_strdup copy unchanged when original modified");
         
         // Modifier la copie
         strcpy(copy, "Modified copy");
         test_result(strcmp(original, "Modified orig") == 0, 
-                   "Original unchanged when STRDUP_NAME copy modified");
+                   "Original unchanged when my_strdup copy modified");
         test_result(strcmp(copy, "Modified copy") == 0, 
-                   "STRDUP_NAME copy modification successful");
+                   "my_strdup copy modification successful");
         
-        FREE_NAME(copy);
+        my_free(copy);
     }
     
     // Test avec buffer temporaire
@@ -1407,51 +1408,51 @@ void test_STRDUP_NAME_independence() {
     {
         char temp_buffer[100];
         strcpy(temp_buffer, "Temporary buffer content");
-        dynamic_copy = STRDUP_NAME(temp_buffer);
-        test_result(dynamic_copy != NULL, "STRDUP_NAME from temp buffer succeeds");
+        dynamic_copy = my_strdup(temp_buffer);
+        test_result(dynamic_copy != NULL, "my_strdup from temp buffer succeeds");
         // temp_buffer va être détruit à la sortie du bloc
     }
     
     // Vérifier que la copie survit à la destruction du buffer temporaire
     if (dynamic_copy) {
         test_result(strcmp(dynamic_copy, "Temporary buffer content") == 0, 
-                   "STRDUP_NAME copy survives original buffer destruction");
-        FREE_NAME(dynamic_copy);
+                   "my_strdup copy survives original buffer destruction");
+        my_free(dynamic_copy);
     }
 }
 
-void test_STRDUP_NAME_extreme_sizes() {
-    TEST_SECTION("STRDUP_NAME EXTREME SIZES");
+void test_my_strdup_extreme_sizes() {
+    TEST_SECTION("my_strdup EXTREME SIZES");
     
     // Test chaîne d'un seul caractère
-    char *single = STRDUP_NAME("X");
-    test_result(single != NULL, "STRDUP_NAME single char succeeds");
+    char *single = my_strdup("X");
+    test_result(single != NULL, "my_strdup single char succeeds");
     if (single) {
-        test_result(strlen(single) == 1, "STRDUP_NAME single char length correct");
-        test_result(single[0] == 'X' && single[1] == '\0', "STRDUP_NAME single char content correct");
-        FREE_NAME(single);
+        test_result(strlen(single) == 1, "my_strdup single char length correct");
+        test_result(single[0] == 'X' && single[1] == '\0', "my_strdup single char content correct");
+        my_free(single);
     }
     
     // Test chaîne très longue (10KB)
-    char *big_source = MALLOC_NAME(10241);
+    char *big_source = my_malloc(10241);
     if (big_source) {
         memset(big_source, 'B', 10240);
         big_source[10240] = '\0';
         
-        char *big_copy = STRDUP_NAME(big_source);
-        test_result(big_copy != NULL, "STRDUP_NAME very large string (10KB) succeeds");
+        char *big_copy = my_strdup(big_source);
+        test_result(big_copy != NULL, "my_strdup very large string (10KB) succeeds");
         if (big_copy) {
-            test_result(strlen(big_copy) == 10240, "STRDUP_NAME large string length correct");
+            test_result(strlen(big_copy) == 10240, "my_strdup large string length correct");
             test_result(big_copy[0] == 'B' && big_copy[10239] == 'B' && big_copy[10240] == '\0', 
-                       "STRDUP_NAME large string content correct");
+                       "my_strdup large string content correct");
             
             // Vérifier quelques positions aléatoirement
             int sample_ok = (big_copy[1000] == 'B' && big_copy[5000] == 'B' && big_copy[9000] == 'B');
-            test_result(sample_ok, "STRDUP_NAME large string sample positions correct");
+            test_result(sample_ok, "my_strdup large string sample positions correct");
             
-            FREE_NAME(big_copy);
+            my_free(big_copy);
         }
-        FREE_NAME(big_source);
+        my_free(big_source);
     }
     
     // Test avec une chaîne contenant beaucoup d'espaces
@@ -1459,10 +1460,10 @@ void test_STRDUP_NAME_extreme_sizes() {
     memset(spaces_source, ' ', 1000);
     spaces_source[1000] = '\0';
     
-    char *spaces_copy = STRDUP_NAME(spaces_source);
-    test_result(spaces_copy != NULL, "STRDUP_NAME spaces string succeeds");
+    char *spaces_copy = my_strdup(spaces_source);
+    test_result(spaces_copy != NULL, "my_strdup spaces string succeeds");
     if (spaces_copy) {
-        test_result(strlen(spaces_copy) == 1000, "STRDUP_NAME spaces length correct");
+        test_result(strlen(spaces_copy) == 1000, "my_strdup spaces length correct");
         int all_spaces = 1;
         for (int i = 0; i < 1000; i++) {
             if (spaces_copy[i] != ' ') {
@@ -1470,20 +1471,20 @@ void test_STRDUP_NAME_extreme_sizes() {
                 break;
             }
         }
-        test_result(all_spaces && spaces_copy[1000] == '\0', "STRDUP_NAME spaces content correct");
-        FREE_NAME(spaces_copy);
+        test_result(all_spaces && spaces_copy[1000] == '\0', "my_strdup spaces content correct");
+        my_free(spaces_copy);
     }
 }
 
-void test_STRDUP_NAME_special_chars() {
-    TEST_SECTION("STRDUP_NAME SPECIAL CHARACTERS");
+void test_my_strdup_special_chars() {
+    TEST_SECTION("my_strdup SPECIAL CHARACTERS");
     
     // Test avec caractères Unicode/UTF-8 (si supportés)
-    char *utf8 = STRDUP_NAME("Héllo Wörld! 🌍 café");
-    test_result(utf8 != NULL, "STRDUP_NAME UTF-8 chars succeeds");
+    char *utf8 = my_strdup("Héllo Wörld! 🌍 café");
+    test_result(utf8 != NULL, "my_strdup UTF-8 chars succeeds");
     if (utf8) {
-        test_result(strcmp(utf8, "Héllo Wörld! 🌍 café") == 0, "STRDUP_NAME UTF-8 content correct");
-        FREE_NAME(utf8);
+        test_result(strcmp(utf8, "Héllo Wörld! 🌍 café") == 0, "my_strdup UTF-8 content correct");
+        my_free(utf8);
     }
     
     // Test avec tous les caractères de contrôle ASCII (0-31)
@@ -1493,10 +1494,10 @@ void test_STRDUP_NAME_special_chars() {
     }
     control_source[31] = '\0';
     
-    char *control_copy = STRDUP_NAME(control_source);
-    test_result(control_copy != NULL, "STRDUP_NAME control chars succeeds");
+    char *control_copy = my_strdup(control_source);
+    test_result(control_copy != NULL, "my_strdup control chars succeeds");
     if (control_copy) {
-        test_result(strlen(control_copy) == 31, "STRDUP_NAME control chars length correct");
+        test_result(strlen(control_copy) == 31, "my_strdup control chars length correct");
         int control_ok = 1;
         for (int i = 0; i < 31; i++) {
             if (control_copy[i] != (char)(i + 1)) {
@@ -1504,31 +1505,31 @@ void test_STRDUP_NAME_special_chars() {
                 break;
             }
         }
-        test_result(control_ok, "STRDUP_NAME control chars content correct");
-        FREE_NAME(control_copy);
+        test_result(control_ok, "my_strdup control chars content correct");
+        my_free(control_copy);
     }
     
     // Test avec caractères de fin de ligne variés
-    char *newlines = STRDUP_NAME("Line1\nLine2\rLine3\r\nLine4");
-    test_result(newlines != NULL, "STRDUP_NAME newline variants succeeds");
+    char *newlines = my_strdup("Line1\nLine2\rLine3\r\nLine4");
+    test_result(newlines != NULL, "my_strdup newline variants succeeds");
     if (newlines) {
         test_result(strcmp(newlines, "Line1\nLine2\rLine3\r\nLine4") == 0, 
-                   "STRDUP_NAME newline variants content correct");
-        FREE_NAME(newlines);
+                   "my_strdup newline variants content correct");
+        my_free(newlines);
     }
     
     // Test avec guillemets et échappements
-    char *quotes = STRDUP_NAME("\"Hello\" 'World' \\backslash\\");
-    test_result(quotes != NULL, "STRDUP_NAME quotes and escapes succeeds");
+    char *quotes = my_strdup("\"Hello\" 'World' \\backslash\\");
+    test_result(quotes != NULL, "my_strdup quotes and escapes succeeds");
     if (quotes) {
         test_result(strcmp(quotes, "\"Hello\" 'World' \\backslash\\") == 0, 
-                   "STRDUP_NAME quotes and escapes content correct");
-        FREE_NAME(quotes);
+                   "my_strdup quotes and escapes content correct");
+        my_free(quotes);
     }
 }
 
-void test_STRDUP_NAME_alignment() {
-    TEST_SECTION("STRDUP_NAME ALIGNMENT TESTS");
+void test_my_strdup_alignment() {
+    TEST_SECTION("my_strdup ALIGNMENT TESTS");
     
     // Tester l'alignement avec différentes tailles
     char *ptrs[10];
@@ -1540,11 +1541,11 @@ void test_STRDUP_NAME_alignment() {
         memset(sources[i], 'A' + i, len);
         sources[i][len] = '\0';
         
-        ptrs[i] = STRDUP_NAME(sources[i]);
-        test_result(ptrs[i] != NULL, "STRDUP_NAME various sizes allocation");
+        ptrs[i] = my_strdup(sources[i]);
+        test_result(ptrs[i] != NULL, "my_strdup various sizes allocation");
         if (ptrs[i]) {
-            test_result(((uintptr_t)ptrs[i] % 8) == 0, "STRDUP_NAME result properly aligned");
-            test_result(strcmp(ptrs[i], sources[i]) == 0, "STRDUP_NAME various sizes content correct");
+            test_result(((uintptr_t)ptrs[i] % 8) == 0, "my_strdup result properly aligned");
+            test_result(strcmp(ptrs[i], sources[i]) == 0, "my_strdup various sizes content correct");
         }
     }
     
@@ -1553,17 +1554,17 @@ void test_STRDUP_NAME_alignment() {
     
     for (int i = 0; i < 10; i++) {
         if (ptrs[i]) {
-            FREE_NAME(ptrs[i]);
+            my_free(ptrs[i]);
         }
     }
 }
 
-void test_STRDUP_NAME_stress() {
-    TEST_SECTION("STRDUP_NAME STRESS TESTS");
+void test_my_strdup_stress() {
+    TEST_SECTION("my_strdup STRESS TESTS");
     
     // Allouer beaucoup de chaînes de tailles variées
     const int num_strings = 1000;
-    char **strings = MALLOC_NAME(num_strings * sizeof(char*));
+    char **strings = my_malloc(num_strings * sizeof(char*));
     int success_count = 0;
     
     if (strings) {
@@ -1572,13 +1573,13 @@ void test_STRDUP_NAME_stress() {
             char temp[100];
             snprintf(temp, sizeof(temp), "String_%d_with_content_%d", i, i * 42);
             
-            strings[i] = STRDUP_NAME(temp);
+            strings[i] = my_strdup(temp);
             if (strings[i]) {
                 success_count++;
             }
         }
         
-        test_result(success_count == num_strings, "STRDUP_NAME stress: all allocations succeed");
+        test_result(success_count == num_strings, "my_strdup stress: all allocations succeed");
         
         // Vérifier l'intégrité de quelques chaînes aléatoirement
         int integrity_check = 1;
@@ -1592,39 +1593,38 @@ void test_STRDUP_NAME_stress() {
                 }
             }
         }
-        test_result(integrity_check, "STRDUP_NAME stress: data integrity maintained");
+        test_result(integrity_check, "my_strdup stress: data integrity maintained");
         
         // Nettoyer
         for (int i = 0; i < num_strings; i++) {
             if (strings[i]) {
-                FREE_NAME(strings[i]);
+                my_free(strings[i]);
             }
         }
-        FREE_NAME(strings);
+        my_free(strings);
     }
     
-    // Test de fragmentation avec STRDUP_NAME
+    // Test de fragmentation avec my_strdup
     char *frags[50];
     for (int i = 0; i < 50; i++) {
         char temp[50];
         snprintf(temp, sizeof(temp), "Fragment_%02d", i);
-        frags[i] = STRDUP_NAME(temp);
+        frags[i] = my_strdup(temp);
     }
     
     // Libérer les chaînes impaires
     for (int i = 1; i < 50; i += 2) {
         if (frags[i]) {
-            FREE_NAME(frags[i]);
+            my_free(frags[i]);
             frags[i] = NULL;
         }
     }
-    
     // Réallouer des chaînes dans les trous
     for (int i = 1; i < 50; i += 2) {
         char temp[50];
         snprintf(temp, sizeof(temp), "NewFrag_%02d", i);
-        frags[i] = STRDUP_NAME(temp);
-        test_result(frags[i] != NULL, "STRDUP_NAME fragmentation REALLOC_NAMEation");
+        frags[i] = my_strdup(temp);
+        test_result(frags[i] != NULL, "my_strdup fragmentation my_reallocation");
     }
     
 	printf("je suis ici\n");
@@ -1632,7 +1632,7 @@ void test_STRDUP_NAME_stress() {
     for (int i = 0; i < 50; i++) {
         if (frags[i]) {
 			printf("i == %d\n", i);
-            FREE_NAME(frags[i]);
+            my_free(frags[i]);
         }
     }
 	printf("je sors ici\n");
@@ -1640,80 +1640,80 @@ void test_STRDUP_NAME_stress() {
     
 }
 
-void test_STRDUP_NAME_null_handling() {
-    TEST_SECTION("STRDUP_NAME NULL HANDLING");
+void test_my_strdup_null_handling() {
+    TEST_SECTION("my_strdup NULL HANDLING");
     
-    // Note: STRDUP_NAME(NULL) n'est pas défini par le standard C
+    // Note: my_strdup(NULL) n'est pas défini par le standard C
     // Votre implémentation peut soit:
     // 1. Retourner NULL
     // 2. Faire un segfault (comportement de glibc)
     // 3. Gérer le cas spécialement
     
-    printf("Note: Testing STRDUP_NAME(NULL) - behavior is implementation-defined\n");
+    printf("Note: Testing my_strdup(NULL) - behavior is implementation-defined\n");
     
     // Test plus sûr: vérifier avec une chaîne qui pourrait être corrompue
     // mais n'est pas NULL
     char almost_empty[] = {'\0'};
-    char *empty_dup = STRDUP_NAME(almost_empty);
-    test_result(empty_dup != NULL, "STRDUP_NAME empty string (via array) succeeds");
+    char *empty_dup = my_strdup(almost_empty);
+    test_result(empty_dup != NULL, "my_strdup empty string (via array) succeeds");
     if (empty_dup) {
-        test_result(strlen(empty_dup) == 0, "STRDUP_NAME empty string length is 0");
-        test_result(empty_dup[0] == '\0', "STRDUP_NAME empty string is properly terminated");
-        FREE_NAME(empty_dup);
+        test_result(strlen(empty_dup) == 0, "my_strdup empty string length is 0");
+        test_result(empty_dup[0] == '\0', "my_strdup empty string is properly terminated");
+        my_free(empty_dup);
     }
 }
 
-void test_STRDUP_NAME_boundary_conditions() {
-    TEST_SECTION("STRDUP_NAME BOUNDARY CONDITIONS");
+void test_my_strdup_boundary_conditions() {
+    TEST_SECTION("my_strdup BOUNDARY CONDITIONS");
     
-    // Test exactement aux limites des catégories de MALLOC_NAME
+    // Test exactement aux limites des catégories de my_malloc
     
     // Limite TINY: 128 bytes total, donc 127 chars + \0
     char tiny_boundary[128];
     memset(tiny_boundary, 'T', 127);
     tiny_boundary[127] = '\0';
     
-    char *tiny_dup = STRDUP_NAME(tiny_boundary);
-    test_result(tiny_dup != NULL, "STRDUP_NAME TINY boundary (127 chars) succeeds");
+    char *tiny_dup = my_strdup(tiny_boundary);
+    test_result(tiny_dup != NULL, "my_strdup TINY boundary (127 chars) succeeds");
     if (tiny_dup) {
-        test_result(strlen(tiny_dup) == 127, "STRDUP_NAME TINY boundary length correct");
+        test_result(strlen(tiny_dup) == 127, "my_strdup TINY boundary length correct");
         test_result(tiny_dup[126] == 'T' && tiny_dup[127] == '\0', 
-                   "STRDUP_NAME TINY boundary termination correct");
-        FREE_NAME(tiny_dup);
+                   "my_strdup TINY boundary termination correct");
+        my_free(tiny_dup);
     }
     
     // Limite SMALL: 1024 bytes total, donc 1023 chars + \0
-    char *small_boundary = MALLOC_NAME(1024);
+    char *small_boundary = my_malloc(1024);
     if (small_boundary) {
         memset(small_boundary, 'S', 1023);
         small_boundary[1023] = '\0';
         
-        char *small_dup = STRDUP_NAME(small_boundary);
-        test_result(small_dup != NULL, "STRDUP_NAME SMALL boundary (1023 chars) succeeds");
+        char *small_dup = my_strdup(small_boundary);
+        test_result(small_dup != NULL, "my_strdup SMALL boundary (1023 chars) succeeds");
         if (small_dup) {
-            test_result(strlen(small_dup) == 1023, "STRDUP_NAME SMALL boundary length correct");
+            test_result(strlen(small_dup) == 1023, "my_strdup SMALL boundary length correct");
             test_result(small_dup[1022] == 'S' && small_dup[1023] == '\0', 
-                       "STRDUP_NAME SMALL boundary termination correct");
-            FREE_NAME(small_dup);
+                       "my_strdup SMALL boundary termination correct");
+            my_free(small_dup);
         }
-        FREE_NAME(small_boundary);
+        my_free(small_boundary);
     }
     
     // Premier LARGE: 1025 bytes total, donc 1024 chars + \0
-    char *large_boundary = MALLOC_NAME(1025);
+    char *large_boundary = my_malloc(1025);
     if (large_boundary) {
         memset(large_boundary, 'L', 1024);
         large_boundary[1024] = '\0';
         
-        char *large_dup = STRDUP_NAME(large_boundary);
-        test_result(large_dup != NULL, "STRDUP_NAME LARGE boundary (1024 chars) succeeds");
+        char *large_dup = my_strdup(large_boundary);
+        test_result(large_dup != NULL, "my_strdup LARGE boundary (1024 chars) succeeds");
         if (large_dup) {
-            test_result(strlen(large_dup) == 1024, "STRDUP_NAME LARGE boundary length correct");
+            test_result(strlen(large_dup) == 1024, "my_strdup LARGE boundary length correct");
             test_result(large_dup[1023] == 'L' && large_dup[1024] == '\0', 
-                       "STRDUP_NAME LARGE boundary termination correct");
-            FREE_NAME(large_dup);
+                       "my_strdup LARGE boundary termination correct");
+            my_free(large_dup);
         }
-        FREE_NAME(large_boundary);
+        my_free(large_boundary);
     }
 }
 
@@ -1752,15 +1752,15 @@ double get_time_us() {
 }
 
 // Test 1: Allocations séquentielles avec vérification d'intégrité
-void* test_sequential_MALLOC_NAME(void* arg) {
+void* test_sequential_my_malloc(void* arg) {
     thread_data_t* data = (thread_data_t*)arg;
     double start_time = get_time_us();
     
     printf("Thread %d: Démarrage test séquentiel (%d allocations)\n", 
            data->thread_id, data->allocations_target);
     
-    data->allocated_ptrs = CALLOC_NAME(data->allocations_target, sizeof(void*));
-    data->allocated_sizes = CALLOC_NAME(data->allocations_target, sizeof(size_t));
+    data->allocated_ptrs = my_calloc(data->allocations_target, sizeof(void*));
+    data->allocated_sizes = my_calloc(data->allocations_target, sizeof(size_t));
     
     if (!data->allocated_ptrs || !data->allocated_sizes) {
         printf("Thread %d: Erreur allocation tableaux de suivi\n", data->thread_id);
@@ -1772,7 +1772,7 @@ void* test_sequential_MALLOC_NAME(void* arg) {
         size_t size = MIN_ALLOC_SIZE + (rand() % (MAX_ALLOC_SIZE - MIN_ALLOC_SIZE));
         
         // Allocation
-        void* ptr = MALLOC_NAME(size);
+        void* ptr = my_malloc(size);
         if (!ptr) {
             printf("Thread %d: Erreur allocation %zu bytes (allocation #%d)\n", 
                    data->thread_id, size, i);
@@ -1825,14 +1825,14 @@ void* test_sequential_MALLOC_NAME(void* arg) {
 }
 
 // Test 2: Allocations rapides avec différentes tailles
-void* test_rapid_MALLOC_NAME(void* arg) {
+void* test_rapid_my_malloc(void* arg) {
     thread_data_t* data = (thread_data_t*)arg;
     double start_time = get_time_us();
     
     printf("Thread %d: Démarrage test rapide\n", data->thread_id);
     
-    data->allocated_ptrs = CALLOC_NAME(data->allocations_target, sizeof(void*));
-    data->allocated_sizes = CALLOC_NAME(data->allocations_target, sizeof(size_t));
+    data->allocated_ptrs = my_calloc(data->allocations_target, sizeof(void*));
+    data->allocated_sizes = my_calloc(data->allocations_target, sizeof(size_t));
     
     // Tailles prédéfinies pour tester différents cas
     size_t test_sizes[] = {8, 16, 32, 64, 128, 256, 512, 1024, 2048, 4096};
@@ -1841,7 +1841,7 @@ void* test_rapid_MALLOC_NAME(void* arg) {
     for (int i = 0; i < data->allocations_target; i++) {
         size_t size = test_sizes[i % num_test_sizes];
         
-        void* ptr = MALLOC_NAME(size);
+        void* ptr = my_malloc(size);
         if (!ptr) {
             printf("Thread %d: Erreur allocation %zu bytes\n", data->thread_id, size);
             data->errors++;
@@ -1882,14 +1882,14 @@ void* test_delayed_verification(void* arg) {
     
     printf("Thread %d: Démarrage test avec vérification différée\n", data->thread_id);
     
-    data->allocated_ptrs = CALLOC_NAME(data->allocations_target, sizeof(void*));
-    data->allocated_sizes = CALLOC_NAME(data->allocations_target, sizeof(size_t));
+    data->allocated_ptrs = my_calloc(data->allocations_target, sizeof(void*));
+    data->allocated_sizes = my_calloc(data->allocations_target, sizeof(size_t));
     
     // Phase 1: Allocations rapides
     for (int i = 0; i < data->allocations_target; i++) {
         size_t size = MIN_ALLOC_SIZE + (rand() % (MAX_ALLOC_SIZE - MIN_ALLOC_SIZE));
         
-        void* ptr = MALLOC_NAME(size);
+        void* ptr = my_malloc(size);
         if (!ptr) {
             data->errors++;
             continue;
@@ -1952,14 +1952,14 @@ void* test_large_allocations(void* arg) {
     
     // Réduire le nombre pour les grandes allocations
     int large_alloc_count = data->allocations_target / 4;
-    data->allocated_ptrs = CALLOC_NAME(large_alloc_count, sizeof(void*));
-    data->allocated_sizes = CALLOC_NAME(large_alloc_count, sizeof(size_t));
+    data->allocated_ptrs = my_calloc(large_alloc_count, sizeof(void*));
+    data->allocated_sizes = my_calloc(large_alloc_count, sizeof(size_t));
     
     for (int i = 0; i < large_alloc_count; i++) {
         // Tailles entre 1KB et 16KB
         size_t size = 1024 + (rand() % (16 * 1024 - 1024));
         
-        void* ptr = MALLOC_NAME(size);
+        void* ptr = my_malloc(size);
         if (!ptr) {
             printf("Thread %d: Erreur allocation grande taille %zu bytes\n", 
                    data->thread_id, size);
@@ -2022,50 +2022,50 @@ void check_pointer_alignment(void** ptrs, int count, int thread_id) {
 }
 
 int main() {
-    printf(YELLOW "Starting comprehensive MALLOC_NAME/REALLOC_NAME/FREE_NAME test suite...\n" RESET);
+    printf(YELLOW "Starting comprehensive my_malloc/my_realloc/my_free test suite...\n" RESET);
     
-    test_basic_MALLOC_NAME();
-    test_small_MALLOC_NAME();
-    test_large_MALLOC_NAME();
+    test_basic_my_malloc();
+    test_small_my_malloc();
+    test_large_my_malloc();
     test_fragmentation();
-    test_REALLOC_NAME_tiny_to_tiny();
-    test_REALLOC_NAME_small_to_small();
-    test_REALLOC_NAME_large_to_large();
-    test_REALLOC_NAME_category_changes();
-    test_REALLOC_NAME_edge_cases();
+    test_my_realloc_tiny_to_tiny();
+    test_my_realloc_small_to_small();
+    test_my_realloc_large_to_large();
+    test_my_realloc_category_changes();
+    test_my_realloc_edge_cases();
     test_multiple_allocations();
-    test_stress_REALLOC_NAME();
+    test_stress_my_realloc();
     test_boundary_values();
-    test_FREE_NAME_edge_cases();
+    test_my_free_edge_cases();
     test_memory_patterns();
-    test_CALLOC_NAME_basic();
-    test_CALLOC_NAME_sizes();
-    test_CALLOC_NAME_overflow();
-    test_CALLOC_NAME_patterns();
-    test_CALLOC_NAME_extreme();
+    test_my_calloc_basic();
+    test_my_calloc_sizes();
+    test_my_calloc_overflow();
+    test_my_calloc_patterns();
+    test_my_calloc_extreme();
     
-    // Tests REALLOCARRAY_NAME hardcore  
-    test_REALLOCARRAY_NAME_basic();
-    test_REALLOCARRAY_NAME_overflow();
-    test_REALLOCARRAY_NAME_categories();
-    test_REALLOCARRAY_NAME_edge_cases();
-    test_REALLOCARRAY_NAME_stress();
-    test_REALLOCARRAY_NAME_data_integrity();
-    test_REALLOCARRAY_NAME_boundary();
+    // Tests my_reallocarray hardcore  
+    test_my_reallocarray_basic();
+    test_my_reallocarray_overflow();
+    test_my_reallocarray_categories();
+    test_my_reallocarray_edge_cases();
+    test_my_reallocarray_stress();
+    test_my_reallocarray_data_integrity();
+    test_my_reallocarray_boundary();
     
     // Tests d'interaction
-    test_CALLOC_NAME_REALLOCARRAY_NAME_interaction();
+    test_my_calloc_my_reallocarray_interaction();
 
-	test_STRDUP_NAME_basic();
-    test_STRDUP_NAME_sizes();
-    test_STRDUP_NAME_content_integrity();
-    test_STRDUP_NAME_independence();
-    test_STRDUP_NAME_extreme_sizes();
-    test_STRDUP_NAME_special_chars();
-    test_STRDUP_NAME_alignment();
-    test_STRDUP_NAME_stress();
-    test_STRDUP_NAME_null_handling();
-    test_STRDUP_NAME_boundary_conditions();
+	test_my_strdup_basic();
+    test_my_strdup_sizes();
+    test_my_strdup_content_integrity();
+    test_my_strdup_independence();
+    test_my_strdup_extreme_sizes();
+    test_my_strdup_special_chars();
+    test_my_strdup_alignment();
+    test_my_strdup_stress();
+    test_my_strdup_null_handling();
+    test_my_strdup_boundary_conditions();
 
     printf(BLUE "\n=== FINAL MEMORY STATE ===" RESET "\n");
     
@@ -2082,7 +2082,7 @@ int main() {
         return 1;
     }
 
-    printf("=== Test Multi-threadé pour MALLOC_NAME uniquement ===\n");
+    printf("=== Test Multi-threadé pour my_malloc uniquement ===\n");
     printf("Configuration: %d threads, %d allocations par thread\n", 
            NUM_THREADS, ALLOCATIONS_PER_THREAD);
     printf("Tailles: %d à %d bytes\n\n", MIN_ALLOC_SIZE, MAX_ALLOC_SIZE);
@@ -2099,8 +2099,8 @@ int main() {
     total_memory_allocated = 0;
     
     void* (*test_functions[])(void*) = {
-        test_sequential_MALLOC_NAME,
-        test_rapid_MALLOC_NAME,
+        test_sequential_my_malloc,
+        test_rapid_my_malloc,
         test_delayed_verification,
         test_large_allocations
     };
@@ -2171,21 +2171,20 @@ int main() {
     
     for (int i = 0; i < NUM_THREADS; i++) {
         if (thread_data[i].allocated_ptrs) {
-            FREE_NAME(thread_data[i].allocated_ptrs);  // FREE_NAME standard
+            my_free(thread_data[i].allocated_ptrs);  // my_free standard
         }
         if (thread_data[i].allocated_sizes) {
-            FREE_NAME(thread_data[i].allocated_sizes);  // FREE_NAME standard
+            my_free(thread_data[i].allocated_sizes);  // my_free standard
         }
     }
-    
 	// 
     if (total_errors == 0) {
         printf("\n✅ TOUS LES TESTS SONT PASSÉS!\n");
-        printf("Votre MALLOC_NAME semble fonctionner correctement en multi-threading.\n");
+        printf("Votre my_malloc semble fonctionner correctement en multi-threading.\n");
         return 0;
     } else {
         printf("\n❌ %d ERREURS DÉTECTÉES\n", total_errors);
-        printf("Vérifiez la thread-safety de votre MALLOC_NAME.\n");
+        printf("Vérifiez la thread-safety de votre my_malloc.\n");
         return 1;
     }
 }
@@ -2196,23 +2195,23 @@ int main() {
 
 // 	for (int i = 0; i < 1000; i++) {
 // 		printf("i == %d\n", i);
-// 		test[i] = MALLOC_NAME(10000);
+// 		test[i] = my_malloc(10000);
 // 		memset(test[i], i, 10000);
 // 	}
 //
 // 	for (int i = 500; i < 1000; i++) {
 // 		ft_printf_fd(2, "i == %d\n", i);
-// 		FREE_NAME(test[i]);
+// 		my_free(test[i]);
 // 	}
 // 	for (int i = 500; i < 1000; i++) {
 // 		printf("i == %d\n", i);
-// 		test[i] = MALLOC_NAME(10000);
+// 		test[i] = my_malloc(10000);
 // 		memset(test[i], i, 10000);
 // 	}
 // 	printf("here\n");
 //
 // 	for (int i = 0; i < 1000; i++) {
-// 		FREE_NAME(test[i]);
+// 		my_free(test[i]);
 // 	}
 //
 // }

@@ -44,7 +44,7 @@ void remove_all_free_block(t_mutex_zone *zone, t_page *page)
 	block = page->blocks;
 	while (block)
 	{
-		delete_node_tree(&zone->root_free, block);
+		delete_node_tree(&zone->root_free, block, &zone->sentinel);
 		block = NEXT_BLOCK(block);
 	}
 }
@@ -84,7 +84,7 @@ bool	free_block_from_zone(t_mutex_zone *zone, void *ptr)
 					merge_block_with_prev(zone, &block, prev_block);
 				}
 				block->size = block->true_size;
-				insert_node_tree(&zone->root_free, block);
+				insert_node_tree(&zone->root_free, block, &zone->sentinel);
 				if (current_page != zone->pages && is_all_block_free(current_page) == true)
 					remove_page(zone, current_page);
 				return true;

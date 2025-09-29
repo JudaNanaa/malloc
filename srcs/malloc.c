@@ -6,8 +6,6 @@
 #include <stdlib.h>
 
 t_malloc	g_malloc = {
-	.sentinel = {.size = 0, .left = &g_malloc.sentinel, .right = &g_malloc.sentinel, .parent = NULL,
-		.flags = 0},
 	.tiny = {.max_size_malloc = n, .pages = NULL, .last = NULL,
 		.root_free = NULL, .mutex = PTHREAD_MUTEX_INITIALIZER},
 	.small = {.max_size_malloc = m, .pages = NULL, .last = NULL,
@@ -19,7 +17,7 @@ t_malloc	g_malloc = {
 	.verbose = false,
 	.no_defrag = false,
 	.trace_file_fd = -1,
-	.NIL = &g_malloc.sentinel};
+	};
 
 t_page	*create_page(size_t length)
 {
@@ -28,10 +26,7 @@ t_page	*create_page(size_t length)
 	new_page = mmap(NULL, length, PROT_READ | PROT_WRITE,
 			MAP_ANONYMOUS | MAP_PRIVATE, -1, 0);
 	if (new_page == MAP_FAILED)
-	{
-		errno = ENOMEM;
 		return (NULL);
-	}
 	new_page->length = length;
 	new_page->next = NULL;
 	new_page->prev = NULL;
@@ -69,10 +64,10 @@ bool	find_free_block(t_mutex_zone *zone, size_t size, t_block **block_out)
 {
 	t_block	*block;
 
-	block = search_best_node(zone->root_free, size);
+	block = search_best_node(zone->root_free, size, &zone->sentinel);
 	if (block)
 	{
-		delete_node_tree(&zone->root_free, block);
+		delete_node_tree(&zone->root_free, block, &zone->sentinel);
 		*block_out = block;
 		return (true);
 	}
@@ -118,7 +113,7 @@ void	split_block(t_block *block, size_t size, t_mutex_zone *zone)
 	if (g_malloc.no_defrag == false)
 		merge_block_with_next(zone, new_block);
 	if (zone != &g_malloc.large)
-		insert_node_tree(&zone->root_free, new_block);
+		insert_node_tree(&zone->root_free, new_block, &zone->sentinel);
 }
 
 void	*optimize_malloc(t_mutex_zone *zone, size_t size)

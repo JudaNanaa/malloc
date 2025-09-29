@@ -1,10 +1,11 @@
 CC = cc
 CFLAGS = -Wall -Wextra -Werror -fPIC -fvisibility=hidden -g3 #-DTEST_MALLOC
 
+RBTREE = $(addprefix rbTree/, deletion.c insertion.c rotation.c search.c)
+
 SRCS_DIR = srcs/
 SRCS = malloc.c free.c utils.c realloc.c calloc.c show_alloc_mem.c \
-       show_alloc_mem_ex.c env_var.c reallocarray.c strdup.c RBTree.c 
-
+       show_alloc_mem_ex.c env_var.c reallocarray.c strdup.c $(RBTREE)
 SRCS := $(addprefix $(SRCS_DIR), $(SRCS))
 
 OBJS_DIR = .objs/

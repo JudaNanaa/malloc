@@ -34,7 +34,7 @@ void merge_block_with_next(t_mutex_zone *zone, t_block *block)
 	if (next_block && IS_BLOCK_FREE(next_block))
 	{
 		if (zone != &g_malloc.large)
-			delete_node_tree(&zone->root_free, next_block);
+			delete_node_tree(&zone->root_free, next_block, &zone->sentinel);
 		merge_two_blocks(block, next_block);
 	}
 }
@@ -43,7 +43,7 @@ void merge_block_with_prev(t_mutex_zone *zone, t_block **block, t_block *prev_bl
 {
 	if (prev_block && IS_BLOCK_FREE(prev_block))
 	{
-		delete_node_tree(&zone->root_free, prev_block);
+		delete_node_tree(&zone->root_free, prev_block, &zone->sentinel);
 		merge_two_blocks(prev_block, *block);
 		*block = prev_block;
 	}

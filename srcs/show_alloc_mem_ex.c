@@ -12,7 +12,7 @@ void hex_dump_block(t_block *block)
     size = block->size;
     ft_printf_fd(STDERR_FILENO, "  Hex dump: ");
     for (size_t i = 0; i < size && i < 16; i++)
-        ft_printf_fd(STDERR_FILENO, "%02X ", ptr[i]);
+        ft_printf_fd(STDERR_FILENO, "%X ", ptr[i]);
     if (size > 16)
         ft_printf_fd(STDERR_FILENO, "...");
     ft_printf_fd(STDERR_FILENO, "\n");

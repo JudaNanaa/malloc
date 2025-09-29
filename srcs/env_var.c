@@ -7,6 +7,12 @@ void	close_trace_file_fd(void)
 	close(g_malloc.trace_file_fd);
 }
 
+void set_sentinel(t_block *sentinel)
+{
+	memset(sentinel, 0, sizeof(t_block));
+	SET_BLOCK_BLACK(sentinel);
+}
+
 void	malloc_init(void)
 {
 	char	*env;
@@ -52,7 +58,12 @@ void	malloc_init(void)
 	}
 	g_malloc.tiny.max_size_malloc = ALIGN(g_malloc.tiny.max_size_malloc);
 	g_malloc.small.max_size_malloc = ALIGN(g_malloc.small.max_size_malloc);
-	g_malloc.tiny.root_free = g_malloc.NIL;
-	g_malloc.small.root_free = g_malloc.NIL;
-	g_malloc.large.root_free = g_malloc.NIL;
+	
+	set_sentinel(&g_malloc.tiny.sentinel);
+	set_sentinel(&g_malloc.small.sentinel);
+	set_sentinel(&g_malloc.large.sentinel);
+
+	g_malloc.tiny.root_free = &g_malloc.tiny.sentinel;
+	g_malloc.small.root_free = &g_malloc.small.sentinel;
+	g_malloc.large.root_free = &g_malloc.large.sentinel;
 }

@@ -16,12 +16,12 @@
 # include <fcntl.h>
 
 # ifndef TEST_MALLOC
-#  define MALLOC_NAME malloc
-#  define FREE_NAME free
-#  define REALLOC_NAME realloc
-#  define REALLOCARRAY_NAME reallocarray
-#  define CALLOC_NAME calloc
-#  define STRDUP_NAME strdup
+#  define MALLOC_NAME my_malloc
+#  define FREE_NAME my_free
+#  define REALLOC_NAME my_realloc
+#  define REALLOCARRAY_NAME my_reallocarray
+#  define CALLOC_NAME my_calloc
+#  define STRDUP_NAME my_strdup
 #else
 #  define MALLOC_NAME ft_malloc
 #  define FREE_NAME ft_free
@@ -109,15 +109,14 @@ typedef struct s_page_block
 typedef struct s_mutex_zone {
 	size_t max_size_malloc;
 	t_page *pages;
-	t_page *last;
+	t_page *last; // TODO sert a rien
 	t_block *root_free;
+	t_block sentinel;
 	pthread_mutex_t mutex;
 } t_mutex_zone;
 
 typedef struct s_malloc
 {
-	t_block sentinel;
-	t_block *NIL;
 	t_mutex_zone	tiny; // page liee au tiny malloc
 	t_mutex_zone	small; // page liee au small malloc
 	t_mutex_zone	large; // page liee au large malloc
@@ -134,7 +133,7 @@ extern pthread_mutex_t g_malloc_lock;
 t_block				*page_find_block_by_ptr(t_page *page, void *ptr,
 						t_block **prev_out);
 void				initialize_blocks(t_block *block, size_t size_of_block);
-void split_block(t_block *block, size_t size, t_mutex_zone *zone);
+void				split_block(t_block *block, size_t size, t_mutex_zone *zone);
 bool				find_block(t_page *pages, void *ptr, t_block **out);
 void				merge_block_with_next(t_mutex_zone *zone, t_block *block);
 void				merge_block_with_prev(t_mutex_zone *zone, t_block **block, t_block *prev_block);
@@ -150,8 +149,8 @@ int					print_err(const char *msg);
 
 
 
-t_block				*search_best_node(t_block *root, size_t size);
-void				delete_node_tree(t_block **root, t_block *to_del);
-void				insert_node_tree(t_block **root, t_block *to_add);
+t_block	*search_best_node(t_block *root, size_t size, t_block *NIL);
+void				delete_node_tree(t_block **root, t_block *to_del, t_block *NIL);
+void				insert_node_tree(t_block **root, t_block *to_add, t_block *NIL);
 
 #endif
