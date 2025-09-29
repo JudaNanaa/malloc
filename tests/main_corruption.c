@@ -1,9 +1,9 @@
 #include <stdio.h>
+#include <stdlib.h>
 #include <string.h>
 #include <unistd.h>
 #include <assert.h>
 #include <stdint.h>
-#include "../includes/malloc_internal.h"
 
 // Structure pour tracker les allocations
 typedef struct {
@@ -129,7 +129,7 @@ void test_simple_with_checks() {
     // Phase 1: Quelques allocations
     for (int i = 0; i < 10; i++) {
         size_t size = 64 + i * 32;
-        void* ptr = MALLOC_NAME(size);
+        void* ptr = malloc(size);
         
         if (!ptr) {
             printf(RED "ERREUR: Allocation %d échouée\n" RESET, i);
@@ -148,7 +148,7 @@ void test_simple_with_checks() {
         if (tracked[i].active) {
             printf("Free %d: %p\n", i, tracked[i].ptr);
             untrack_allocation(tracked[i].ptr);
-            FREE_NAME(tracked[i].ptr);
+            free(tracked[i].ptr);
             
             // Vérification après chaque libération
             verify_all_allocations("après libération");
@@ -175,7 +175,7 @@ void test_interleaved_with_checks() {
         // Alloue 20 blocs
         for (int i = 0; i < 20; i++) {
             size_t size = 32 + i * 16;
-            void* ptr = MALLOC_NAME(size);
+            void* ptr = malloc(size);
             
             if (!ptr) {
                 printf(RED "ERREUR: Allocation round %d, bloc %d échouée\n" RESET, round, i);
@@ -191,7 +191,7 @@ void test_interleaved_with_checks() {
         for (int i = 0; i < num_tracked; i++) {
             if (tracked[i].active && (i % 2 == 0)) {
                 untrack_allocation(tracked[i].ptr);
-                FREE_NAME(tracked[i].ptr);
+                free(tracked[i].ptr);
             }
         }
         
@@ -201,7 +201,7 @@ void test_interleaved_with_checks() {
         for (int i = 0; i < num_tracked; i++) {
             if (tracked[i].active) {
                 untrack_allocation(tracked[i].ptr);
-                FREE_NAME(tracked[i].ptr);
+                free(tracked[i].ptr);
             }
         }
         
@@ -235,7 +235,7 @@ void test_varied_sizes_intensive_checks() {
     // Alloue avec différentes tailles
     for (int i = 0; i < 50; i++) {
         size_t size = sizes[i % num_sizes];
-        void* ptr = MALLOC_NAME(size);
+        void* ptr = malloc(size);
         
         if (!ptr) {
             printf(RED "ERREUR: Allocation %d de taille %zu échouée\n" RESET, i, size);
@@ -257,7 +257,7 @@ void test_varied_sizes_intensive_checks() {
     for (int i = 0; i < num_tracked; i++) {
         if (tracked[i].active) {
             untrack_allocation(tracked[i].ptr);
-            FREE_NAME(tracked[i].ptr);
+            free(tracked[i].ptr);
             
             // Vérification après chaque libération
             if (i % 3 == 0) {
@@ -283,7 +283,7 @@ void test_write_intensive() {
     // Alloue quelques gros blocs
     for (int i = 0; i < 10; i++) {
         size_t size = 1024 + i * 512;
-        void* ptr = MALLOC_NAME(size);
+        void* ptr = malloc(size);
         
         if (!ptr) {
             printf(RED "ERREUR: Allocation gros bloc %d échouée\n" RESET, i);
@@ -315,7 +315,7 @@ void test_write_intensive() {
     for (int i = 0; i < num_tracked; i++) {
         if (tracked[i].active) {
             untrack_allocation(tracked[i].ptr);
-            FREE_NAME(tracked[i].ptr);
+            free(tracked[i].ptr);
         }
     }
     
@@ -329,7 +329,7 @@ void test_quick_sanity() {
     // Test basique: alloue, écrit, vérifie, libère
     for (int i = 0; i < 20; i++) {
         size_t size = 128;
-        void* ptr = MALLOC_NAME(size);
+        void* ptr = malloc(size);
         
         if (!ptr) {
             printf(RED "ERREUR: Sanity check allocation %d échouée\n" RESET, i);
@@ -348,7 +348,7 @@ void test_quick_sanity() {
             }
         }
         
-        FREE_NAME(ptr);
+        free(ptr);
         printf("Sanity %d: OK\n", i);
     }
     

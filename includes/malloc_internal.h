@@ -15,21 +15,12 @@
 # include <stdint.h>
 # include <fcntl.h>
 
-# ifndef TEST_MALLOC
-#  define MALLOC_NAME my_malloc
-#  define FREE_NAME my_free
-#  define REALLOC_NAME my_realloc
-#  define REALLOCARRAY_NAME my_reallocarray
-#  define CALLOC_NAME my_calloc
-#  define STRDUP_NAME my_strdup
-#else
-#  define MALLOC_NAME ft_malloc
-#  define FREE_NAME ft_free
-#  define REALLOC_NAME ft_realloc
-#  define REALLOCARRAY_NAME ft_reallocarray
-#  define CALLOC_NAME ft_calloc
-#  define STRDUP_NAME ft_strdup
-#endif
+#  define MALLOC_NAME malloc
+#  define FREE_NAME free
+#  define REALLOC_NAME realloc
+#  define REALLOCARRAY_NAME reallocarray
+#  define CALLOC_NAME calloc
+#  define STRDUP_NAME strdup
 
 # define n 256   // taille en bytes pour etre considerer comme tiny malloc
 # define m 4096 // taille en bytes pour etre considerer comme small malloc

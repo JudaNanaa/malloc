@@ -1,5 +1,5 @@
 CC = cc
-CFLAGS = -Wall -Wextra -Werror -fPIC -fvisibility=hidden -g3 #-DTEST_MALLOC
+CFLAGS = -Wall -Wextra -Werror -fPIC -fvisibility=hidden -g3
 
 RBTREE = $(addprefix rbTree/, deletion.c insertion.c rotation.c search.c)
 
@@ -27,10 +27,7 @@ GREEN= 	$(shell tput -Txterm setaf 2)
 BLUE=	$(shell tput -Txterm setaf 6)
 END= 	$(shell tput -Txterm sgr0)
 
-all: $(PRINTF) $(NAME) $(LINK) test
-
-test: $(OBJS)
-	$(CC) -pg $(OBJS) tests/main.c -o test_malloc -L $(PRINTF_DIR) -lftprintf -lpthread -g3
+all: $(PRINTF) $(NAME) $(LINK)
 
 # --- Création de la lib malloc ---
 $(NAME): $(OBJS)

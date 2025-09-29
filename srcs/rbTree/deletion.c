@@ -31,120 +31,95 @@ void fix_delete(t_block **root, t_block *node, t_block *NIL)
 {
     t_block *sibling;
 
-    // while (node != *root && (node == NIL || node->color == BLACK)) {
     while (node != *root && (node == NIL || IS_BLOCK_BLACK(node))) {
-        if (node == node->parent->left) // ✅ Vérification plus sûre
+        if (node == node->parent->left) // node est enfant gauche
         {
             sibling = node->parent->right;
-            
+
             // Cas 1: Sibling rouge
-            // if (sibling->color == RED)
             if (IS_BLOCK_RED(sibling))
             {
-				SET_BLOCK_BLACK(sibling);
-                // sibling->color = BLACK;
-				SET_BLOCK_RED(node->parent);
-                // node->parent->color = RED;
+                SET_BLOCK_BLACK(sibling);
+                SET_BLOCK_RED(node->parent);
                 left_rotation(root, node->parent, NIL);
-                sibling = node->parent->right; // ✅ Mise à jour du sibling !
+                sibling = node->parent->right; // mise à jour du sibling
             }
-            
+
             // Cas 2: Sibling noir avec enfants noirs
-            // if ((sibling->left == NIL || sibling->left->color == BLACK) &&
-            //     (sibling->right == NIL || sibling->right->color == BLACK))
             if (sibling == NIL || ((sibling->left == NIL || IS_BLOCK_BLACK(sibling->left)) &&
-                (sibling->right == NIL || IS_BLOCK_BLACK(sibling->right))))
+                                   (sibling->right == NIL || IS_BLOCK_BLACK(sibling->right))))
             {
-				SET_BLOCK_RED(sibling);
-                // sibling->color = RED;
+                SET_BLOCK_RED(sibling);
                 node = node->parent;
             }
             else
             {
                 // Cas 3: Sibling noir, enfant droit noir, enfant gauche rouge
-                // if (sibling->right == NIL || sibling->right->color == BLACK)
                 if (sibling->right == NIL || IS_BLOCK_BLACK(sibling->right))
                 {
                     if (sibling->left != NIL)
-                        // sibling->left->color = BLACK;
                         SET_BLOCK_BLACK(sibling->left);
-					SET_BLOCK_RED(sibling);
-                    // sibling->color = RED;
+                    SET_BLOCK_RED(sibling);
                     right_rotation(root, sibling, NIL);
                     sibling = node->parent->right;
                 }
-                
+
                 // Cas 4: Sibling noir, enfant droit rouge
-				COPY_BLOCK_COLOR(sibling, node->parent);
-                // sibling->color = node->parent->color;
-				SET_BLOCK_BLACK(node->parent);
-                // node->parent->color = BLACK;
+                COPY_BLOCK_COLOR(sibling, node->parent);
+                SET_BLOCK_BLACK(node->parent);
                 if (sibling->right != NIL)
-                    // sibling->right->color = BLACK;
-					SET_BLOCK_BLACK(sibling->right);
+                    SET_BLOCK_BLACK(sibling->right);
                 left_rotation(root, node->parent, NIL);
-                node = *root; // ✅ Sortie de la boucle
+                node = *root; // sortie de la boucle
             }
         }
         else // node est enfant droit (symétrique)
         {
             sibling = node->parent->left;
-            
+
             // Cas 1: Sibling rouge
-            // if (sibling->color == RED)
             if (IS_BLOCK_RED(sibling))
             {
-				SET_BLOCK_BLACK(sibling);
-                // sibling->color = BLACK;
-				SET_BLOCK_RED(node->parent);
-                // node->parent->color = RED;
+                SET_BLOCK_BLACK(sibling);
+                SET_BLOCK_RED(node->parent);
                 right_rotation(root, node->parent, NIL);
-                sibling = node->parent->right; // ✅ Mise à jour du sibling !
+                sibling = node->parent->left; // mise à jour du sibling
             }
-            
+
             // Cas 2: Sibling noir avec enfants noirs
-            // if ((sibling->right == NIL || sibling->right->color == BLACK) &&
-            //     (sibling->right == NIL || sibling->right->color == BLACK))
-            if (sibling == NIL || ((sibling->right == NIL || IS_BLOCK_BLACK(sibling->right)) &&
-                (sibling->right == NIL || IS_BLOCK_BLACK(sibling->right))))
+            if (sibling == NIL || ((sibling->left == NIL || IS_BLOCK_BLACK(sibling->left)) &&
+                                   (sibling->right == NIL || IS_BLOCK_BLACK(sibling->right))))
             {
-				SET_BLOCK_RED(sibling);
-                // sibling->color = RED;
+                SET_BLOCK_RED(sibling);
                 node = node->parent;
             }
             else
             {
-                // Cas 3: Sibling noir, enfant droit noir, enfant gauche rouge
-                // if (sibling->right == NIL || sibling->right->color == BLACK)
-                if (sibling->right == NIL || IS_BLOCK_BLACK(sibling->right))
+                // Cas 3: Sibling noir, enfant gauche noir, enfant droit rouge
+                if (sibling->left == NIL || IS_BLOCK_BLACK(sibling->left))
                 {
                     if (sibling->right != NIL)
-                        // sibling->right->color = BLACK;
                         SET_BLOCK_BLACK(sibling->right);
-					SET_BLOCK_RED(sibling);
-                    // sibling->color = RED;
-                    right_rotation(root, sibling, NIL);
-                    sibling = node->parent->right;
+                    SET_BLOCK_RED(sibling);
+                    left_rotation(root, sibling, NIL);
+                    sibling = node->parent->left;
                 }
-                
-                // Cas 4: Sibling noir, enfant droit rouge
-				COPY_BLOCK_COLOR(sibling, node->parent);
-                // sibling->color = node->parent->color;
-				SET_BLOCK_BLACK(node->parent);
-                // node->parent->color = BLACK;
-                if (sibling->right != NIL)
-                    // sibling->right->color = BLACK;
-					SET_BLOCK_BLACK(sibling->right);
+
+                // Cas 4: Sibling noir, enfant gauche rouge
+                COPY_BLOCK_COLOR(sibling, node->parent);
+                SET_BLOCK_BLACK(node->parent);
+                if (sibling->left != NIL)
+                    SET_BLOCK_BLACK(sibling->left);
                 right_rotation(root, node->parent, NIL);
-                node = *root; // ✅ Sortie de la boucle
+                node = *root; // sortie de la boucle
             }
         }
     }
-    
+
     if (node != NIL)
-		SET_BLOCK_BLACK(node);
-        // node->color = BLACK;
+        SET_BLOCK_BLACK(node);
 }
+
 
 bool check_if_same(t_block **root, t_block *to_del, t_block *NIL)
 {
