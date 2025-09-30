@@ -6,13 +6,11 @@ char	*strdup_internal(const char *s)
 	char	*dest;
 	size_t	len;
 
-	if (s == NULL)
-		return NULL;
 	len = strlen(s);
-	dest = malloc_internal(len + 1);
+	dest = lock_malloc(len + 1);
 	if (dest == NULL)
 		return (dest);
-	return (memmove(dest, s, len + 1));
+	return (memcpy(dest, s, len + 1));
 }
 
 __attribute__((visibility("default")))

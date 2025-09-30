@@ -3,7 +3,7 @@
 #include <unistd.h>
 #include <stdint.h>
 #include <stdlib.h>
-
+#include "../includes/lib_malloc.h"
 
 // Couleurs pour les tests
 #define GREEN "\033[32m"
@@ -352,7 +352,6 @@ void test_multiple_allocations() {
     
     test_result(success_count == num_allocs, "Multiple allocations all succeed");
     printf("Allocated %d/%d blocks successfully\n", success_count, num_allocs);
-    
     
     
     // Vérifier l'intégrité des données
@@ -724,7 +723,7 @@ void test_calloc_extreme() {
 }
 
 void test_reallocarray_basic() {
-    TEST_SECTION("reallocARRAY BASIC TESTS");
+    TEST_SECTION("reallocarray BASIC TESTS");
     
     // Test 1: reallocarray(NULL, nmemb, size) = calloc(nmemb, size)
     int *arr = reallocarray(NULL, 10, sizeof(int));
@@ -796,7 +795,7 @@ void test_reallocarray_basic() {
 }
 
 void test_reallocarray_overflow() {
-    TEST_SECTION("reallocARRAY OVERFLOW TESTS");
+    TEST_SECTION("reallocarray OVERFLOW TESTS");
     
     // Test overflow detection avec un pointeur existant
     void *ptr = calloc(100, 1);
@@ -834,7 +833,7 @@ void test_reallocarray_overflow() {
 }
 
 void test_reallocarray_categories() {
-    TEST_SECTION("reallocARRAY SIZE CATEGORIES");
+    TEST_SECTION("reallocarray SIZE CATEGORIES");
     
     // TINY -> SMALL
     char *ptr = reallocarray(NULL, 64, 1); // 64 bytes TINY
@@ -929,7 +928,7 @@ void test_reallocarray_categories() {
 }
 
 void test_reallocarray_edge_cases() {
-    TEST_SECTION("reallocARRAY EDGE CASES");
+    TEST_SECTION("reallocarray EDGE CASES");
     
     // Test reallocarray(ptr, 0, size) 
     void *ptr = calloc(100, 1);
@@ -993,7 +992,7 @@ void test_reallocarray_edge_cases() {
 }
 
 void test_reallocarray_stress() {
-    TEST_SECTION("reallocARRAY STRESS TEST");
+    TEST_SECTION("reallocarray STRESS TEST");
     
     // Tableau qui grandit et rétrécit de façon dynamique
     int *dynamic_arr = NULL;
@@ -1042,7 +1041,7 @@ void test_reallocarray_stress() {
 }
 
 void test_reallocarray_data_integrity() {
-    TEST_SECTION("reallocARRAY DATA INTEGRITY");
+    TEST_SECTION("reallocarray DATA INTEGRITY");
     
     // Test avec un pattern spécifique
     struct data_block {
@@ -1090,7 +1089,7 @@ void test_reallocarray_data_integrity() {
 }
 
 void test_calloc_reallocarray_interaction() {
-    TEST_SECTION("calloc + reallocARRAY INTERACTION");
+    TEST_SECTION("calloc + reallocarray INTERACTION");
     
     // Créer un tableau avec calloc
     long *arr = calloc(20, sizeof(long));
@@ -1152,7 +1151,7 @@ void test_calloc_reallocarray_interaction() {
 }
 
 void test_reallocarray_boundary() {
-    TEST_SECTION("reallocARRAY BOUNDARY TESTS");
+    TEST_SECTION("reallocarray BOUNDARY TESTS");
     
     // Tests aux limites exactes des catégories
     void *tiny_max = reallocarray(NULL, 128, 1); // Max TINY
@@ -1194,7 +1193,7 @@ void test_reallocarray_boundary() {
 }
 
 void test_strdup_basic() {
-    TEST_SECTION("STRDUP BASIC TESTS");
+    TEST_SECTION("strdup BASIC TESTS");
     
     // Test 1: chaîne vide
     char *empty = strdup("");
@@ -1239,7 +1238,7 @@ void test_strdup_basic() {
 }
 
 void test_strdup_sizes() {
-    TEST_SECTION("STRDUP SIZE CATEGORIES");
+    TEST_SECTION("strdup SIZE CATEGORIES");
     
     // Test TINY (≤ 128 bytes)
     // Chaîne de 64 caractères (65 avec \0)
@@ -1314,7 +1313,7 @@ void test_strdup_sizes() {
 }
 
 void test_strdup_content_integrity() {
-    TEST_SECTION("STRDUP CONTENT INTEGRITY");
+    TEST_SECTION("strdup CONTENT INTEGRITY");
     
     // Test avec tous les caractères ASCII imprimables
     char ascii_source[96]; // 32-126 + \0
@@ -1376,7 +1375,7 @@ void test_strdup_content_integrity() {
 }
 
 void test_strdup_independence() {
-    TEST_SECTION("STRDUP MEMORY INDEPENDENCE");
+    TEST_SECTION("strdup MEMORY INDEPENDENCE");
     
     // Test que la copie est indépendante de l'original
     char original[] = "Original string";
@@ -1421,7 +1420,7 @@ void test_strdup_independence() {
 }
 
 void test_strdup_extreme_sizes() {
-    TEST_SECTION("STRDUP EXTREME SIZES");
+    TEST_SECTION("strdup EXTREME SIZES");
     
     // Test chaîne d'un seul caractère
     char *single = strdup("X");
@@ -1476,7 +1475,7 @@ void test_strdup_extreme_sizes() {
 }
 
 void test_strdup_special_chars() {
-    TEST_SECTION("STRDUP SPECIAL CHARACTERS");
+    TEST_SECTION("strdup SPECIAL CHARACTERS");
     
     // Test avec caractères Unicode/UTF-8 (si supportés)
     char *utf8 = strdup("Héllo Wörld! 🌍 café");
@@ -1528,7 +1527,7 @@ void test_strdup_special_chars() {
 }
 
 void test_strdup_alignment() {
-    TEST_SECTION("STRDUP ALIGNMENT TESTS");
+    TEST_SECTION("strdup ALIGNMENT TESTS");
     
     // Tester l'alignement avec différentes tailles
     char *ptrs[10];
@@ -1559,7 +1558,7 @@ void test_strdup_alignment() {
 }
 
 void test_strdup_stress() {
-    TEST_SECTION("STRDUP STRESS TESTS");
+    TEST_SECTION("strdup STRESS TESTS");
     
     // Allouer beaucoup de chaînes de tailles variées
     const int num_strings = 1000;
@@ -1618,7 +1617,6 @@ void test_strdup_stress() {
             frags[i] = NULL;
         }
     }
-    
     // Réallouer des chaînes dans les trous
     for (int i = 1; i < 50; i += 2) {
         char temp[50];
@@ -1638,7 +1636,7 @@ void test_strdup_stress() {
 }
 
 void test_strdup_null_handling() {
-    TEST_SECTION("STRDUP NULL HANDLING");
+    TEST_SECTION("strdup NULL HANDLING");
     
     // Note: strdup(NULL) n'est pas défini par le standard C
     // Votre implémentation peut soit:
@@ -1661,7 +1659,7 @@ void test_strdup_null_handling() {
 }
 
 void test_strdup_boundary_conditions() {
-    TEST_SECTION("STRDUP BOUNDARY CONDITIONS");
+    TEST_SECTION("strdup BOUNDARY CONDITIONS");
     
     // Test exactement aux limites des catégories de malloc
     
@@ -2174,7 +2172,6 @@ int main() {
             free(thread_data[i].allocated_sizes);  // free standard
         }
     }
-    
 	// 
     if (total_errors == 0) {
         printf("\n✅ TOUS LES TESTS SONT PASSÉS!\n");
