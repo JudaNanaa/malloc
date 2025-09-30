@@ -28,6 +28,7 @@ BLUE=	$(shell tput -Txterm setaf 6)
 END= 	$(shell tput -Txterm sgr0)
 
 all: $(PRINTF) $(NAME) $(LINK)
+	@echo "$(GREEN)✅ Compilation terminee $(END)"
 
 # --- Création de la lib malloc ---
 $(NAME): $(OBJS)
