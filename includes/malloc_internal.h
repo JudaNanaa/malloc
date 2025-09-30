@@ -100,7 +100,7 @@ typedef struct s_page_block
 typedef struct s_mutex_zone {
 	size_t max_size_malloc;
 	t_page *pages;
-	t_page *last; // TODO sert a rien
+	t_page *last;
 	t_block *root_free;
 	t_block sentinel;
 	pthread_mutex_t mutex;

@@ -1,5 +1,5 @@
 CC = cc
-CFLAGS = -Wall -Wextra -Werror -fPIC -fvisibility=hidden -g3
+CFLAGS = -Wall -Wextra -Werror -fPIC -fvisibility=hidden
 
 RBTREE = $(addprefix rbTree/, deletion.c insertion.c rotation.c search.c)
 
