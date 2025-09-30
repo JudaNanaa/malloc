@@ -1,8 +1,5 @@
 #include "../../includes/malloc_internal.h"
 #include "rbTree.h"
-#include <stdbool.h>
-
-// Version corrigée de votre implémentation
 
 t_block *minimum(t_block *node, t_block *NIL)
 {
@@ -21,9 +18,6 @@ void transplant(t_block **root, t_block *u, t_block *v)
         u->parent->left = v;
     else
         u->parent->right = v;
-    
-    // ✅ Protection contre g_malloc.NIL
-    // if (v != g_malloc.NIL)
     v->parent = u->parent;
 }
 
@@ -193,10 +187,7 @@ void delete_node_tree(t_block **root, t_block *to_del, t_block *NIL)
         fix_node = replacement->right;
         
         if (replacement->parent == to_del)
-        {
-            // if (fix_node != NIL)
                 fix_node->parent = replacement;
-        }
         else
         {
             transplant(root, replacement, replacement->right);
@@ -219,7 +210,6 @@ void delete_node_tree(t_block **root, t_block *to_del, t_block *NIL)
     
     if (*root != NIL)
 		SET_BLOCK_BLACK(*root);
-        // (*root)->color = BLACK;
         
     if (NIL != NULL)
 		NIL->parent = NULL;

@@ -1,7 +1,4 @@
 #include "../includes/malloc_internal.h"
-#include <stdio.h>
-#include <pthread.h>
-#include <unistd.h>
 
 void hex_dump_block(t_block *block)
 {

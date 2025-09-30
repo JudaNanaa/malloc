@@ -4,11 +4,8 @@
 void fix_insert_case_1_2(t_block **node, t_block *uncle)
 {
 	SET_BLOCK_BLACK(uncle);
-	// uncle->color = BLACK;
 	SET_BLOCK_BLACK((*node)->parent);
-	// (*node)->parent->color = BLACK;
 	SET_BLOCK_RED((*node)->parent->parent);
-	// (*node)->parent->parent->color = RED;
 	*node = (*node)->parent->parent;
 }
 
@@ -16,7 +13,6 @@ void fix_insert(t_block **root, t_block *node, t_block *NIL)
 {
 	t_block *uncle;
 
-	// while (node->parent->color == RED) // if parent is red, red-red confilct
 	while (IS_BLOCK_RED(node->parent)) // if parent is red, red-red confilct
 	{
 		if (node->parent == node->parent->parent->left)
@@ -32,9 +28,7 @@ void fix_insert(t_block **root, t_block *node, t_block *NIL)
 					left_rotation(root, node, NIL);
 				}
 				SET_BLOCK_BLACK(node->parent);
-				// node->parent->color = BLACK;
 				SET_BLOCK_RED(node->parent->parent);
-				// node->parent->parent->color = RED;
 				right_rotation(root, node->parent->parent, NIL);
 			}
 
@@ -42,7 +36,6 @@ void fix_insert(t_block **root, t_block *node, t_block *NIL)
 		else
 		{
 			uncle = node->parent->parent->left;
-			// if (uncle->color == RED)
 			if (IS_BLOCK_RED(uncle))
 				fix_insert_case_1_2(&node, uncle);
 			else
@@ -53,15 +46,12 @@ void fix_insert(t_block **root, t_block *node, t_block *NIL)
 					right_rotation(root, node, NIL);
 				}
 				SET_BLOCK_BLACK(node->parent);
-				// node->parent->color = BLACK;
 				SET_BLOCK_RED(node->parent->parent);
-				// node->parent->parent->color = RED;
 				left_rotation(root, node->parent->parent, NIL);
 			}
 		}
 	}
 	SET_BLOCK_BLACK(*root);
-	// (*root)->color = BLACK;
 }
 
 void add_to_same_size(t_block *first, t_block *new)
@@ -83,7 +73,6 @@ void insert_node_tree(t_block **root, t_block *to_add, t_block *NIL)
 	current = *root;
 	to_add->left = NIL;
 	to_add->right = NIL;
-	// to_add->color = RED;
 	SET_BLOCK_RED(to_add);
 	while (current && current != NIL) {
 		parent = current;

@@ -1,9 +1,4 @@
 #include "../includes/malloc_internal.h"
-#include <asm-generic/errno-base.h>
-#include <errno.h>
-#include <stdbool.h>
-#include <stdint.h>
-#include <stdlib.h>
 
 t_malloc	g_malloc = {
 	.tiny = {.max_size_malloc = n, .pages = NULL, .last = NULL,
