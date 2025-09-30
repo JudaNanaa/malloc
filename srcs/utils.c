@@ -86,7 +86,7 @@ bool	find_block(t_page *pages, void *ptr, t_block **out)
 		}
 		current_page = current_page->next;
 	}
-	out = NULL;
+	*out = NULL;
 	return (false);
 }
 
